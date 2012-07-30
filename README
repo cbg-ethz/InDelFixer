@@ -1,0 +1,36 @@
+#CONTENT:
+This java command line application aligns Next-Generation Sequencing (NGS) reads
+to a reference sequence, by a fast k-mer matching and removes indels, causing
+frame shifts. In addition, only specific regions can be considered.
+
+#PREREQUISITES TO RUN:
+ - JDK 7 (http://jdk7.java.net/)
+ - Get latest version: https://github.com/armintoepfer/QuasiAlign/downloads
+
+#RUN:
+ java -jar QuasiAlign.jar -i libCase102.sff -g referenceGenome.fasta
+ or
+ java -jar QuasiAlign.jar -i libCase102.fasta -g referenceGenome.fasta
+
+#USE / SHOW HELP:
+ java -jar QuasiAlign.jar
+
+#Extract reads of particular regions
+ java -jar QuasiAlign.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944,1239-3889
+
+#CONTACT:
+ Armin Töpfer
+ armin.toepfer (at) gmail.com
+ http://www.bsse.ethz.ch/cbg/people/toepfera
+
+
+#PREREQUISITES COMPILE (only for dev):
+ - Maven 3 (http://maven.apache.org/)
+
+#INSTALL (only for dev):
+ cd QuasiAlign
+ mvn clean package
+ java -jar QuasiAlign/target/QuasiAlign.jar --help
+
+#LICENSE:
+ GNU GPLv3 http://www.gnu.org/licenses/gpl-3.0
