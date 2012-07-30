@@ -9,7 +9,15 @@
     <packaging>jar</packaging>
 
     <name>QuasiAlign</name>
-    <url>http://maven.apache.org</url>
+    <url>http://www.bsse.ethz.ch/cbg/people/toepfera</url>
+    
+    <developers>
+        <developer>
+            <id>toepfera</id>
+            <name>Armin Töpfer</name>
+            <email>armin.toepfer@gmail.com</email>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
