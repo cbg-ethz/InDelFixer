@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ch.ethz.bsse.quasialign;
+package ch.ethz.bsse.InDelFixer;
 
-import ch.ethz.bsse.quasialign.stored.Globals;
-import ch.ethz.bsse.quasialign.stored.Read;
+import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.Read;
 import jaligner.matrix.MatrixLoaderException;
 import org.junit.*;
 

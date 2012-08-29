@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.ethz.bsse</groupId>
-    <artifactId>QuasiAlign</artifactId>
-    <version>0.1-alpha</version>
+    <artifactId>InDelFixer</artifactId>
+    <version>0.1</version>
     <packaging>jar</packaging>
 
-    <name>QuasiAlign</name>
+    <name>InDelFixer</name>
     <url>http://www.bsse.ethz.ch/cbg/people/toepfera</url>
     
     <developers>
@@ -44,7 +44,7 @@
                     </excludes>-->
                     <archive>
                         <manifest>
-                            <mainClass>ch.ethz.bsse.quasialign.Startup</mainClass>
+                            <mainClass>ch.ethz.bsse.InDelFixer.Startup</mainClass>
                         </manifest>
                         <manifestEntries>
                             <mode>development</mode>
@@ -68,7 +68,7 @@
                             <attachToBuild>true</attachToBuild>
                             <!-- Optional, default is "onejar" -->
                             <classifier>full</classifier>
-                            <filename>QuasiAlign.jar</filename>
+                            <filename>InDelFixer.jar</filename>
                         </configuration>
                         <goals>
                             <goal>one-jar</goal>

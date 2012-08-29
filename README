@@ -5,18 +5,18 @@ frame shifts. In addition, only specific regions can be considered.
 
 #PREREQUISITES TO RUN:
  - JDK 7 (http://jdk7.java.net/)
- - Get latest version: https://github.com/armintoepfer/QuasiAlign/downloads
+ - Get latest version: https://github.com/armintoepfer/InDelFixer/downloads
 
 #RUN:
- java -jar QuasiAlign.jar -i libCase102.sff -g referenceGenome.fasta
+ java -jar InDelFixer.jar -i libCase102.sff -g referenceGenome.fasta
  or
- java -jar QuasiAlign.jar -i libCase102.fasta -g referenceGenome.fasta
+ java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenome.fasta
 
 #USE / SHOW HELP:
- java -jar QuasiAlign.jar
+ java -jar InDelFixer.jar
 
 #Extract reads of particular regions
- java -jar QuasiAlign.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944,1239-3889
+ java -jar InDelFixer.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944,1239-3889
 
 #CONTACT:
  Armin Töpfer
@@ -28,9 +28,9 @@ frame shifts. In addition, only specific regions can be considered.
  - Maven 3 (http://maven.apache.org/)
 
 #INSTALL (only for dev):
- cd QuasiAlign
+ cd InDelFixer
  mvn clean package
- java -jar QuasiAlign/target/QuasiAlign.jar --help
+ java -jar InDelFixer/target/InDelFixer.jar --help
 
 #LICENSE:
  GNU GPLv3 http://www.gnu.org/licenses/gpl-3.0

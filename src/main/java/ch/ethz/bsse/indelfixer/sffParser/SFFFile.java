@@ -1,6 +1,6 @@
-package ch.ethz.bsse.quasialign.sffParser;
+package ch.ethz.bsse.indelfixer.sffParser;
 
-import ch.ethz.bsse.quasialign.utils.StatusUpdate;
+import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;

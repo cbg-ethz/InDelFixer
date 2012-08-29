@@ -1,29 +1,29 @@
 /**
  * Copyright (c) 2011-2012 Armin Töpfer
  *
- * This file is part of QuasiAlign.
+ * This file is part of InDelFixer.
  *
- * QuasiAlign is free software: you can redistribute it and/or modify it under
+ * InDelFixer is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * QuasiAlign is distributed in the hope that it will be useful, but WITHOUT
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * QuasiAlign. If not, see <http://www.gnu.org/licenses/>.
+ * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.ethz.bsse.quasialign;
+package ch.ethz.bsse.indelfixer;
 
-import ch.ethz.bsse.quasialign.sffParser.SFFParsing;
-import ch.ethz.bsse.quasialign.stored.Globals;
-import ch.ethz.bsse.quasialign.stored.Read;
-import ch.ethz.bsse.quasialign.utils.Cutter;
-import ch.ethz.bsse.quasialign.utils.FastaParser;
-import ch.ethz.bsse.quasialign.utils.StatusUpdate;
-import ch.ethz.bsse.quasialign.utils.Utils;
+import ch.ethz.bsse.indelfixer.sffParser.SFFParsing;
+import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.Read;
+import ch.ethz.bsse.indelfixer.utils.Cutter;
+import ch.ethz.bsse.indelfixer.utils.FastaParser;
+import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
+import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,7 +75,6 @@ public class Startup {
             }
             if (!new File(this.output).exists()) {
                 new File(this.output).mkdirs();
-
             }
 
             if (this.input == null && this.genome == null) {
@@ -173,7 +172,7 @@ public class Startup {
             }
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
-            System.err.println("java -jar QuasiAlign.jar options...\n");
+            System.err.println("java -jar InDelFixer.jar options...\n");
             System.err.println(" ------------------------");
             System.err.println(" === GENERAL options ===");
             System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory)");
@@ -183,13 +182,13 @@ public class Startup {
 //            System.err.println("  -verbose\t\t: Print debug information");
             System.err.println(" ------------------------");
             System.err.println("");
-            System.err.println(" Example: java -jar QuasiAlign.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944,1239-3889");
+            System.err.println(" Example: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944,1239-3889");
         }
 
 
 //        StatusUpdate.println("Init");
 
-//        new Workflow(args[0]+"/Dropbox/QuasiAlign/src/main/resources/HIV1.fas", args[0]+"/Dropbox/QuasiAlign/src/main/resources/haplotypes/SRR069887.far");
+//        new Workflow(args[0]+"/Dropbox/InDelFixer/src/main/resources/HIV1.fas", args[0]+"/Dropbox/InDelFixer/src/main/resources/haplotypes/SRR069887.far");
     }
 
     private void saveReads(int[][] rs) {
@@ -219,7 +218,7 @@ public class Startup {
                         cuts++;
                     }
                     if (read.getEnd() > rs[j][1] && read.getBegin() < rs[j][1]) {
-                        String s = read.getAlignedRead().substring(0, read.getEnd() - rs[j][1]);
+                        String s = read.getAlignedRead().substring(0, rs[j][1] - read.getBegin());
                         if (s.length() < 150) {
                             continue;
                         }

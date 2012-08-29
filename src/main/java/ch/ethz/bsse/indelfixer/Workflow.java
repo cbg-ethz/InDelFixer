@@ -1,33 +1,33 @@
 /**
  * Copyright (c) 2011-2012 Armin Töpfer
  *
- * This file is part of QuasiAlign.
+ * This file is part of InDelFixer.
  *
- * QuasiAlign is free software: you can redistribute it and/or modify it under
+ * InDelFixer is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * QuasiAlign is distributed in the hope that it will be useful, but WITHOUT
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  *
  * You should have received a copy of the GNU General Public License along with
- * QuasiAlign. If not, see <http://www.gnu.org/licenses/>.
+ * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.ethz.bsse.quasialign;
+package ch.ethz.bsse.indelfixer;
 
-import ch.ethz.bsse.quasialign.parallel.AlignWorker;
-import ch.ethz.bsse.quasialign.stored.Globals;
-import ch.ethz.bsse.quasialign.utils.FastaParser;
-import ch.ethz.bsse.quasialign.parallel.IndexWorker;
-import ch.ethz.bsse.quasialign.parallel.ReadWorker;
-import ch.ethz.bsse.quasialign.stored.Genome;
-import ch.ethz.bsse.quasialign.stored.InformationHolder;
-import ch.ethz.bsse.quasialign.stored.Read;
-import ch.ethz.bsse.quasialign.utils.Plot;
-import ch.ethz.bsse.quasialign.utils.StatusUpdate;
-import ch.ethz.bsse.quasialign.utils.Utils;
+import ch.ethz.bsse.indelfixer.parallel.AlignWorker;
+import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.utils.FastaParser;
+import ch.ethz.bsse.indelfixer.parallel.IndexWorker;
+import ch.ethz.bsse.indelfixer.parallel.ReadWorker;
+import ch.ethz.bsse.indelfixer.stored.Genome;
+import ch.ethz.bsse.indelfixer.stored.InformationHolder;
+import ch.ethz.bsse.indelfixer.stored.Read;
+import ch.ethz.bsse.indelfixer.utils.Plot;
+import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
+import ch.ethz.bsse.indelfixer.utils.Utils;
 import jaligner.matrix.Matrix;
 import jaligner.matrix.MatrixLoader;
 import jaligner.matrix.MatrixLoaderException;
