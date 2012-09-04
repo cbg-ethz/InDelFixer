@@ -52,10 +52,6 @@ public class Startup {
     private boolean save = false;
     @Option(name = "-regions")
     private String regions;
-    @Option(name = "-heuristic")
-    private boolean heuristic = false;
-    @Option(name = "--fill")
-    private boolean fill = false;
 
     public static void main(String[] args) throws IOException {
         new Startup().doMain(args);
@@ -81,9 +77,7 @@ public class Startup {
                 throw new CmdLineException("");
             }
             Globals.KMER_OVERLAP = this.overlap;
-            Globals.FILL = this.fill;
             Globals.SAVE = this.save;
-            Globals.HEURISTIC = this.heuristic;
             Workflow workflow;
             if (Utils.isFastaFormat(this.input)) {
                 workflow = new Workflow(this.genome, FastaParser.parseFarFile(input));

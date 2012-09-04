@@ -44,7 +44,7 @@
                     </excludes>-->
                     <archive>
                         <manifest>
-                            <mainClass>ch.ethz.bsse.InDelFixer.Startup</mainClass>
+                            <mainClass>ch.ethz.bsse.indelfixer.Startup</mainClass>
                         </manifest>
                         <manifestEntries>
                             <mode>development</mode>

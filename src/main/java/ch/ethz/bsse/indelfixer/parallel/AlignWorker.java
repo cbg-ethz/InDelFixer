@@ -7,10 +7,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
@@ -81,30 +80,28 @@ public class AlignWorker extends RecursiveTask<Void> {
                 if (m.length != c.length) {
                     System.err.println("DIFFERENT LENGTHS");
                 }
-//                if (Globals.FILL) {
-                    for (int j = 0; j < L; j++) {
-                        if (g[j] != '-') {
-                            switch (c[j]) {
-                                case '-':
-                                case 'N':
-                                    sb.append(g[j]);
-                                    miss[j] = true;
-                                    break;
-                                default:
-                                    sb.append(c[j]);
-                                    break;
-                            }
-                        }
-                        sum10 += miss[j] ? 1 : 0;
-                        if (j > 10) {
-                            if (sum10 >= 3) {
-                                good = false;
+                for (int j = 0; j < L; j++) {
+                    if (g[j] != '-') {
+                        switch (c[j]) {
+                            case '-':
+                            case 'N':
+                                sb.append(g[j]);
+                                miss[j] = true;
                                 break;
-                            }
-                            sum10 -= miss[j - 10] ? 1 : 0;
+                            default:
+                                sb.append(c[j]);
+                                break;
                         }
                     }
-//                }
+                    sum10 += miss[j] ? 1 : 0;
+                    if (j > 10) {
+                        if (sum10 >= 3) {
+                            good = false;
+                            break;
+                        }
+                        sum10 -= miss[j - 10] ? 1 : 0;
+                    }
+                }
                 if (good) {
                     r.setAlignedRead(sb.toString());
                     r.setEnd(r.getBegin() + sb.length());

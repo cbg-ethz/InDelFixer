@@ -27,9 +27,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
-    public static boolean FILL;
     public static boolean SAVE;
-    public static boolean HEURISTIC;
     public static int STEPSIZE = 1000;
     public static int KMER_OVERLAP = 10;
     public static int KMER_LENGTH = 50;
