@@ -22,6 +22,7 @@ import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.FastaParser;
 import ch.ethz.bsse.indelfixer.parallel.IndexWorker;
 import ch.ethz.bsse.indelfixer.parallel.ReadWorker;
+import ch.ethz.bsse.indelfixer.parallel.ReadWorkerPairedEnd;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.InformationHolder;
 import ch.ethz.bsse.indelfixer.stored.Read;
@@ -37,6 +38,8 @@ import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 /**
  *
@@ -51,7 +54,20 @@ public class Workflow {
     public Workflow(String genomePath, String[] readsString) {
         this.genome = parseGenome(genomePath);
         Globals.N = readsString.length;
+        Globals.KMER_LENGTH = 10;
         this.reads = Globals.fjPool.invoke(new ReadWorker(0, Globals.N, readsString));
+        this.ih = new InformationHolder(this.reads, this.genome.getSequence().length());
+        Globals.INFO_HOLDER = ih;
+        StatusUpdate.println("Processing reads:\t\t100%");
+        this.map();
+        this.align();
+    }
+    
+    public Workflow(String genomePath, List<Triplet<String,String, Integer>> readsString) {
+        this.genome = parseGenome(genomePath);
+        Globals.KMER_LENGTH = 10;
+        Globals.N = readsString.size();
+        this.reads = Globals.fjPool.invoke(new ReadWorkerPairedEnd(0, Globals.N, readsString));
         this.ih = new InformationHolder(this.reads, this.genome.getSequence().length());
         Globals.INFO_HOLDER = ih;
         StatusUpdate.println("Processing reads:\t\t100%");
@@ -62,7 +78,7 @@ public class Workflow {
     private Genome parseGenomeRead(String genomePath) {
         Genome g;
         String out = "";
-        for (int i = 20;; i++) {
+        for (int i = 50;; i++) {
             out = "Searching for smallest kmer:\t";
             try {
                 Globals.KMER_LENGTH = i;
@@ -105,6 +121,9 @@ public class Workflow {
             StatusUpdate.print("Sorting:\t\t\t"+i);
             Read readF = forward.get(i);
             Read readR = reverse.get(i);
+            if (readF.getDescription().equals("generator-0_746_1245_0")){
+                System.out.println("");
+            }
             if (readF.getMaximumHits() > readR.getMaximumHits()) {
                 this.reads.add(readF);
             } else {

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ch.ethz.bsse.InDelFixer;
+package ch.ethz.bsse.indelfixer;
 
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import org.junit.*;

@@ -30,7 +30,7 @@ public class Globals {
     public static boolean SAVE;
     public static int STEPSIZE = 1000;
     public static int KMER_OVERLAP = 10;
-    public static int KMER_LENGTH = 50;
+    public static int KMER_LENGTH = 1;
     public static final ForkJoinPool fjPool = new ForkJoinPool();
     public static int N = 0;
     public static double PERCENTAGE_PROCESSING_READS = 0;

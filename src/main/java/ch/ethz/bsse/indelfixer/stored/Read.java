@@ -7,10 +7,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
@@ -43,14 +42,16 @@ public class Read implements Serializable {
     private int number;
     private boolean reverse;
 //    private int[] quality;
+    private String description;
+    private int matePair = -1;
 
     public Read(int begin, int end, String alignedRead) {
         this.begin = begin;
         this.end = end;
         this.alignedRead = alignedRead;
 //        this.quality = quality;
-        this.kmers = new ArrayList<>();
-        this.split();
+//        this.kmers = new ArrayList<>();
+//        this.split();
     }
 
     public Read(String read, int number, boolean reverse) {
@@ -73,7 +74,7 @@ public class Read implements Serializable {
         int currentHits = 0;
         for (int i = 0; i < Globals.INFO_HOLDER.getGenomeLength(); i++) {
             currentHits += getHit(i);
-            if (i > (min + read.length())) {
+            if (i >= (min + read.length())) {
                 if (currentHits > maximumHits) {
                     region[0] = i - read.length();
                     region[1] = i;
@@ -81,6 +82,11 @@ public class Read implements Serializable {
                 }
                 currentHits -= getHit(i - read.length());
             }
+        }
+        if (currentHits > maximumHits) {
+            region[0] = Globals.INFO_HOLDER.getGenomeLength() - read.length();
+            region[1] = Globals.INFO_HOLDER.getGenomeLength();
+            maximumHits = currentHits;
         }
     }
 
@@ -163,5 +169,19 @@ public class Read implements Serializable {
 //    public void setQuality(int[] quality) {
 //        this.quality = quality;
 //    }
-    
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getMatePair() {
+        return matePair;
+    }
+
+    public void setMatePair(int matePair) {
+        this.matePair = matePair;
+    }
 }

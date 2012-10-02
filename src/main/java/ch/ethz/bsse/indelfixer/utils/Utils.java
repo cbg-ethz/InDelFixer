@@ -99,4 +99,24 @@ public class Utils {
         }
         return false;
     }
+    
+    public static boolean isFastaGlobalMatePairFormat(String path) {
+        try {
+            FileInputStream fstream = new FileInputStream(path);
+            try (DataInputStream in = new DataInputStream(fstream)) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                String strLine;
+                while ((strLine = br.readLine()) != null) {
+                    if (strLine.startsWith("@") ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error identifying format of input file: " + e.getMessage());
+        }
+        return false;
+    }
 }

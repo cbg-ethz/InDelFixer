@@ -7,10 +7,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
@@ -79,8 +78,12 @@ public class Startup {
             Globals.KMER_OVERLAP = this.overlap;
             Globals.SAVE = this.save;
             Workflow workflow;
+            boolean pairedEnd = false;
             if (Utils.isFastaFormat(this.input)) {
                 workflow = new Workflow(this.genome, FastaParser.parseFarFile(input));
+            } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
+                pairedEnd = true;
+                workflow = new Workflow(this.genome, FastaParser.parseFastq(input));
             } else {
                 workflow = new Workflow(this.genome, SFFParsing.parse(this.input));
             }
@@ -90,8 +93,17 @@ public class Startup {
                 int i = 0;
                 for (Read read : Globals.INFO_HOLDER.getReads()) {
                     if (read.isAligned()) {
-                        sb.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd()).append("\n");
+                        if (read.getDescription().equals("generator-0_10_509_0")) {
+                            System.out.println("");
+                        }
+                        sb.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd());
+                        if (pairedEnd) {
+                            sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+                        }
+                        sb.append("\n");
                         sb.append(read.getAlignedRead()).append("\n");
+                    } else {
+                        System.out.println("");
                     }
                 }
                 Utils.saveFile(Globals.output + "region.fasta", sb.toString());

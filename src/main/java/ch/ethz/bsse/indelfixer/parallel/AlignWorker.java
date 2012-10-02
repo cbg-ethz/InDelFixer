@@ -52,22 +52,35 @@ public class AlignWorker extends RecursiveTask<Void> {
             for (int i = start; i < end; i++) {
                 Alignment align;
                 final Read r = reads[i];
-                if (r.getBegin() < 0 || r.getEnd() < 0) {
+                if (r.getDescription().equals("generator-0_746_1245_0")) {
+                    System.out.println("");
+                }
+                if (r.getEnd() < 0) {
                     Globals.printPercentageAligningReads();
                     continue;
 //                    align = SmithWatermanGotoh.align(
 //                            new Sequence(genome, "", "", Sequence.NUCLEIC),
 //                            new Sequence(reads[i].getRead(), "", "", Sequence.NUCLEIC),
 //                            matrix, 10, 1);
-
                 } else {
-                    int readEnd = r.getEnd() >= genome.length() ? genome.length() : r.getEnd();
-                    align = SmithWatermanGotoh.align(
-                            new Sequence(genome.substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC),
-                            new Sequence(r.getRead(), "", "", Sequence.NUCLEIC),
-                            matrix, 10, 1);
+                    if (r.getDescription().equals("generator-0_10_509_0")) {
+                        System.out.println("");
+                    }
+                    if (r.getBegin() <= 0) {
+                        align = SmithWatermanGotoh.align(
+                                new Sequence(genome, "", "", Sequence.NUCLEIC),
+                                new Sequence(r.getRead(), "", "", Sequence.NUCLEIC),
+                                matrix, 10, 1);
+                        r.setBegin(r.getBegin()+1);
+                    } else {
+                        int readEnd = r.getEnd() >= genome.length() ? genome.length() : r.getEnd();
+                        align = SmithWatermanGotoh.align(
+                                new Sequence(genome.substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC),
+                                new Sequence(r.getRead(), "", "", Sequence.NUCLEIC),
+                                matrix, 10, 1);
+                        
+                    }
                 }
-
                 StringBuilder sb = new StringBuilder();
                 r.setBegin(align.getStart1() + r.getBegin());
                 boolean[] miss = new boolean[align.getSequence2().length];
@@ -105,6 +118,8 @@ public class AlignWorker extends RecursiveTask<Void> {
                 if (good) {
                     r.setAlignedRead(sb.toString());
                     r.setEnd(r.getBegin() + sb.length());
+                } else {
+                    System.out.println("x");
                 }
                 Globals.printPercentageAligningReads();
             }

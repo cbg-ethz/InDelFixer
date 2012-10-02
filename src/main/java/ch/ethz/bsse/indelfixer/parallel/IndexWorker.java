@@ -7,10 +7,9 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
@@ -52,9 +51,20 @@ public class IndexWorker extends RecursiveTask<Void> {
                         r.addHit(this.genome.getKmerMap().get(kmer.getSequence()), this.genome.getKmerMap().get(kmer.getSequence()) + Globals.KMER_LENGTH);
                     }
                 }
+                if (r.getDescription().equals("generator-0_746_1245_0") && r.isReverse()) {
+                    System.out.println("");
+                }
                 r.findMaxHitRegion();
-                r.setBegin(r.getRegion()[0] - r.getRead().length());
-                r.setEnd(r.getRegion()[1] + r.getRead().length());
+                if (r.getRegion()[0] - r.getRead().length() < 0) {
+                    r.setBegin(0);
+                } else {
+                    r.setBegin(r.getRegion()[0] - r.getRead().length());
+                }
+                if (r.getRegion()[1] + r.getRead().length() > genome.getSequence().length()) {
+                    r.setEnd(genome.getSequence().length());
+                } else {
+                    r.setEnd(r.getRegion()[1] + r.getRead().length());
+                }
                 Globals.printPercentageIndexReads();
             }
         } else {
