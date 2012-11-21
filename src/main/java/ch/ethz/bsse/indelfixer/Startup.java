@@ -47,9 +47,17 @@ public class Startup {
     private String output;
     @Option(name = "-v")
     private int overlap = 1;
+    @Option(name = "-k")
+    private int kmerLength = 1;
     @Option(name = "-save")
     private boolean save = false;
-    @Option(name = "-regions")
+    @Option(name = "-fill")
+    private boolean fill = false;
+    @Option(name = "-t")
+    private int threshold = 30;
+    @Option(name = "-step")
+    private int step = 1000;
+    @Option(name = "-r")
     private String regions;
 
     public static void main(String[] args) throws IOException {
@@ -75,7 +83,11 @@ public class Startup {
             if (this.input == null && this.genome == null) {
                 throw new CmdLineException("");
             }
+            Globals.FILL = this.fill;
+            Globals.STEPSIZE = this.step;
+            Globals.THRESHOLD = this.threshold;
             Globals.KMER_OVERLAP = this.overlap;
+            Globals.KMER_LENGTH = this.kmerLength;
             Globals.SAVE = this.save;
             Workflow workflow;
             boolean pairedEnd = false;
@@ -90,12 +102,10 @@ public class Startup {
 
             if (regions == null) {
                 StringBuilder sb = new StringBuilder();
+                StringBuilder trash = new StringBuilder();
                 int i = 0;
-                for (Read read : Globals.INFO_HOLDER.getReads()) {
+                for (Read read : Globals.READS) {
                     if (read.isAligned()) {
-                        if (read.getDescription().equals("generator-0_10_509_0")) {
-                            System.out.println("");
-                        }
                         sb.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd());
                         if (pairedEnd) {
                             sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
@@ -103,10 +113,17 @@ public class Startup {
                         sb.append("\n");
                         sb.append(read.getAlignedRead()).append("\n");
                     } else {
-                        System.out.println("");
+                        trash.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd());
+                        if (pairedEnd) {
+                            trash.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+                        }
+                        trash.append("\n");
+                        trash.append(read.getRead()).append("\n");
                     }
                 }
                 Utils.saveFile(Globals.output + "region.fasta", sb.toString());
+                Utils.saveFile(Globals.output + "trash.fasta", trash.toString());
+                workflow.saveCoverage();
             } else {
                 String[] r = regions.split(",");
                 int[][] rs = new int[r.length][2];
@@ -210,7 +227,7 @@ public class Startup {
 //        }
         int cuts = 0;
         int i = 0;
-        for (Read read : Globals.INFO_HOLDER.getReads()) {
+        for (Read read : Globals.READS) {
             for (int j = 0; j < rs.length; j++) {
                 if (read.getEnd() > rs[j][0] && read.getBegin() < rs[j][1] && read.isAligned()) {
                     if (read.getEnd() > rs[j][0] && read.getBegin() < rs[j][0]) {

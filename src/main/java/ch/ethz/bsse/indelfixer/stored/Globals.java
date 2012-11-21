@@ -17,9 +17,9 @@
  */
 package ch.ethz.bsse.indelfixer.stored;
 
-import ch.ethz.bsse.indelfixer.stored.InformationHolder;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -27,7 +27,14 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static List<Read> READS;
+    public static int GENOME_LENGTH;
+    public static int THRESHOLD;
+    public static String[] GENOME_SEQUENCES;
+    public static boolean FILL;
     public static boolean SAVE;
+    public static int GENOME_COUNT;
+    public static Genome[] GENOMES;
     public static int STEPSIZE = 1000;
     public static int KMER_OVERLAP = 10;
     public static int KMER_LENGTH = 1;
@@ -36,7 +43,6 @@ public class Globals {
     public static double PERCENTAGE_PROCESSING_READS = 0;
     public static double PERCENTAGE_EXTRACTING_READS = 0;
     public static double UNIDENTICAL = 0;
-    public static InformationHolder INFO_HOLDER;
     public static String output = System.getProperty("user.dir") + File.separator;
 
     public static void printPercentageExtractingReads() {

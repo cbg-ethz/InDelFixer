@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.biojava3.core.sequence.DNASequence;
 
 /**
  * This class keeps track of one or multiple sff files from 454 sequencing

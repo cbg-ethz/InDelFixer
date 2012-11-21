@@ -11,7 +11,6 @@ import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
 import jaligner.matrix.MatrixLoader;
 import jaligner.matrix.MatrixLoaderException;
-import org.biojava3.alignment.NeedlemanWunsch;
 import org.junit.*;
 
 /**

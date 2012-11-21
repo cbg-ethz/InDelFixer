@@ -30,25 +30,22 @@ public class Read implements Serializable {
 
     private String read;
     private List<Kmer> kmers;
+    private Hits[] hits;
     private int begin;
     private int end;
-    private Map<Integer, Integer> hitMap = new HashMap<>();
-    private int min = Integer.MAX_VALUE;
-    private int max = Integer.MIN_VALUE;
-    //from,to
-    int[] region = new int[2];
-    int maximumHits = Integer.MIN_VALUE;
     private String alignedRead;
     private int number;
     private boolean reverse;
 //    private int[] quality;
     private String description;
     private int matePair = -1;
+    private int bestGenomeIndex = -1;
 
     public Read(int begin, int end, String alignedRead) {
         this.begin = begin;
         this.end = end;
         this.alignedRead = alignedRead;
+        System.out.println("#########");
 //        this.quality = quality;
 //        this.kmers = new ArrayList<>();
 //        this.split();
@@ -60,7 +57,15 @@ public class Read implements Serializable {
         this.reverse = reverse;
 //        this.quality = quality;
         this.kmers = new ArrayList<>();
+        this.init();
         this.split();
+    }
+
+    private void init() {
+        this.hits = new Hits[Globals.GENOME_COUNT];
+        for (int i = 0; i < Globals.GENOME_COUNT; i++) {
+            this.hits[i] = new Hits();
+        }
     }
 
     private void split() {
@@ -71,40 +76,45 @@ public class Read implements Serializable {
     }
 
     public void findMaxHitRegion() {
-        int currentHits = 0;
-        for (int i = 0; i < Globals.INFO_HOLDER.getGenomeLength(); i++) {
-            currentHits += getHit(i);
-            if (i >= (min + read.length())) {
-                if (currentHits > maximumHits) {
-                    region[0] = i - read.length();
-                    region[1] = i;
-                    maximumHits = currentHits;
+        for (int x = 0; x < hits.length; x++) {
+            Hits h = hits[x];
+            int currentHits = 0;
+            for (int i = 0; i < Globals.GENOME_SEQUENCES[x].length(); i++) {
+                currentHits += getHit(i, x);
+                if (i >= (h.min + read.length())) {
+                    if (currentHits > h.maximumHits) {
+                        h.region[0] = i - read.length();
+                        h.region[1] = i;
+                        h.maximumHits = currentHits;
+                    }
+                    currentHits -= getHit(i - read.length(), x);
                 }
-                currentHits -= getHit(i - read.length());
             }
-        }
-        if (currentHits > maximumHits) {
-            region[0] = Globals.INFO_HOLDER.getGenomeLength() - read.length();
-            region[1] = Globals.INFO_HOLDER.getGenomeLength();
-            maximumHits = currentHits;
+            if (currentHits > h.maximumHits) {
+                h.region[0] = Globals.GENOME_SEQUENCES[x].length() - read.length();
+                h.region[1] = Globals.GENOME_SEQUENCES[x].length();
+                h.maximumHits = currentHits;
+            }
         }
     }
 
-    public void addHit(int from, int to) {
-        min = Math.min(from, min);
-        max = Math.max(to, max);
+    public void addHit(int from, int to, int genome) {
+        Hits h = hits[genome];
+        h.min = Math.min(from, h.min);
+        h.max = Math.max(to, h.max);
         for (int i = from; i < to; i++) {
-            if (hitMap.containsKey(i)) {
-                hitMap.put(i, hitMap.get(i) + i);
+            if (h.hitMap.containsKey(i)) {
+                h.hitMap.put(i, h.hitMap.get(i) + i);
             } else {
-                hitMap.put(i, 1);
+                h.hitMap.put(i, 1);
             }
         }
     }
 
-    public int getHit(int i) {
-        if (hitMap.containsKey(i)) {
-            return hitMap.get(i);
+    public int getHit(int i, int genome) {
+        Hits h = hits[genome];
+        if (h.hitMap.containsKey(i)) {
+            return h.hitMap.get(i);
         } else {
             return 0;
         }
@@ -134,12 +144,36 @@ public class Read implements Serializable {
         this.end = end;
     }
 
+    public int getBestFittingGenome() {
+        if (this.bestGenomeIndex == -1) {
+            int maximumHits = 0;
+            for (int i = 0; i < hits.length; i++) {
+                Hits h = hits[i];
+                if (maximumHits < h.maximumHits) {
+                    maximumHits = h.maximumHits;
+                    bestGenomeIndex = i;
+                }
+            }
+        }
+//        if (this.bestGenomeIndex == -1) {
+//            System.out.println("");
+//        }
+        return bestGenomeIndex;
+    }
+
     public int getMaximumHits() {
-        return maximumHits;
+        if (this.getBestFittingGenome() == -1) {
+            return -1;
+        }
+        return hits[this.getBestFittingGenome()].maximumHits;
     }
 
     public int[] getRegion() {
-        return region;
+        return hits[this.getBestFittingGenome()].region;
+    }
+
+    public int[] getRegion(int genome) {
+        return hits[genome].region;
     }
 
     public String getAlignedRead() {
@@ -184,4 +218,14 @@ public class Read implements Serializable {
     public void setMatePair(int matePair) {
         this.matePair = matePair;
     }
+}
+
+class Hits {
+
+    Map<Integer, Integer> hitMap = new HashMap<>();
+    int min = Integer.MAX_VALUE;
+    int max = Integer.MIN_VALUE;
+    //from,to
+    int[] region = new int[2];
+    int maximumHits = Integer.MIN_VALUE;
 }

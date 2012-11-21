@@ -96,22 +96,22 @@
             <artifactId>jaligner</artifactId>
             <version>1.0</version>
         </dependency>
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout</artifactId>
             <version>0.7-SNAPSHOT</version>
             <type>pom</type>
         </dependency>-->
-        <dependency>
+<!--        <dependency>
             <groupId>org.biojava</groupId>
             <artifactId>biojava3-alignment</artifactId>
-            <version>3.0.3</version>
+            <version>3.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.biojava</groupId>
             <artifactId>biojava3-sequencing</artifactId>
-            <version>3.0.3</version>
-        </dependency>
+            <version>3.0.4</version>
+        </dependency>-->
         <dependency>
             <groupId>cc.mallet</groupId>
             <artifactId>mallet</artifactId>
@@ -148,17 +148,17 @@
     </pluginRepositories>
     <repositories>
         <repository>
-            <id>biojava-maven-repo</id>
-            <name>BioJava repository</name>
-            <url>http://www.biojava.org/download/maven/</url>			
-        </repository>
-        <repository>
             <id>ibiblio</id>
-            <url>http://www.ibiblio.org/maven/</url>			
+            <url>http://mirrors.ibiblio.org/maven2/</url>			
         </repository>
         <repository>
             <id>snapshots</id>
             <url>https://repository.apache.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>biojava-maven-repo</id>
+            <name>BioJava repository</name>
+            <url>http://www.biojava.org/download/maven/</url>			
         </repository>
     </repositories>
 </project>

@@ -31,9 +31,9 @@ public class IndexWorker extends RecursiveTask<Void> {
     private int start;
     private int end;
     private Read[] reads;
-    private Genome genome;
+    private Genome[] genome;
 
-    public IndexWorker(int start, int end, Read[] reads, Genome genome) {
+    public IndexWorker(int start, int end, Read[] reads, Genome[] genome) {
         this.start = start;
         this.end = end;
         this.reads = reads;
@@ -46,24 +46,29 @@ public class IndexWorker extends RecursiveTask<Void> {
             for (int i = start; i < end; i++) {
                 Read r = reads[i];
                 List<Kmer> kmers = r.getKmers();
-                for (Kmer kmer : kmers) {
-                    if (this.genome.getKmerMap().containsKey(kmer.getSequence())) {
-                        r.addHit(this.genome.getKmerMap().get(kmer.getSequence()), this.genome.getKmerMap().get(kmer.getSequence()) + Globals.KMER_LENGTH);
+                for (int x = 0; x < this.genome.length; x++) {
+                    for (Kmer kmer : kmers) {
+                        if (this.genome[x].getKmerMap().containsKey(kmer.getSequence())) {
+                            for (int pos : this.genome[x].getKmerMap().get(kmer.getSequence())) {
+                                r.addHit(pos, pos + Globals.KMER_LENGTH, x);
+                            }
+                        }
                     }
                 }
-                if (r.getDescription().equals("generator-0_746_1245_0") && r.isReverse()) {
-                    System.out.println("");
-                }
+
                 r.findMaxHitRegion();
-                if (r.getRegion()[0] - r.getRead().length() < 0) {
-                    r.setBegin(0);
-                } else {
-                    r.setBegin(r.getRegion()[0] - r.getRead().length());
-                }
-                if (r.getRegion()[1] + r.getRead().length() > genome.getSequence().length()) {
-                    r.setEnd(genome.getSequence().length());
-                } else {
-                    r.setEnd(r.getRegion()[1] + r.getRead().length());
+                int y = r.getBestFittingGenome();
+                if (y != -1) {
+                    if (r.getRegion(y)[0] - r.getRead().length() < 0) {
+                        r.setBegin(0);
+                    } else {
+                        r.setBegin(r.getRegion(y)[0] - r.getRead().length());
+                    }
+                    if (r.getRegion(y)[1] + r.getRead().length() > genome[y].getSequence().length()) {
+                        r.setEnd(genome[y].getSequence().length());
+                    } else {
+                        r.setEnd(r.getRegion(y)[1] + r.getRead().length());
+                    }
                 }
                 Globals.printPercentageIndexReads();
             }

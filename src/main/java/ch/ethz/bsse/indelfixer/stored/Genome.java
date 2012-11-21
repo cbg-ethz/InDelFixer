@@ -18,7 +18,9 @@
 
 package ch.ethz.bsse.indelfixer.stored;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +29,7 @@ import java.util.Map;
 public class Genome {
 
     private String sequence;
-    private Map<String,Integer> kmerMap = new HashMap<>();
+    private Map<String,List<Integer>> kmerMap = new HashMap<>();
     
     public Genome(String sequence) throws IllegalStateException {
         this.sequence = sequence;
@@ -38,14 +40,16 @@ public class Genome {
         for (int i = Globals.KMER_LENGTH; i <= this.sequence.length(); i++) {
             String tmp = this.sequence.substring(i-Globals.KMER_LENGTH, i);
             if (kmerMap.containsKey(tmp)) {
-                throw new IllegalStateException("Non unique k-mer");
+                kmerMap.get(tmp).add(i-Globals.KMER_LENGTH+1);
             } else {
-                kmerMap.put(tmp, i-Globals.KMER_LENGTH+1);
+                List<Integer> list = new ArrayList<>();
+                list.add(i-Globals.KMER_LENGTH+1);
+                kmerMap.put(tmp, list);
             }
         }
     }
 
-    public Map<String, Integer> getKmerMap() {
+    public Map<String, List<Integer>> getKmerMap() {
         return kmerMap;
     }
 

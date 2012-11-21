@@ -259,7 +259,7 @@ public class SFFFile {
             long readDataLength = numberOfFlowsPerRead * 2 + 3 * numberOfBasesBig.longValue();
             // calculate offset for next read
             offset = eightBytePadding(eightBytePadding(raf.getFilePointer()) + readDataLength);
-//            if (indexing > 1000) {
+//            if (indexing > 100) {
 //                break;
 //            }
         }

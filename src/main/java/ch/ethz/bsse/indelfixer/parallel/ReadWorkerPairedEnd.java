@@ -45,20 +45,23 @@ public class ReadWorkerPairedEnd extends RecursiveTask<List<Read>> {
         if (end - start <= Globals.STEPSIZE) {
             final List<Read> list = new ArrayList<>();
             for (int i = start; i < end; i++) {
+//                if (reads.get(i).getValue2() == 1) {
                 final Read r = new Read(reads.get(i).getValue0(), i, false);
                 r.setDescription(reads.get(i).getValue1());
                 r.setMatePair(reads.get(i).getValue2());
+                list.add(r);
+//                } else if (reads.get(i).getValue2() == 2) {
+                final Read rR = new Read(Utils.reverseComplement(reads.get(i).getValue0()), i, true);
+                rR.setDescription(reads.get(i).getValue1());
+                rR.setMatePair(reads.get(i).getValue2());
+                Globals.printPercentageProcessingReads();
+                list.add(rR);
+//                }
 //                int l = reads[i].getValue1().length;
 //                int[] qualityR = new int[l];
 //                for (int j = 0; j < l; j++) {
 //                    qualityR[l-j-1] = reads[i].getValue1()[j];
 //                }
-                final Read rR = new Read(Utils.reverseComplement(reads.get(i).getValue0()), i, true);
-                rR.setDescription(reads.get(i).getValue1());
-                rR.setMatePair(reads.get(i).getValue2());
-                Globals.printPercentageProcessingReads();
-                list.add(r);
-                list.add(rR);
             }
             return list;
         } else {
@@ -66,8 +69,7 @@ public class ReadWorkerPairedEnd extends RecursiveTask<List<Read>> {
             final ReadWorkerPairedEnd left = new ReadWorkerPairedEnd(start, mid, reads);
             final ReadWorkerPairedEnd right = new ReadWorkerPairedEnd(mid, end, reads);
             left.fork();
-            final List<Read> list = new LinkedList<>();
-            list.addAll(right.compute());
+            final List<Read> list = right.compute();
             list.addAll(left.join());
             return list;
         }

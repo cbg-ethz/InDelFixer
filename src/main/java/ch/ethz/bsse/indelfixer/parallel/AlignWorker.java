@@ -22,8 +22,6 @@ import jaligner.Alignment;
 import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
 import jaligner.matrix.Matrix;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.RecursiveTask;
 
 /**
@@ -33,15 +31,11 @@ public class AlignWorker extends RecursiveTask<Void> {
 
     private int start;
     private int end;
-    private Read[] reads;
-    private String genome;
     private Matrix matrix;
 
-    public AlignWorker(int start, int end, Read[] reads, String genome, Matrix matrix) {
+    public AlignWorker(Matrix matrix, int start, int end) {
         this.start = start;
         this.end = end;
-        this.reads = reads;
-        this.genome = genome;
         this.matrix = matrix;
     }
 
@@ -51,9 +45,10 @@ public class AlignWorker extends RecursiveTask<Void> {
 //            final Map<String, Alignment> map = new HashMap<>();
             for (int i = start; i < end; i++) {
                 Alignment align;
-                final Read r = reads[i];
-                if (r.getDescription().equals("generator-0_746_1245_0")) {
-                    System.out.println("");
+                final Read r = Globals.READS.get(i);
+                if (r.getBestFittingGenome() == -1) {
+//                    System.out.println(r.getRead());
+                    continue;
                 }
                 if (r.getEnd() < 0) {
                     Globals.printPercentageAligningReads();
@@ -63,22 +58,19 @@ public class AlignWorker extends RecursiveTask<Void> {
 //                            new Sequence(reads[i].getRead(), "", "", Sequence.NUCLEIC),
 //                            matrix, 10, 1);
                 } else {
-                    if (r.getDescription().equals("generator-0_10_509_0")) {
-                        System.out.println("");
-                    }
                     if (r.getBegin() <= 0) {
                         align = SmithWatermanGotoh.align(
-                                new Sequence(genome, "", "", Sequence.NUCLEIC),
+                                new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()], "", "", Sequence.NUCLEIC),
                                 new Sequence(r.getRead(), "", "", Sequence.NUCLEIC),
                                 matrix, 10, 1);
-                        r.setBegin(r.getBegin()+1);
+                        r.setBegin(r.getBegin() + 1);
                     } else {
-                        int readEnd = r.getEnd() >= genome.length() ? genome.length() : r.getEnd();
+                        int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
                         align = SmithWatermanGotoh.align(
-                                new Sequence(genome.substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC),
+                                new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC),
                                 new Sequence(r.getRead(), "", "", Sequence.NUCLEIC),
                                 matrix, 10, 1);
-                        
+
                     }
                 }
                 StringBuilder sb = new StringBuilder();
@@ -93,13 +85,37 @@ public class AlignWorker extends RecursiveTask<Void> {
                 if (m.length != c.length) {
                     System.err.println("DIFFERENT LENGTHS");
                 }
+                int maxMisses = 0;
+                int consecutiveMisses = 0;
                 for (int j = 0; j < L; j++) {
                     if (g[j] != '-') {
                         switch (c[j]) {
                             case '-':
                             case 'N':
-                                sb.append(g[j]);
+                                if (Globals.FILL) {
+                                    sb.append(g[j]);
+                                } else {
+                                    sb.append(c[j]);
+                                }
+                                if (miss[j - 1] && miss[j - 2]) {
+                                    miss[j - 1] = false;
+                                    miss[j - 2] = false;
+                                    sum10 -= 2;
+                                }
                                 miss[j] = true;
+                                consecutiveMisses++;
+                                break;
+                            default:
+                                maxMisses = Math.max(maxMisses, consecutiveMisses);
+                                consecutiveMisses = 0;
+                                sb.append(c[j]);
+                                break;
+                        }
+                    } else {
+                        switch (c[j]) {
+                            case '-':
+                            case 'N':
+                                sb.append("-");
                                 break;
                             default:
                                 sb.append(c[j]);
@@ -114,19 +130,23 @@ public class AlignWorker extends RecursiveTask<Void> {
                         }
                         sum10 -= miss[j - 10] ? 1 : 0;
                     }
+                    if (maxMisses > 6) {
+                        good = false;
+                        break;
+                    }
                 }
                 if (good) {
                     r.setAlignedRead(sb.toString());
                     r.setEnd(r.getBegin() + sb.length());
                 } else {
-                    System.out.println("x");
+//                    System.out.println("x");
                 }
                 Globals.printPercentageAligningReads();
             }
         } else {
             final int mid = start + (end - start) / 2;
-            final AlignWorker left = new AlignWorker(start, mid, reads, genome, matrix);
-            final AlignWorker right = new AlignWorker(mid, end, reads, genome, matrix);
+            final AlignWorker left = new AlignWorker(matrix, start, mid);
+            final AlignWorker right = new AlignWorker(matrix, mid, end);
             left.fork();
             right.compute();
             left.join();

@@ -18,7 +18,6 @@
 package ch.ethz.bsse.indelfixer.utils;
 
 import ch.ethz.bsse.indelfixer.stored.Globals;
-import ch.ethz.bsse.indelfixer.stored.InformationHolder;
 import java.io.*;
 
 /**
@@ -37,22 +36,6 @@ public class Utils {
             System.err.println("Error save file: ");
             System.err.println(path);
             System.err.println(sb);
-        }
-    }
-
-    public static void saveInformationHolder(InformationHolder ih) {
-        try {
-            String s = Globals.output + "support" + File.separator;
-            if (!new File(s).exists()) {
-                new File(s).mkdirs();
-            }
-            s += "snapshot";
-            FileOutputStream fos = new FileOutputStream(s);
-            try (ObjectOutputStream out = new ObjectOutputStream(fos)) {
-                out.writeObject(ih);
-            }
-        } catch (IOException ex) {
-            System.out.println("Snapshot saving problem\n" + ex.getMessage());
         }
     }
 
