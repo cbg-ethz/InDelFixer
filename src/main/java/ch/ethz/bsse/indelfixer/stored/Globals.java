@@ -27,6 +27,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static boolean KEEP;
     public static List<Read> READS;
     public static int GENOME_LENGTH;
     public static int THRESHOLD;

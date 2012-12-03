@@ -17,6 +17,7 @@
 package ch.ethz.bsse.indelfixer;
 
 import ch.ethz.bsse.indelfixer.sffParser.SFFParsing;
+import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.utils.Cutter;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -39,6 +41,8 @@ public class Startup {
 
     @Option(name = "-i")
     private String input;
+    @Option(name = "-ir")
+    private String inputReverse;
     @Option(name = "-g")
     private String genome;
 //    @Option(name = "-verbose")
@@ -46,9 +50,9 @@ public class Startup {
     @Option(name = "-o", usage = "Path to the output directory (default: current directory)", metaVar = "PATH")
     private String output;
     @Option(name = "-v")
-    private int overlap = 1;
+    private int overlap = 10;
     @Option(name = "-k")
-    private int kmerLength = 1;
+    private int kmerLength = 21;
     @Option(name = "-save")
     private boolean save = false;
     @Option(name = "-fill")
@@ -59,6 +63,10 @@ public class Startup {
     private int step = 1000;
     @Option(name = "-r")
     private String regions;
+    @Option(name = "-keep")
+    private boolean keep;
+    @Option(name = "--flat")
+    private boolean flat;
 
     public static void main(String[] args) throws IOException {
         new Startup().doMain(args);
@@ -83,57 +91,98 @@ public class Startup {
             if (this.input == null && this.genome == null) {
                 throw new CmdLineException("");
             }
-            Globals.FILL = this.fill;
-            Globals.STEPSIZE = this.step;
-            Globals.THRESHOLD = this.threshold;
-            Globals.KMER_OVERLAP = this.overlap;
-            Globals.KMER_LENGTH = this.kmerLength;
-            Globals.SAVE = this.save;
-            Workflow workflow;
-            boolean pairedEnd = false;
-            if (Utils.isFastaFormat(this.input)) {
-                workflow = new Workflow(this.genome, FastaParser.parseFarFile(input));
-            } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
-                pairedEnd = true;
-                workflow = new Workflow(this.genome, FastaParser.parseFastq(input));
-            } else {
-                workflow = new Workflow(this.genome, SFFParsing.parse(this.input));
-            }
-
-            if (regions == null) {
+            if (this.flat) {
+                String[] far = FastaParser.parseFarFile(input);
                 StringBuilder sb = new StringBuilder();
-                StringBuilder trash = new StringBuilder();
-                int i = 0;
-                for (Read read : Globals.READS) {
-                    if (read.isAligned()) {
-                        sb.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd());
-                        if (pairedEnd) {
-                            sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
-                        }
-                        sb.append("\n");
-                        sb.append(read.getAlignedRead()).append("\n");
-                    } else {
-                        trash.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd());
-                        if (pairedEnd) {
-                            trash.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
-                        }
-                        trash.append("\n");
-                        trash.append(read.getRead()).append("\n");
+                int x = 0;
+                for (int i = 0; i < far.length; i++) {
+                    sb.append(">READ-").append(i).append("\n" + far[i] + "\n");
+                    if (i % 100 == 0) {
+                        Utils.saveFile(output + "flat-" + x++ + ".fasta", sb.toString());
+                        sb.setLength(0);
                     }
                 }
-                Utils.saveFile(Globals.output + "region.fasta", sb.toString());
-                Utils.saveFile(Globals.output + "trash.fasta", trash.toString());
-                workflow.saveCoverage();
-            } else {
-                String[] r = regions.split(",");
-                int[][] rs = new int[r.length][2];
-                int i = 0;
-                for (String s : r) {
-                    String[] ss = s.split("-");
-                    rs[i][0] = Integer.parseInt(ss[0]) - 1;
-                    rs[i++][1] = Integer.parseInt(ss[1]);
+                if (sb.length() > 0) {
+                    Utils.saveFile(output + "flat-" + x + ".fasta", sb.toString());
                 }
-                saveReads(rs);
+            } else {
+
+                Globals.KEEP = this.keep;
+                Globals.FILL = this.fill;
+                Globals.STEPSIZE = this.step;
+                Globals.THRESHOLD = this.threshold;
+                Globals.KMER_OVERLAP = this.overlap;
+                Globals.KMER_LENGTH = this.kmerLength;
+                Globals.SAVE = this.save;
+                WorkflowI workflow;
+                boolean pairedEnd = false;
+
+                if (this.inputReverse != null) {
+                    workflow = new WorkflowPaired(genome, FastaParser.parseFastq(input), FastaParser.parseFastq(inputReverse));
+                    return;
+                } else if (Utils.isFastaFormat(this.input)) {
+                    Genome[] genomes = parseGenome(genome);
+                    int[][] rs = null;
+                    if (regions != null) {
+                        String[] r = regions.split(",");
+                        rs = new int[r.length][2];
+                        int i = 0;
+                        for (String s : r) {
+                            String[] ss = s.split("-");
+                            rs[i][0] = Integer.parseInt(ss[0]) - 1;
+                            rs[i++][1] = Integer.parseInt(ss[1]);
+                        }
+                        StringBuilder sb = new StringBuilder();
+                        for (Genome g : genomes) {
+                            sb.append(g.getHeader()).append("\n");
+                            sb.append(g.getSequence().substring(rs[i - 1][0] - 1, rs[i - 1][1] - 1)).append("\n");
+                        }
+                        Utils.saveFile(Globals.output + "ref_" + (rs[i - 1][0]) + "-" + (rs[i - 1][1] - 1) + ".fasta", sb.toString());
+
+                    }
+                    workflow = new WorkflowSingle(genomes, FastaParser.parseFarFile(input), rs);
+                    return;
+                } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
+                    pairedEnd = true;
+                    workflow = new Workflow(this.genome, FastaParser.parseFastq(input));
+                } else {
+                    workflow = new Workflow(this.genome, SFFParsing.parse(this.input));
+                }
+
+                if (regions == null) {
+                    StringBuilder sb = new StringBuilder();
+                    StringBuilder trash = new StringBuilder();
+                    int i = 0;
+                    for (Read read : Globals.READS) {
+                        if (read.isAligned()) {
+                            sb.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd());
+                            if (pairedEnd) {
+                                sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+                            }
+                            sb.append("\n");
+                            sb.append(read.getAlignedRead()).append("\n");
+                        } else {
+                            trash.append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd());
+                            if (pairedEnd) {
+                                trash.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+                            }
+                            trash.append("\n");
+                            trash.append(read.getRead()).append("\n");
+                        }
+                    }
+                    Utils.saveFile(Globals.output + "region.fasta", sb.toString());
+                    Utils.saveFile(Globals.output + "trash.fasta", trash.toString());
+                    workflow.saveCoverage();
+                } else {
+                    String[] r = regions.split(",");
+                    int[][] rs = new int[r.length][2];
+                    int i = 0;
+                    for (String s : r) {
+                        String[] ss = s.split("-");
+                        rs[i][0] = Integer.parseInt(ss[0]);
+                        rs[i++][1] = Integer.parseInt(ss[1]);
+                    }
+                    saveReads(rs);
 //                Map<String, List<Read>>[] windows = new HashMap[sbs.length];
 //                for (int j = 0; j < sbs.length; j++) {
 //                    windows[j] = new HashMap<>();
@@ -190,8 +239,9 @@ public class Startup {
 //
 //                    }
 //                }
-                StatusUpdate.println("Saving coverage");
-                workflow.saveCoverage();
+                    StatusUpdate.println("Saving coverage");
+                    workflow.saveCoverage();
+                }
             }
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
@@ -235,7 +285,6 @@ public class Startup {
                         if (s.length() < 150) {
                             continue;
                         }
-//                                read.setQuality(Arrays.copyOfRange(read.getQuality(), rs[j][0] - read.getBegin(), read.getQuality().length));
                         read.setAlignedRead(s);
                         read.setBegin(rs[j][0]);
                         cuts++;
@@ -245,7 +294,6 @@ public class Startup {
                         if (s.length() < 150) {
                             continue;
                         }
-//                                read.setQuality(Arrays.copyOfRange(read.getQuality(), 0, read.getEnd() - rs[j][1]));
                         read.setAlignedRead(s);
                         read.setEnd(rs[j][1]);
                         cuts++;
@@ -253,19 +301,6 @@ public class Startup {
                     maps[j].add(read);
                     sbs[j].append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd()).append("\n");
                     sbs[j].append(read.getAlignedRead()).append("\n");
-//                    shorah[j].append(">READ").append(i++).append("_").append(read.getBegin()).append("-").append(read.getEnd()).append("\n");
-//                    for (int k = rs[j][0]; k < read.getBegin(); k++) {
-//                        shorah[j].append("-");
-//                    }
-//                    shorah[j].append(read.getAlignedRead()).append("\n");
-//                    for (int k = read.getEnd(); k < rs[j][1]; k++) {
-//                        shorah[j].append("-");
-//                    }
-//                            sbs[j].append("+\n");
-//                            for (int k = 0; k < read.getQuality().length; k++) {
-//                                sbs[j].append((char) k);
-//                            }
-//                            sbs[j].append("\n");
                     break;
                 }
             }
@@ -276,5 +311,43 @@ public class Startup {
 //            Utils.saveFile(Globals.output + "shorah_region_" + (rs[j][0] + 1) + "-" + rs[j][1] + ".fasta", shorah[j].toString());
             Cutter.cut(this.genome, Globals.output, rs[j][0], rs[j][1]);
         }
+    }
+
+    private Genome[] parseGenome(String genomePath) {
+        Map<String, String> haps = FastaParser.parseHaplotypeFile(genomePath);
+        Genome[] gs = new Genome[haps.size()];
+        int i = 0;
+        for (Map.Entry<String, String> hap : haps.entrySet()) {
+            gs[i++] = parseGenomeRead(hap);
+        }
+//        for (int i = 0; i < haps.size(); i++) {
+//            gs[i] = parseGenomeRead(haps.size());
+//        }
+        Globals.GENOMES = gs;
+        Globals.GENOME_COUNT = gs.length;
+        Globals.GENOME_SEQUENCES = haps.keySet().toArray(new String[gs.length]);
+        Globals.GENOME_LENGTH = Globals.GENOME_SEQUENCES[0].length();
+        return gs;
+    }
+
+    private static Genome parseGenomeRead(Map.Entry<String, String> hap) {
+        Genome g = new Genome(hap);
+        String out = "";
+//        for (int i = 50;; i++) {
+//            out = "Searching for smallest kmer:\t";
+//            try {
+//                Globals.KMER_LENGTH = i;
+//                for (int j = 0; j < i; j++) {
+//                    out += ("|");
+//                }
+//                g = new Genome(genomePath);
+//                break;
+//            } catch (IllegalStateException e) {
+//            }
+//            StatusUpdate.print(out);
+//            Globals.KMER_LENGTH = i;
+//        }
+        StatusUpdate.println(out + " (" + Globals.KMER_LENGTH + ")");
+        return g;
     }
 }

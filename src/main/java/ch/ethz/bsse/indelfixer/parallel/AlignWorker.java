@@ -135,7 +135,7 @@ public class AlignWorker extends RecursiveTask<Void> {
                         break;
                     }
                 }
-                if (good) {
+                if (good || Globals.KEEP) {
                     r.setAlignedRead(sb.toString());
                     r.setEnd(r.getBegin() + sb.length());
                 } else {

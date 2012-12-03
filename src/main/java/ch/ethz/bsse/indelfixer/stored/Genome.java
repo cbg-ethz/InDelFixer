@@ -29,10 +29,16 @@ import java.util.Map;
 public class Genome {
 
     private String sequence;
+    private String header;
     private Map<String,List<Integer>> kmerMap = new HashMap<>();
     
     public Genome(String sequence) throws IllegalStateException {
         this.sequence = sequence;
+        this.split();
+    }
+    public Genome(Map.Entry<String,String> hap) throws IllegalStateException {
+        this.sequence = hap.getKey();
+        this.header = hap.getValue();
         this.split();
     }
 
@@ -55,6 +61,10 @@ public class Genome {
 
     public String getSequence() {
         return sequence;
+    }
+
+    public String getHeader() {
+        return header;
     }
     
 }

@@ -20,9 +20,12 @@ import ch.ethz.bsse.indelfixer.stored.Globals;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.javatuples.Triplet;
 
 /**
@@ -162,5 +165,35 @@ public class FastaParser {
 //            Logger.getLogger(FastaParser.class.getName()).log(Level.SEVERE, null, ex);
 //        }
         return readList;
+    }
+    
+    public static Map<String, String> parseHaplotypeFile(String location) {
+        Map<String, String> hapMap = new ConcurrentHashMap<>();
+        try {
+            FileInputStream fstream = new FileInputStream(location);
+            StringBuilder sb;
+            String head = null;
+            try (DataInputStream in = new DataInputStream(fstream)) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                String strLine;
+                sb = new StringBuilder();
+                while ((strLine = br.readLine()) != null) {
+                    if (strLine.startsWith(">")) {
+                        if (sb.length() > 0) {
+                            hapMap.put(sb.toString(), head);
+                            sb.setLength(0);
+                        }
+                        head = strLine;
+                    } else {
+                        sb.append(strLine);
+                    }
+                }
+                hapMap.put(sb.toString(), head);
+
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Error Far: " + e.getMessage());
+        }
+        return hapMap;
     }
 }

@@ -48,11 +48,6 @@ public class ReadWorker extends RecursiveTask<List<Read>> {
             final List<Read> list = new ArrayList<>();
             for (int i = start; i < end; i++) {
                 final Read r = new Read(reads[i],i,false);
-//                int l = reads[i].getValue1().length;
-//                int[] qualityR = new int[l];
-//                for (int j = 0; j < l; j++) {
-//                    qualityR[l-j-1] = reads[i].getValue1()[j];
-//                }
                 final Read rR = new Read(Utils.reverseComplement(reads[i]),i,true);
                 Globals.printPercentageProcessingReads();
                 list.add(r);

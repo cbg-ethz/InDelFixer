@@ -43,7 +43,7 @@ import org.javatuples.Triplet;
  *
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class Workflow {
+public class Workflow implements WorkflowI {
 
     private List<Read> reads;
     private Genome[] genome;
@@ -142,6 +142,7 @@ public class Workflow {
         StatusUpdate.println("Reads on reverse strand:\t" + r);
     }
 
+    @Override
     public void saveCoverage() {
         StringBuilder sb2 = new StringBuilder();
         StringBuilder dists = new StringBuilder();
