@@ -45,8 +45,6 @@ public class Startup {
     private String inputReverse;
     @Option(name = "-g")
     private String genome;
-//    @Option(name = "-verbose")
-//    private boolean verbose;
     @Option(name = "-o", usage = "Path to the output directory (default: current directory)", metaVar = "PATH")
     private String output;
     @Option(name = "-v")
@@ -67,6 +65,10 @@ public class Startup {
     private boolean keep;
     @Option(name = "--flat")
     private boolean flat;
+    @Option(name = "--count")
+    private boolean count;
+    @Option(name = "-l")
+    private int minlength = 0;
 
     public static void main(String[] args) throws IOException {
         new Startup().doMain(args);
@@ -106,7 +108,7 @@ public class Startup {
                     Utils.saveFile(output + "flat-" + x + ".fasta", sb.toString());
                 }
             } else {
-
+                Globals.MIN_LENGTH = minlength;
                 Globals.KEEP = this.keep;
                 Globals.FILL = this.fill;
                 Globals.STEPSIZE = this.step;
@@ -118,7 +120,29 @@ public class Startup {
                 boolean pairedEnd = false;
 
                 if (this.inputReverse != null) {
-                    workflow = new WorkflowPaired(genome, FastaParser.parseFastq(input), FastaParser.parseFastq(inputReverse));
+                    Genome[] genomes = parseGenome(genome);
+                    int[][] rs = null;
+                    if (regions != null) {
+                        String[] r = regions.split(",");
+                        rs = new int[r.length][2];
+                        int i = 0;
+                        for (String s : r) {
+                            String[] ss = s.split("-");
+                            rs[i][0] = Integer.parseInt(ss[0]) - 1;
+                            rs[i++][1] = Integer.parseInt(ss[1]);
+                        }
+                        StringBuilder sb = new StringBuilder();
+                        for (Genome g : genomes) {
+                            sb.append(g.getHeader()).append("\n");
+                            sb.append(g.getSequence().substring(rs[i - 1][0] - 1, rs[i - 1][1] - 1)).append("\n");
+                        }
+                        Utils.saveFile(Globals.output + "ref_" + (rs[i - 1][0]) + "-" + (rs[i - 1][1] - 1) + ".fasta", sb.toString());
+                    }
+                    if (this.count) {
+                        workflow = new WorkflowPairedCounter(genome, FastaParser.parseFastq(input), FastaParser.parseFastq(inputReverse), rs);
+                    } else {
+                        workflow = new WorkflowPaired(genome, FastaParser.parseFastq(input), FastaParser.parseFastq(inputReverse), rs);
+                    }
                     return;
                 } else if (Utils.isFastaFormat(this.input)) {
                     Genome[] genomes = parseGenome(genome);
@@ -138,7 +162,6 @@ public class Startup {
                             sb.append(g.getSequence().substring(rs[i - 1][0] - 1, rs[i - 1][1] - 1)).append("\n");
                         }
                         Utils.saveFile(Globals.output + "ref_" + (rs[i - 1][0]) + "-" + (rs[i - 1][1] - 1) + ".fasta", sb.toString());
-
                     }
                     workflow = new WorkflowSingle(genomes, FastaParser.parseFarFile(input), rs);
                     return;

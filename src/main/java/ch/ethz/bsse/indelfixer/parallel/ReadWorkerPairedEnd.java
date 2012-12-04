@@ -20,7 +20,6 @@ import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 import org.javatuples.Triplet;

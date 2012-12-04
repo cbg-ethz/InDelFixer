@@ -29,6 +29,7 @@ public class Globals {
 
     public static boolean KEEP;
     public static List<Read> READS;
+    public static int MIN_LENGTH;
     public static int GENOME_LENGTH;
     public static int THRESHOLD;
     public static String[] GENOME_SEQUENCES;

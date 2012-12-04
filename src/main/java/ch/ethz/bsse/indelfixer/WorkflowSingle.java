@@ -47,12 +47,12 @@ import org.javatuples.Pair;
 public class WorkflowSingle implements WorkflowI {
 
     private Genome[] genome;
-    private Map<Character, Map<Character, Integer>> substitutions = new HashMap<>();
+    private Map<Integer, Map<Integer, Integer>> substitutions = new HashMap<>();
 
     public WorkflowSingle(Genome[] genome, String[] forward, int[][] rs) {
-        for (char v = 0; v < 5; v++) {
-            substitutions.put(v, new HashMap<Character, Integer>());
-            for (char b = 0; b < 5; b++) {
+        for (int v = 0; v < 6; v++) {
+            substitutions.put(v, new HashMap<Integer, Integer>());
+            for (int b = 0; b < 6; b++) {
                 substitutions.get(v).put(b, 0);
             }
         }
@@ -61,24 +61,28 @@ public class WorkflowSingle implements WorkflowI {
         WorkflowSingle.removeLogging();
 
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
-        List<FutureTask<Pair<Read, Map<Character, Map<Character, Integer>>>>> taskList = new ArrayList<>();
+        List<FutureTask<Pair<Read, Map<Integer, Map<Integer, Integer>>>>> taskList = new ArrayList<>();
 
         int i = 0;
         Matrix matrix = loadMatrix();
         for (String f : forward) {
-            FutureTask<Pair<Read, Map<Character, Map<Character, Integer>>>> futureTask_1 = new FutureTask<>(new CallableWorkerSingle(f, genome[0].getSequence().length(), genome, matrix, i++));
+            FutureTask<Pair<Read, Map<Integer, Map<Integer, Integer>>>> futureTask_1 = new FutureTask<>(new CallableWorkerSingle(f, genome[0].getSequence().length(), genome, matrix, i++));
             taskList.add(futureTask_1);
             executor.execute(futureTask_1);
         }
         StringBuilder sb = new StringBuilder();
         List<Read> reads = new ArrayList<>();
         for (int j = 0; j < taskList.size(); j++) {
-            FutureTask<Pair<Read, Map<Character, Map<Character, Integer>>>> futureTask = taskList.get(j);
+            FutureTask<Pair<Read, Map<Integer, Map<Integer, Integer>>>> futureTask = taskList.get(j);
             try {
-                Pair<Read, Map<Character, Map<Character, Integer>>> pair = futureTask.get();
+                Pair<Read, Map<Integer, Map<Integer, Integer>>> pair = futureTask.get();
                 if (pair != null && pair.getValue0() != null) {
                     Read read = pair.getValue0();
                     boolean hit = false;
+                    if (Globals.MIN_LENGTH > 0
+                            && read.getAlignedRead().length() < Globals.MIN_LENGTH) {
+                        continue;
+                    }
                     if (rs != null) {
                         for (int x = 0; x < rs.length; x++) {
                             if (read.getEnd() > rs[x][0] && read.getBegin() < rs[x][1] && read.isAligned()) {
@@ -112,12 +116,11 @@ public class WorkflowSingle implements WorkflowI {
                     } else {
                         hit = true;
                     }
-
                     if (hit) {
                         reads.add(read);
                         sb.append(toString(read));
-                        for (char v = 0; v < 5; v++) {
-                            for (char b = 0; b < 5; b++) {
+                        for (int v = 0; v < 6; v++) {
+                            for (int b = 0; b < 6; b++) {
                                 substitutions.get(v).put(b, substitutions.get(v).get(b) + pair.getValue1().get(v).get(b));
                             }
                         }
@@ -135,8 +138,8 @@ public class WorkflowSingle implements WorkflowI {
         StatusUpdate.println("Processing reads:\t100%");
         Utils.saveFile(Globals.output + "region.fasta", sb.toString());
         printAlignment(reads);
-        System.out.print("\nSUBS");
-        for (int v = 0; v < 5; v++) {
+        System.out.print("\nr/g");
+        for (int v = 0; v < 6; v++) {
             System.out.print("\t" + v);
         }
         System.out.println("");
@@ -145,13 +148,13 @@ public class WorkflowSingle implements WorkflowI {
         int ins = 0;
         int del = 0;
         double sum = 0;
-        for (char v = 0; v < 5; v++) {
+        for (int v = 0; v < 6; v++) {
             System.out.print(a++);
-            for (char b = 0; b < 5; b++) {
+            for (int b = 0; b < 6; b++) {
                 System.out.print("\t" + substitutions.get(v).get(b));
-                if (v != 4 && b == 4) {
+                if (v == 4 && b != 4) {
                     del += substitutions.get(v).get(b);
-                } else if (v == 4 && b != 4) {
+                } else if (v != 4 && b == 4) {
                     ins += substitutions.get(v).get(b);
                 } else if (v != b) {
                     sub += substitutions.get(v).get(b);
@@ -163,7 +166,7 @@ public class WorkflowSingle implements WorkflowI {
 
         System.out.println("SUBSTITUTIONS: " + sub / sum);
         System.out.println("DELETIONS:     " + del / sum);
-        System.out.println("INSETIONS:     " + ins / sum);
+        System.out.println("INSERTIONS:     " + ins / sum);
         System.exit(0);
     }
     int runningNumber = 0;

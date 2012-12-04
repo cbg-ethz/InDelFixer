@@ -110,20 +110,42 @@ public class FastaParser {
                         String tag = strLine.split(" ")[0];
                         int pairedNumber = Integer.parseInt(strLine.split(" ")[1].split(":")[0]);
                         String seq = br.readLine();
+                        char[] c = seq.toCharArray();
                         br.readLine();
                         char[] quality = br.readLine().toCharArray();
                         int[] p = new int[quality.length];
+                        double qualitySum = 0;
                         int begin = -1;
                         boolean started = false;
                         int end = -1;
+
+                        int Ns = 0;
+                        
                         for (int i = 0; i < quality.length; i++) {
                             p[i] = ((int) quality[i]) - 33;
                             if (!started && p[i] >= Globals.THRESHOLD) {
                                 started = true;
                                 begin = i;
+                                qualitySum += p[i];
+                            }
+                            if (started) {
+                                qualitySum += p[i];
+                                if (c[i] == 'N') {
+                                    Ns++;
+                                } else {
+                                    if (Ns >= 3) {
+                                        break;
+                                    } else {
+                                        Ns = 0;
+                                    }
+                                }
                             }
                         }
+                        if (Ns >= 3) {
+                            continue;
+                        }
                         for (int i = quality.length - 1; i >= 0; i--) {
+                            qualitySum -= p[i];
                             if (p[i] >= Globals.THRESHOLD) {
                                 end = i;
                                 break;
@@ -134,6 +156,7 @@ public class FastaParser {
                         }
                         seq = seq.substring(begin, end + 1);
                         readList.add(Triplet.with(seq, tag, pairedNumber));
+                        qualitySum /= end - begin - 1;
                     }
                 }
             } catch (Exception e) {
@@ -166,7 +189,7 @@ public class FastaParser {
 //        }
         return readList;
     }
-    
+
     public static Map<String, String> parseHaplotypeFile(String location) {
         Map<String, String> hapMap = new ConcurrentHashMap<>();
         try {

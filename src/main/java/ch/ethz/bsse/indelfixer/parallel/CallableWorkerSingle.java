@@ -34,14 +34,14 @@ import org.javatuples.Pair;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class CallableWorkerSingle implements Callable<Pair<Read, Map<Character, Map<Character, Integer>>>> {
+public class CallableWorkerSingle implements Callable<Pair<Read, Map<Integer, Map<Integer, Integer>>>> {
 
     private String watsonSequence;
     private int L;
     private Genome[] genome;
     private Matrix matrix;
     private int number;
-    private Map<Character, Map<Character, Integer>> substitutions = new HashMap<>();
+    private Map<Integer, Map<Integer, Integer>> substitutions = new HashMap<>();
 
     public CallableWorkerSingle(String watson, int L, Genome[] genome, Matrix matrix, int number) {
         this.watsonSequence = watson;
@@ -53,16 +53,16 @@ public class CallableWorkerSingle implements Callable<Pair<Read, Map<Character, 
     }
 
     private void initSubs() {
-        for (char v = 0; v < 5; v++) {
-            substitutions.put(v, new HashMap<Character, Integer>());
-            for (char b = 0; b < 5; b++) {
+        for (int v = 0; v < 6; v++) {
+            substitutions.put(v, new HashMap<Integer, Integer>());
+            for (int b = 0; b < 6; b++) {
                 substitutions.get(v).put(b, 0);
             }
         }
     }
 
     @Override
-    public Pair<Read, Map<Character, Map<Character, Integer>>> call() throws Exception {
+    public Pair<Read, Map<Integer, Map<Integer, Integer>>> call() throws Exception {
         Read watsonRead = map(createRead(watsonSequence, false));
         Read watsonRevRead = map(createRead(watsonSequence, true));
 
@@ -198,7 +198,7 @@ public class CallableWorkerSingle implements Callable<Pair<Read, Map<Character, 
         return c == '-' || c == 'N';
     }
 
-    private char convert(char c) {
+    private int convert(char c) {
         switch (c) {
             case 'A':
                 return 0;
@@ -208,8 +208,10 @@ public class CallableWorkerSingle implements Callable<Pair<Read, Map<Character, 
                 return 2;
             case 'T':
                 return 3;
-            default:
+            case 'N':
                 return 4;
+            default:
+                return 5;
         }
     }
 }

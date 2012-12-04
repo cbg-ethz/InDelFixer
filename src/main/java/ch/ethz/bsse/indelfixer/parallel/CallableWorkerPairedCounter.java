@@ -36,7 +36,7 @@ import org.javatuples.Triplet;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class CallableWorker implements Callable<Pair<Read[], List<Map<Integer, Map<Integer, Integer>>>>> {
+public class CallableWorkerPairedCounter implements Callable<List<Map<Integer, Map<Integer, Integer>>>> {
 
     private Triplet<String, String, Integer> watsonTriple;
     private Triplet<String, String, Integer> crickTriple;
@@ -47,7 +47,7 @@ public class CallableWorker implements Callable<Pair<Read[], List<Map<Integer, M
     private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
     private Map<Integer, Map<Integer, Integer>> substitutionsBackward = new HashMap<>();
 
-    public CallableWorker(Triplet<String, String, Integer> watson, Triplet<String, String, Integer> crick, int L, Genome[] genome, Matrix matrix, int number) {
+    public CallableWorkerPairedCounter(Triplet<String, String, Integer> watson, Triplet<String, String, Integer> crick, int L, Genome[] genome, Matrix matrix, int number) {
         this.watsonTriple = watson;
         this.crickTriple = crick;
         this.L = L;
@@ -58,7 +58,7 @@ public class CallableWorker implements Callable<Pair<Read[], List<Map<Integer, M
     }
 
     @Override
-    public Pair<Read[], List<Map<Integer, Map<Integer, Integer>>>> call() throws Exception {
+    public List<Map<Integer, Map<Integer, Integer>>> call() throws Exception {
         Read watsonRead = map(createRead(watsonTriple, false));
         Read watsonRevRead = map(createRead(watsonTriple, true));
         Read crickRead = map(createRead(crickTriple, false));
@@ -74,14 +74,11 @@ public class CallableWorker implements Callable<Pair<Read[], List<Map<Integer, M
             subList.add(substitutionsForward);
             if (crick != null && crick.isAligned()) {
                 subList.add(substitutionsBackward);
-                return Pair.with(new Read[]{watson, crick}, subList);
             }
-            return Pair.with(new Read[]{watson}, subList);
         } else if (crick != null && crick.isAligned()) {
             subList.add(substitutionsBackward);
-            return Pair.with(new Read[]{crick}, subList);
         }
-        return Pair.with(new Read[]{}, subList);
+        return subList;
     }
 
     private void initSubs() {
@@ -187,9 +184,7 @@ public class CallableWorker implements Callable<Pair<Read[], List<Map<Integer, M
                 if (isGAP(c[j]) && isGAP(g[j])) {
                     sb.append("-");
                 } else if (isGAP(c[j])) {
-                    if (c[j] != 'N') {
-                        del++;
-                    }
+                    del++;
                     if (Globals.FILL) {
                         sb.append(g[j]);
                     } else {
@@ -236,10 +231,8 @@ public class CallableWorker implements Callable<Pair<Read[], List<Map<Integer, M
                 return 3;
             case '-':
                 return 4;
-            case 'N':
-                return 5;
             default:
-                return 6;
+                return 5;
         }
     }
 
