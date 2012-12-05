@@ -5,7 +5,7 @@
 
     <groupId>ch.ethz.bsse</groupId>
     <artifactId>InDelFixer</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
 
     <name>InDelFixer</name>
@@ -95,37 +95,6 @@
             <groupId>net.sourceforge</groupId>
             <artifactId>jaligner</artifactId>
             <version>1.0</version>
-        </dependency>
-        <!--        <dependency>
-            <groupId>org.apache.mahout</groupId>
-            <artifactId>mahout</artifactId>
-            <version>0.7-SNAPSHOT</version>
-            <type>pom</type>
-        </dependency>-->
-<!--        <dependency>
-            <groupId>org.biojava</groupId>
-            <artifactId>biojava3-alignment</artifactId>
-            <version>3.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.biojava</groupId>
-            <artifactId>biojava3-sequencing</artifactId>
-            <version>3.0.4</version>
-        </dependency>-->
-        <dependency>
-            <groupId>cc.mallet</groupId>
-            <artifactId>mallet</artifactId>
-            <version>2.0.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-            <version>3.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.0.13</version>
         </dependency>
         <dependency>
             <groupId>sam</groupId>

@@ -77,21 +77,24 @@ public class Start {
             if (this.input == null && this.genome == null) {
                 throw new CmdLineException("");
             }
-            this.setGlobals();
-            Genome[] genomes = parseGenome(this.genome);
-            if (this.regions != null) {
-                Globals.RS = this.splitRegion();
-                this.cutGenomes(genomes);
-            }
-
-            if (this.inputReverse != null) {
-                new ProcessingIlluminaPaired(this.input, this.inputReverse);
-            } else if (Utils.isFastaFormat(this.input)) {
-                new ProcessingFastaSingle(this.input);
+            if (this.flat) {
+                flatAndSave();
             } else {
-                new ProcessingSFFSingle(SFFParsing.parse(this.input));
-            }
+                this.setGlobals();
+                Genome[] genomes = parseGenome(this.genome);
+                if (this.regions != null) {
+                    Globals.RS = this.splitRegion();
+                    this.cutGenomes(genomes);
+                }
 
+                if (this.inputReverse != null) {
+                    new ProcessingIlluminaPaired(this.input, this.inputReverse);
+                } else if (Utils.isFastaFormat(this.input)) {
+                    new ProcessingFastaSingle(this.input);
+                } else {
+                    new ProcessingSFFSingle(SFFParsing.parse(this.input));
+                }
+            }
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
             System.err.println("java -jar InDelFixer.jar options...\n");
@@ -165,12 +168,28 @@ public class Start {
         Globals.KMER_OVERLAP = this.overlap;
         Globals.KMER_LENGTH = this.kmerLength;
     }
-    
-     {
+
+    {
         Logger rootLogger = Logger.getLogger("");
         Handler[] handlers = rootLogger.getHandlers();
         if (handlers.length > 0) {
             rootLogger.removeHandler(handlers[0]);
+        }
+    }
+
+    private void flatAndSave() {
+        String[] far = FastaParser.parseFarFile(input);
+        StringBuilder sb = new StringBuilder();
+        int x = 0;
+        for (int i = 0; i < far.length; i++) {
+            sb.append(">READ-").append(i).append("\n" + far[i] + "\n");
+            if (i % 100 == 0) {
+                Utils.saveFile(output + "flat-" + x++ + ".fasta", sb.toString());
+                sb.setLength(0);
+            }
+        }
+        if (sb.length() > 0) {
+            Utils.saveFile(output + "flat-" + x + ".fasta", sb.toString());
         }
     }
 }

@@ -16,7 +16,6 @@
  */
 package ch.ethz.bsse.indelfixer.utils;
 
-import ch.ethz.bsse.indelfixer.stored.Globals;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -26,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.javatuples.Triplet;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -92,102 +90,6 @@ public class FastaParser {
             System.err.println("Error Far: " + e.getMessage());
         }
         return readList.toArray(new String[readList.size()]);
-    }
-
-    public static List<Triplet<String, String, Integer>> parseFastq(String location) {
-        List<Triplet<String, String, Integer>> readList = new LinkedList<>();
-        try {
-            FileInputStream fstream = new FileInputStream(location);
-            StringBuilder sb;
-            try (DataInputStream in = new DataInputStream(fstream)) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                String strLine;
-                sb = new StringBuilder();
-                while ((strLine = br.readLine()) != null) {
-                    if (!strLine.startsWith("@")) {
-                        continue;
-                    } else {
-                        String tag = strLine.split(" ")[0];
-                        int pairedNumber = Integer.parseInt(strLine.split(" ")[1].split(":")[0]);
-                        String seq = br.readLine();
-                        char[] c = seq.toCharArray();
-                        br.readLine();
-                        char[] quality = br.readLine().toCharArray();
-                        int[] p = new int[quality.length];
-                        double qualitySum = 0;
-                        int begin = -1;
-                        boolean started = false;
-                        int end = -1;
-
-                        int Ns = 0;
-                        
-                        for (int i = 0; i < quality.length; i++) {
-                            p[i] = ((int) quality[i]) - 33;
-                            if (!started && p[i] >= Globals.THRESHOLD) {
-                                started = true;
-                                begin = i;
-                                qualitySum += p[i];
-                            }
-                            if (started) {
-                                qualitySum += p[i];
-                                if (c[i] == 'N') {
-                                    Ns++;
-                                } else {
-                                    if (Ns >= 3) {
-                                        break;
-                                    } else {
-                                        Ns = 0;
-                                    }
-                                }
-                            }
-                        }
-                        if (Ns >= 3) {
-                            continue;
-                        }
-                        for (int i = quality.length - 1; i >= 0; i--) {
-                            qualitySum -= p[i];
-                            if (p[i] >= Globals.THRESHOLD) {
-                                end = i;
-                                break;
-                            }
-                        }
-                        if (begin == -1) {
-                            continue;
-                        }
-                        seq = seq.substring(begin, end + 1);
-                        readList.add(Triplet.with(seq, tag, pairedNumber));
-                        qualitySum /= end - begin - 1;
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Error Fastq: " + e.getMessage());
-                System.err.println(e);
-                System.exit(0);
-            }
-        } catch (Exception e) {
-            System.err.println("Error Fastq: " + e.getMessage());
-            System.err.println(e);
-            System.exit(0);
-        }
-
-//        FastqReader fastqReader = new IlluminaFastqReader();
-//        
-//        try {
-//            Iterable<Fastq> reads = fastqReader.read(new File(location));
-//            for (Fastq f : reads) {
-//                //@generator-0_0.25_899_1068_0:0:0_0:0:0_0/2
-//                String description = f.getDescription();
-////                String tag = description.split(":")[0];
-////                int pairedNumber = Integer.parseInt(description.split("/")[1]);
-//                //@HWI-M00276:5:000000000-A1RAA:1:1101:15245:1321 1:N:0:GGACTCCTTATCCTCT
-//                String tag = description.split(" ")[0];
-//                int pairedNumber = Integer.parseInt(tag.split(":")[0]);
-//                readList.add(Triplet.with(f.getSequence(), tag, pairedNumber));
-//            }
-//        } catch (IOException ex) {
-//            Logger.getLogger(FastaParser.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        return readList;
     }
 
     public static Map<String, String> parseHaplotypeFile(String location) {

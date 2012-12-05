@@ -17,7 +17,6 @@
  */
 package ch.ethz.bsse.indelfixer.stored;
 
-import ch.ethz.bsse.indelfixer.WorkflowPaired;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import jaligner.matrix.Matrix;
 import jaligner.matrix.MatrixLoader;
@@ -25,8 +24,6 @@ import jaligner.matrix.MatrixLoaderException;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -60,7 +57,7 @@ public class Globals {
         try {
             m = MatrixLoader.load("EDNAFULL");
         } catch (MatrixLoaderException ex) {
-            Logger.getLogger(WorkflowPaired.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Matrix error loading");
         }
         return m;
     }
