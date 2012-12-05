@@ -104,13 +104,14 @@ public class Start {
             System.err.println(" ------------------------");
             System.err.println(" === GENERAL options ===");
             System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory)");
-            System.err.println("  -i PATH\t\t: Path to the NGS input file (FASTA or SFF format) [REQUIRED]");
-            System.err.println("  -g PATH\t\t: Path to the reference genome file (FASTA format) [REQUIRED]");
-            System.err.println("  -r intervals\t\t: Regions on the reference genome (i.e. 342-944,1239-3889,9953-12293)");
-//            System.err.println("  -verbose\t\t: Print debug information");
+            System.err.println("  -i PATH\t\t: Path to the NGS input file (FASTA, FASTQ or SFF format) [REQUIRED]");
+            System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [REQUIRED if first file is also fastq]");
+            System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
+            System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
             System.err.println(" ------------------------");
             System.err.println("");
-            System.err.println(" Example: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944,1239-3889");
+            System.err.println(" Example: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944");
+            System.err.println(" Example: java -jar InDelFixer.jar -i lib12_R1.fastq -ir lib12_R2.fastq -g referenceGenomes.fasta -r 342-944");
         }
     }
 
