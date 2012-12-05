@@ -8,15 +8,20 @@ frame shifts. In addition, only specific regions can be considered.
  - Get latest version: https://github.com/armintoepfer/InDelFixer/downloads
 
 #RUN:
+ (454/Roche)
  java -jar InDelFixer.jar -i libCase102.sff -g referenceGenome.fasta
  or
+ (Plain sequences, for example PacBio)
  java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenome.fasta
+ or
+ (Illumina paired end)
+ java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenome.fasta
 
 #USE / SHOW HELP:
  java -jar InDelFixer.jar
 
 #Extract reads of particular regions
- java -jar InDelFixer.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944,1239-3889
+ java -jar InDelFixer.jar -i libCase102.sff -g referenceGenome.fasta -r 342-944
 
 #CONTACT:
  Armin Töpfer
