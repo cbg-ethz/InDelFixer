@@ -32,7 +32,7 @@ import org.javatuples.Pair;
  */
 public class ProcessingGeneral {
 
-    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(Runtime.getRuntime().availableProcessors() - 1);
+    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(100*Runtime.getRuntime().availableProcessors());
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();

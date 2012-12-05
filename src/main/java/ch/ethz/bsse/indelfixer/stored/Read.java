@@ -130,6 +130,20 @@ public class Read implements Serializable {
         }
     }
 
+    public void cut(int from) {
+        this.alignedRead = this.alignedRead.substring(from);
+        if (this.quality != null) {
+            this.quality = this.quality.substring(from);
+        }
+    }
+
+    public void cut(int from, int to) {
+        this.alignedRead = this.alignedRead.substring(from, to);
+        if (this.quality != null) {
+            this.quality = this.quality.substring(from, to);
+        }
+    }
+
     public List<Kmer> getKmers() {
         return kmers;
     }

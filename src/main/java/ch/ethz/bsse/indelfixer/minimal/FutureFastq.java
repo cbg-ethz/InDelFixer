@@ -36,18 +36,16 @@ import org.javatuples.Pair;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class FutureSingle implements Callable<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> {
+public class FutureFastq implements Callable<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> {
 
     private FastqEntry watsonTriple;
-    private int L;
     private Genome[] genome;
     private Matrix matrix;
     private int number;
     private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
 
-    public FutureSingle(FastqEntry watson, int number) {
+    public FutureFastq(FastqEntry watson, int number) {
         this.watsonTriple = watson;
-        this.L = Globals.GENOME_LENGTH;
         this.genome = Globals.GENOMES;
         this.matrix = Globals.MATRIX;
         this.number = number;
@@ -87,10 +85,15 @@ public class FutureSingle implements Callable<Pair<String, List<Map<Integer, Map
         } else {
             r = new Read(entry.sequence, 0, false);
         }
-
-        r.setDescription(entry.tag);
-        r.setMatePair(entry.pairedNumber);
-        r.setQuality(entry.quality);
+        if (entry.tag != null) {
+            r.setDescription(entry.tag);
+        }
+        if (entry.pairedNumber != 0) {
+            r.setMatePair(entry.pairedNumber);
+        }
+        if (entry.quality != null) {
+            r.setQuality(entry.quality);
+        }
         return r;
     }
 
@@ -247,29 +250,21 @@ public class FutureSingle implements Callable<Pair<String, List<Map<Integer, Map
         int[][] rs = Globals.RS;
         for (int x = 0; x < rs.length; x++) {
             if (read.getEnd() > rs[x][0] && read.getBegin() < rs[x][1] && read.isAligned()) {
-                String s = null;
                 if (read.getBegin() < rs[x][0]) {
                     if (read.getEnd() > rs[x][1]) {
-                        s = read.getAlignedRead().substring(rs[x][0] - read.getBegin(), rs[x][1] - read.getBegin());
+                        read.cut(rs[x][0] - read.getBegin(), rs[x][1] - read.getBegin());
                         read.setBegin(rs[x][0]);
                         read.setEnd(rs[x][1]);
                     } else if (read.getEnd() <= rs[x][1]) {
-                        s = read.getAlignedRead().substring(rs[x][0] - read.getBegin());
+                        read.cut(rs[x][0] - read.getBegin());
                         read.setBegin(rs[x][0]);
                     }
                 } else if (read.getBegin() >= rs[x][0]) {
                     if (read.getEnd() > rs[x][1]) {
-                        s = read.getAlignedRead().substring(0, rs[x][1] - read.getBegin());
+                        read.cut(0, rs[x][1] - read.getBegin());
                         read.setEnd(rs[x][1]);
-                    } else {
-                        s = read.getAlignedRead();
                     }
                 }
-                if (s.length() > rs[x][1] - rs[x][0]) {
-                    System.out.println("length difference");
-                }
-                read.setAlignedRead(s);
-
                 return read;
             }
         }

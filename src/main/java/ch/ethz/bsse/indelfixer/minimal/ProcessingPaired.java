@@ -58,8 +58,9 @@ public class ProcessingPaired extends ProcessingGeneral {
         for (int i = 0;; i++) {
             try {
                 FastqEntry watsonQ = parseFastq(brWatson);
+                results.add(executor.submit(new FutureFastq(watsonQ, i)));
                 FastqEntry crickQ = parseFastq(brCrick);
-                results.add(executor.submit(new FuturePaired(watsonQ, crickQ, i)));
+                results.add(executor.submit(new FutureFastq(crickQ, i)));
             } catch (IllegalAccessError e) {
                 // used to halt in case of EOF
                 break;
