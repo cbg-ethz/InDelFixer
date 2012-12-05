@@ -36,8 +36,7 @@ public class SFFFile {
     private String indexVersion;
 
     /**
-     * Constructor for one single sff file. Shouldn't be used by a user. Need to
-     * think about that???
+     * Constructor for one single sff file. 
      *
      * @param filename
      * @throws FileNotFoundException
@@ -234,7 +233,7 @@ public class SFFFile {
         offset = eightBytePadding(headerLength);
         int indexing = 0;
         while (offset < indexOffset) {
-            StatusUpdate.print("Indexing SFF\t" + indexing++);
+            StatusUpdate.print("Indexing SFF:\t\t" + indexing++);
             raf.seek(offset);
             // readHeaderLength
             byte[] readHeaderLength = new byte[2];
@@ -263,7 +262,7 @@ public class SFFFile {
 //                break;
 //            }
         }
-        StatusUpdate.println("Indexing SFF\t" + indexing);
+        StatusUpdate.println("Indexing SFF:\t\t" + indexing);
     }
 
     /**

@@ -16,6 +16,9 @@
  */
 package ch.ethz.bsse.indelfixer.minimal;
 
+import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingSFFSingle;
+import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingFastaSingle;
+import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingIlluminaPaired;
 import ch.ethz.bsse.indelfixer.sffParser.SFFParsing;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;

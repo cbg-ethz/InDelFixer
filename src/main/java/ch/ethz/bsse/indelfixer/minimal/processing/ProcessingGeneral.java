@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.ethz.bsse.indelfixer.minimal;
+package ch.ethz.bsse.indelfixer.minimal.processing;
 
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.Utils;
@@ -154,24 +154,5 @@ public class ProcessingGeneral {
         }
         Utils.saveFile(Globals.output + "reads.fasta", sb.toString());
         this.printMatrix();
-    }
-}
-
-class SequenceEntry {
-
-    String sequence;
-    String tag;
-    int pairedNumber;
-    String quality;
-
-    public SequenceEntry(String sequence, String tag, int pairedNumber, String quality) {
-        this.sequence = sequence;
-        this.tag = tag;
-        this.pairedNumber = pairedNumber;
-        this.quality = quality;
-    }
-
-    public SequenceEntry(String sequence) {
-        this.sequence = sequence;
     }
 }

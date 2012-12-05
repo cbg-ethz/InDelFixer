@@ -64,31 +64,10 @@ public class Globals {
 
     public static void printPercentageExtractingReads() {
         PERCENTAGE_EXTRACTING_READS += 100d / N;
-        StatusUpdate.print("Extracting reads:\t\t", PERCENTAGE_EXTRACTING_READS);
+        StatusUpdate.print("Extracting reads:\t", PERCENTAGE_EXTRACTING_READS);
     }
     public static void printPercentageProcessingReads() {
         PERCENTAGE_PROCESSING_READS += 100d / N;
-        StatusUpdate.print("Processing reads:\t\t", PERCENTAGE_PROCESSING_READS);
-    }
-    public static double PERCENTAGE_ALIGNING_READS = 0;
-
-    public static void printPercentageAligningReads() {
-        PERCENTAGE_ALIGNING_READS += 100d / UNIDENTICAL;
-        if (PERCENTAGE_ALIGNING_READS > 100) {
-            System.out.println("");
-        }
-        StatusUpdate.print("Aligning reads:\t\t", PERCENTAGE_ALIGNING_READS);
-    }
-    public static double PERCENTAGE_MAPPING_READS = 0;
-
-    public static void printPercentageMappingReads() {
-        PERCENTAGE_MAPPING_READS += 100d / UNIDENTICAL;
-        StatusUpdate.print("Mapping non-identical reads:\t", PERCENTAGE_MAPPING_READS);
-    }
-    public static double PERCENTAGE_INDEX_READS = 0;
-
-    public static void printPercentageIndexReads() {
-        PERCENTAGE_INDEX_READS += 100d / N;
-        StatusUpdate.print("Finding indizes for kmers:\t", PERCENTAGE_INDEX_READS);
+        StatusUpdate.print("Processing reads:\t", PERCENTAGE_PROCESSING_READS);
     }
 }

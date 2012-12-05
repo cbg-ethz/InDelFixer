@@ -27,10 +27,11 @@ import java.util.TimeZone;
 public class StatusUpdate {
 
     private static final long start = System.currentTimeMillis();
-    private static final DateFormat df = new SimpleDateFormat("HH:mm:ss");
+    private static  DateFormat df;
     private static int readCount = 0;
 
     {
+        df = new SimpleDateFormat("HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
@@ -43,7 +44,7 @@ public class StatusUpdate {
     }
 
     public synchronized static void processReads() {
-        System.out.print("\r" + time() + "  Processing reads: " + (++readCount));
+        System.out.print("\r" + time() + "  Processing reads:\t" + (++readCount));
     }
 
     public static void println(String text) {

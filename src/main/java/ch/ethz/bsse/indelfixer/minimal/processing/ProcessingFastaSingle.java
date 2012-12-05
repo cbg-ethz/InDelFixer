@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.ethz.bsse.indelfixer.minimal;
+package ch.ethz.bsse.indelfixer.minimal.processing;
 
+import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;

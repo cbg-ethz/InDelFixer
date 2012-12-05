@@ -14,12 +14,13 @@
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.ethz.bsse.indelfixer.minimal;
+package ch.ethz.bsse.indelfixer.minimal.processing.parallel;
 
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.Kmer;
 import ch.ethz.bsse.indelfixer.stored.Read;
+import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import jaligner.Alignment;
