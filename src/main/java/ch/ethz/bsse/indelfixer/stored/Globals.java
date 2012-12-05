@@ -17,10 +17,16 @@
  */
 package ch.ethz.bsse.indelfixer.stored;
 
+import ch.ethz.bsse.indelfixer.WorkflowPaired;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
+import jaligner.matrix.Matrix;
+import jaligner.matrix.MatrixLoader;
+import jaligner.matrix.MatrixLoaderException;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -46,6 +52,18 @@ public class Globals {
     public static double PERCENTAGE_EXTRACTING_READS = 0;
     public static double UNIDENTICAL = 0;
     public static String output = System.getProperty("user.dir") + File.separator;
+    public static Matrix MATRIX = loadMatrix();
+    public static int[][] RS;
+    
+    public static Matrix loadMatrix() {
+        Matrix m = null;
+        try {
+            m = MatrixLoader.load("EDNAFULL");
+        } catch (MatrixLoaderException ex) {
+            Logger.getLogger(WorkflowPaired.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return m;
+    }
 
     public static void printPercentageExtractingReads() {
         PERCENTAGE_EXTRACTING_READS += 100d / N;

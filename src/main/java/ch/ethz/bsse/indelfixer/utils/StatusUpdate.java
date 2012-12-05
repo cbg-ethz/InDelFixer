@@ -28,6 +28,7 @@ public class StatusUpdate {
 
     private static final long start = System.currentTimeMillis();
     private static final DateFormat df = new SimpleDateFormat("HH:mm:ss");
+    private static int readCount = 0;
 
     {
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -39,6 +40,10 @@ public class StatusUpdate {
 
     public static void print(String text) {
         System.out.print("\r" + time() + "  " + text);
+    }
+
+    public synchronized static void processReads() {
+        System.out.print("\r" + time() + "  Processing reads: " + (++readCount));
     }
 
     public static void println(String text) {

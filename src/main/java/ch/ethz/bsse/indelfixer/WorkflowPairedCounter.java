@@ -38,7 +38,6 @@ import java.util.logging.Logger;
 import org.javatuples.Triplet;
 
 /**
- *
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
 public class WorkflowPairedCounter implements WorkflowI {

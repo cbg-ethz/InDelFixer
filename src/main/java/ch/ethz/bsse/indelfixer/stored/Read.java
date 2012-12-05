@@ -36,7 +36,7 @@ public class Read implements Serializable {
     private String alignedRead;
     private int number;
     private boolean reverse;
-//    private int[] quality;
+    private String quality;
     private String description;
     private int matePair = -1;
     private int bestGenomeIndex = -1;
@@ -56,6 +56,16 @@ public class Read implements Serializable {
         this.number = number;
         this.reverse = reverse;
 //        this.quality = quality;
+        this.kmers = new ArrayList<>();
+        this.init();
+        this.split();
+    }
+
+    public Read(String read, int number, String quality, boolean reverse) {
+        this.read = read;
+        this.number = number;
+        this.reverse = reverse;
+        this.quality = quality;
         this.kmers = new ArrayList<>();
         this.init();
         this.split();
@@ -196,13 +206,14 @@ public class Read implements Serializable {
         return number;
     }
 
-//    public int[] getQuality() {
-//        return quality;
-//    }
-//
-//    public void setQuality(int[] quality) {
-//        this.quality = quality;
-//    }
+    public String getQuality() {
+        return quality;
+    }
+
+    public void setQuality(String quality) {
+        this.quality = quality;
+    }
+
     public String getDescription() {
         return description;
     }

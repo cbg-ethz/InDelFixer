@@ -70,9 +70,9 @@ public class Startup {
     @Option(name = "-l")
     private int minlength = 0;
 
-    public static void main(String[] args) throws IOException {
-        new Startup().doMain(args);
-    }
+//    public static void main(String[] args) throws IOException {
+//        new Startup().doMain(args);
+//    }
 
     public void doMain(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
