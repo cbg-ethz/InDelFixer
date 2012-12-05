@@ -36,15 +36,15 @@ import org.javatuples.Pair;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class FutureFastq implements Callable<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> {
+public class FutureSequence implements Callable<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> {
 
-    private FastqEntry watsonTriple;
+    private SequenceEntry watsonTriple;
     private Genome[] genome;
     private Matrix matrix;
     private int number;
     private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
 
-    public FutureFastq(FastqEntry watson, int number) {
+    public FutureSequence(SequenceEntry watson, int number) {
         this.watsonTriple = watson;
         this.genome = Globals.GENOMES;
         this.matrix = Globals.MATRIX;
@@ -78,7 +78,7 @@ public class FutureFastq implements Callable<Pair<String, List<Map<Integer, Map<
         }
     }
 
-    private Read createRead(FastqEntry entry, boolean reverse) {
+    private Read createRead(SequenceEntry entry, boolean reverse) {
         Read r;
         if (reverse) {
             r = new Read(Utils.reverseComplement(entry.sequence), 0, true);
@@ -234,7 +234,9 @@ public class FutureFastq implements Callable<Pair<String, List<Map<Integer, Map<
     private StringBuilder toString(Read read) {
         StringBuilder sb = new StringBuilder();
         sb.append(">READ").append(this.number).append("_").append(read.getBegin()).append("-").append(read.getEnd());
-        sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+        if (read.getDescription() != null) {
+            sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+        }
         sb.append("\n");
         sb.append(read.getAlignedRead()).append("\n");
         return sb;

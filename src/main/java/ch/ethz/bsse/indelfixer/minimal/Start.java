@@ -16,6 +16,7 @@
  */
 package ch.ethz.bsse.indelfixer.minimal;
 
+import ch.ethz.bsse.indelfixer.sffParser.SFFParsing;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.FastaParser;
@@ -77,14 +78,18 @@ public class Start {
                 throw new CmdLineException("");
             }
             this.setGlobals();
-            Genome[] genomes = parseGenome(genome);
+            Genome[] genomes = parseGenome(this.genome);
             if (this.regions != null) {
                 Globals.RS = this.splitRegion();
                 this.cutGenomes(genomes);
             }
 
             if (this.inputReverse != null) {
-                new ProcessingPaired(input, inputReverse);
+                new ProcessingIlluminaPaired(this.input, this.inputReverse);
+            } else if (Utils.isFastaFormat(this.input)) {
+                new ProcessingFastaSingle(this.input);
+            } else {
+                new ProcessingSFFSingle(SFFParsing.parse(this.input));
             }
 
         } catch (CmdLineException e) {

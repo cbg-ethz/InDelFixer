@@ -16,12 +16,17 @@
  */
 package ch.ethz.bsse.indelfixer.minimal;
 
+import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -32,10 +37,11 @@ import org.javatuples.Pair;
  */
 public class ProcessingGeneral {
 
-    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(100*Runtime.getRuntime().availableProcessors());
+    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(100 * Runtime.getRuntime().availableProcessors());
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
+    protected List<Future<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>>> results = new LinkedList<>();
 
     private Map<Integer, Map<Integer, Integer>> initSubs() {
         Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
@@ -135,5 +141,37 @@ public class ProcessingGeneral {
             }
         }
         return s;
+    }
+
+    protected void processResults() throws InterruptedException, ExecutionException {
+        StringBuilder sb = new StringBuilder();
+        for (Future<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> future : results) {
+            Pair<String, List<Map<Integer, Map<Integer, Integer>>>> result = future.get();
+            if (result != null) {
+                sb.append(result.getValue0());
+                this.updateMatrix(result);
+            }
+        }
+        Utils.saveFile(Globals.output + "reads.fasta", sb.toString());
+        this.printMatrix();
+    }
+}
+
+class SequenceEntry {
+
+    String sequence;
+    String tag;
+    int pairedNumber;
+    String quality;
+
+    public SequenceEntry(String sequence, String tag, int pairedNumber, String quality) {
+        this.sequence = sequence;
+        this.tag = tag;
+        this.pairedNumber = pairedNumber;
+        this.quality = quality;
+    }
+
+    public SequenceEntry(String sequence) {
+        this.sequence = sequence;
     }
 }

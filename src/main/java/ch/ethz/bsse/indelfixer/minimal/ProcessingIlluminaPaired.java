@@ -28,19 +28,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.javatuples.Pair;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class ProcessingPaired extends ProcessingGeneral {
+public class ProcessingIlluminaPaired extends ProcessingGeneral {
 
     private String inputWatson;
     private String inputCrick;
 
-    public ProcessingPaired(String inputWatson, String inputCrick) {
+    public ProcessingIlluminaPaired(String inputWatson, String inputCrick) {
         this.inputWatson = inputWatson;
         this.inputCrick = inputCrick;
         try {
@@ -54,33 +52,23 @@ public class ProcessingPaired extends ProcessingGeneral {
         BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
         BufferedReader brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
 
-        List<Future<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>>> results = new LinkedList<>();
         for (int i = 0;; i++) {
             try {
-                FastqEntry watsonQ = parseFastq(brWatson);
-                results.add(executor.submit(new FutureFastq(watsonQ, i)));
-                FastqEntry crickQ = parseFastq(brCrick);
-                results.add(executor.submit(new FutureFastq(crickQ, i)));
+                SequenceEntry watsonQ = parseFastq(brWatson);
+                results.add(executor.submit(new FutureSequence(watsonQ, i)));
+                SequenceEntry crickQ = parseFastq(brCrick);
+                results.add(executor.submit(new FutureSequence(crickQ, i)));
             } catch (IllegalAccessError e) {
                 // used to halt in case of EOF
                 break;
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (Future<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> future : results) {
-            Pair<String, List<Map<Integer, Map<Integer, Integer>>>> result = future.get();
-            if (result != null) {
-                sb.append(result.getValue0());
-                this.updateMatrix(result);
-            }
-        }
+        this.processResults();
         executor.shutdown();
-        Utils.saveFile(Globals.output + "reads.fasta", sb.toString());
-        this.printMatrix();
     }
 
-    private FastqEntry parseFastq(BufferedReader br) throws IOException, IllegalAccessError {
+    private SequenceEntry parseFastq(BufferedReader br) throws IOException, IllegalAccessError {
         //head
         String header = br.readLine();
         if (header == null) {
@@ -139,24 +127,9 @@ public class ProcessingPaired extends ProcessingGeneral {
             return null;
         }
         qualitySum /= end - begin - 1;
-        return new FastqEntry(seq.substring(begin, end + 1),
+        return new SequenceEntry(seq.substring(begin, end + 1),
                 tag,
                 pairedNumber,
                 qualityString.substring(begin, end + 1));
-    }
-}
-
-class FastqEntry {
-
-    String sequence;
-    String tag;
-    int pairedNumber;
-    String quality;
-
-    public FastqEntry(String sequence, String tag, int pairedNumber, String quality) {
-        this.sequence = sequence;
-        this.tag = tag;
-        this.pairedNumber = pairedNumber;
-        this.quality = quality;
     }
 }
