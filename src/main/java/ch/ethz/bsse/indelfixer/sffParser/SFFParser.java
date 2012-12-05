@@ -60,7 +60,7 @@ public class SFFParser {
             }
         }
         
-        StatusUpdate.println("Extracting reads:\t\t"+reads.size());
+        StatusUpdate.println("Extracting reads:\t"+reads.size());
         return reads;
     }
 

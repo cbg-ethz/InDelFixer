@@ -234,7 +234,7 @@ public class SFFFile {
         offset = eightBytePadding(headerLength);
         int indexing = 0;
         while (offset < indexOffset) {
-            StatusUpdate.print("Indexing SFF\t\t\t" + indexing++);
+            StatusUpdate.print("Indexing SFF\t" + indexing++);
             raf.seek(offset);
             // readHeaderLength
             byte[] readHeaderLength = new byte[2];
@@ -263,7 +263,7 @@ public class SFFFile {
 //                break;
 //            }
         }
-        StatusUpdate.println("Indexing SFF\t\t\t" + indexing);
+        StatusUpdate.println("Indexing SFF\t" + indexing);
     }
 
     /**
