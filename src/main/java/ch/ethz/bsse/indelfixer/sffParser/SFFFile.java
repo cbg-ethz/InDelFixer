@@ -271,7 +271,7 @@ public class SFFFile {
      */
     private static long eightBytePadding(long offset) {
         int align = 8;
-        offset = offset + ((align - (offset % align)) % align);
+        offset += ((align - (offset % align)) % align);
         return offset;
     }
 
@@ -385,7 +385,6 @@ public class SFFFile {
 
         byte[] first = new byte[8];
         raf.read(first);
-        System.out.println(new String(first));
 
         // XMLManifestLength
         byte[] XMLManifestLengthByte = new byte[4];
@@ -404,6 +403,10 @@ public class SFFFile {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public String[] getReadNames() {
         String[] list = new String[this.reads.size()];
         int i = 0;

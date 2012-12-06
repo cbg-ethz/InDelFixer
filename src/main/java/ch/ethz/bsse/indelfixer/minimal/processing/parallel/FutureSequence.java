@@ -45,6 +45,11 @@ public class FutureSequence implements Callable<Pair<String, List<Map<Integer, M
     private int number;
     private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
 
+    /**
+     *
+     * @param watson
+     * @param number
+     */
     public FutureSequence(SequenceEntry watson, int number) {
         this.watsonTriple = watson;
         this.genome = Globals.GENOMES;
@@ -163,7 +168,6 @@ public class FutureSequence implements Callable<Pair<String, List<Map<Integer, M
         char[] g = align.getSequence1();
         int L = m.length;
         if (m.length != c.length) {
-            System.err.println("DIFFERENT LENGTHS");
         }
         int ins = 0;
         int del = 0;
@@ -194,13 +198,11 @@ public class FutureSequence implements Callable<Pair<String, List<Map<Integer, M
                     sb.append(g[j]);
                     if (c[j] != 'N') {
                         System.err.println("strange");
-                        System.err.println(". " + c[j] + " " + m[j] + " " + g[j]);
                     }
                 } else {
                     sb.append(c[j]);
                 }
             } else {
-                System.err.println("E " + c[j] + " " + m[j] + " " + g[j]);
             }
         }
 //        if (del < (L * 0.01d) && ins < (L * 0.01d)) 
@@ -250,26 +252,24 @@ public class FutureSequence implements Callable<Pair<String, List<Map<Integer, M
         if (Globals.RS == null) {
             return read;
         }
-        int[][] rs = Globals.RS;
-        for (int x = 0; x < rs.length; x++) {
-            if (read.getEnd() > rs[x][0] && read.getBegin() < rs[x][1] && read.isAligned()) {
-                if (read.getBegin() < rs[x][0]) {
-                    if (read.getEnd() > rs[x][1]) {
-                        read.cut(rs[x][0] - read.getBegin(), rs[x][1] - read.getBegin());
-                        read.setBegin(rs[x][0]);
-                        read.setEnd(rs[x][1]);
-                    } else if (read.getEnd() <= rs[x][1]) {
-                        read.cut(rs[x][0] - read.getBegin());
-                        read.setBegin(rs[x][0]);
-                    }
-                } else if (read.getBegin() >= rs[x][0]) {
-                    if (read.getEnd() > rs[x][1]) {
-                        read.cut(0, rs[x][1] - read.getBegin());
-                        read.setEnd(rs[x][1]);
-                    }
+        int[] rs = Globals.RS;
+        if (read.getEnd() > rs[0] && read.getBegin() < rs[1] && read.isAligned()) {
+            if (read.getBegin() < rs[0]) {
+                if (read.getEnd() > rs[1]) {
+                    read.cut(rs[0] - read.getBegin(), rs[1] - read.getBegin());
+                    read.setBegin(rs[0]);
+                    read.setEnd(rs[1]);
+                } else if (read.getEnd() <= rs[1]) {
+                    read.cut(rs[0] - read.getBegin());
+                    read.setBegin(rs[0]);
                 }
-                return read;
+            } else if (read.getBegin() >= rs[0]) {
+                if (read.getEnd() > rs[1]) {
+                    read.cut(0, rs[1] - read.getBegin());
+                    read.setEnd(rs[1]);
+                }
             }
+            return read;
         }
         return null;
     }

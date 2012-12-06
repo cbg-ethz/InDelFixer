@@ -4,9 +4,8 @@
  */
 package ch.ethz.bsse.indelfixer;
 
-import ch.ethz.bsse.indelfixer.stored.Genome;
+import java.util.logging.Logger;
 import org.junit.*;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -14,10 +13,16 @@ import static org.junit.Assert.*;
  */
 public class GenomeTest {
     
+    /**
+     *
+     */
     public GenomeTest() {
     }
 
 
+    /**
+     *
+     */
     @Test
     public void testSomeMethod() {
 //        Globals.KMER_LENGTH = 40;
@@ -26,4 +31,5 @@ public class GenomeTest {
 //        Genome genome1 = new Genome(genome);
 //        System.out.println(System.currentTimeMillis()-time);
     }
+    private static final Logger LOG = Logger.getLogger(GenomeTest.class.getName());
 }

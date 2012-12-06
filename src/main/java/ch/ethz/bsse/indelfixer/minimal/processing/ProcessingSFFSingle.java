@@ -30,15 +30,22 @@ public class ProcessingSFFSingle extends ProcessingGeneral {
 
     private String[] sequences;
 
+    /**
+     * Constructor.
+     *
+     * @param sequences
+     */
     public ProcessingSFFSingle(String[] sequences) {
         this.sequences = sequences;
         try {
             this.start();
         } catch (IOException | InterruptedException | ExecutionException e) {
-            System.err.println("SFF problem " + e.getLocalizedMessage());
         }
     }
 
+    /**
+     * Queues sequences for threading and initiates processing of results.
+     */
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
         for (int i = 0; i < this.sequences.length; i++) {
             SequenceEntry watsonS = new SequenceEntry(sequences[i]);

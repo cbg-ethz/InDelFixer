@@ -34,16 +34,24 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
     private String inputWatson;
     private String inputCrick;
 
+    /**
+     * Constructor.
+     *
+     * @param inputWatson Path to multiple fastq file for forward.
+     * @param inputCrick Path to multiple fastq file for reverse.
+     */
     public ProcessingIlluminaPaired(String inputWatson, String inputCrick) {
         this.inputWatson = inputWatson;
         this.inputCrick = inputCrick;
         try {
             this.start();
         } catch (IOException | InterruptedException | ExecutionException e) {
-            System.err.println("Fastq problem " + e.getLocalizedMessage());
         }
     }
 
+    /**
+     * Queues sequences for threading and initiates processing of results.
+     */
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
         BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
         BufferedReader brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
@@ -64,6 +72,13 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         executor.shutdown();
     }
 
+    /**
+     * Parses a single fastq block of given BufferedReader.
+     *
+     * @param br BufferedReader
+     * @return Single fastq block of type SequenceEntry
+     * @throws IllegalAccessError Thrown if BufferedReader has reached EOF.
+     */
     private SequenceEntry parseFastq(BufferedReader br) throws IOException, IllegalAccessError {
         //head
         String header = br.readLine();

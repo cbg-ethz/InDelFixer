@@ -19,6 +19,7 @@
 package ch.ethz.bsse.indelfixer.stored;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +33,20 @@ public class Genome {
     private String header;
     private Map<String,List<Integer>> kmerMap = new HashMap<>();
     
+    /**
+     *
+     * @param sequence
+     * @throws IllegalStateException
+     */
     public Genome(String sequence) throws IllegalStateException {
         this.sequence = sequence;
         this.split();
     }
+    /**
+     *
+     * @param hap
+     * @throws IllegalStateException
+     */
     public Genome(Map.Entry<String,String> hap) throws IllegalStateException {
         this.sequence = hap.getKey();
         this.header = hap.getValue();
@@ -55,14 +66,26 @@ public class Genome {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<String, List<Integer>> getKmerMap() {
-        return kmerMap;
+        return Collections.unmodifiableMap(kmerMap);
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSequence() {
         return sequence;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getHeader() {
         return header;
     }

@@ -16,9 +16,9 @@
  */
 package ch.ethz.bsse.indelfixer.minimal;
 
-import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingSFFSingle;
 import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingFastaSingle;
 import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingIlluminaPaired;
+import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingSFFSingle;
 import ch.ethz.bsse.indelfixer.sffParser.SFFParsing;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
@@ -34,6 +34,8 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 /**
+ * Entry point.
+ *
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
 public class Start {
@@ -55,7 +57,7 @@ public class Start {
     @Option(name = "-t")
     private int threshold = 30;
     @Option(name = "-step")
-    private int step = 1000;
+    private int step = 1_000;
     @Option(name = "-r")
     private String regions;
     @Option(name = "--flat")
@@ -65,10 +67,31 @@ public class Start {
     @Option(name = "-l")
     private int minlength = 0;
 
+    /**
+     * Remove logging of jaligner.
+     */
+    {
+        Logger rootLogger = Logger.getLogger("");
+        Handler[] handlers = rootLogger.getHandlers();
+        if (handlers.length > 0) {
+            rootLogger.removeHandler(handlers[0]);
+        }
+    }
+
+    /**
+     * Forwards command-line parameters.
+     * 
+     * @param args command-line parameters
+     * @throws IOException If parameters are wrong
+     */
     public static void main(String[] args) throws IOException {
         new Start().doMain(args);
     }
 
+    /**
+     * Main.
+     * @param args command-line parameters
+     */
     public void doMain(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
 
@@ -105,16 +128,18 @@ public class Start {
             System.err.println(" === GENERAL options ===");
             System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory)");
             System.err.println("  -i PATH\t\t: Path to the NGS input file (FASTA, FASTQ or SFF format) [REQUIRED]");
-            System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [REQUIRED if first file is also fastq]");
+            System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [ONLY REQUIRED if first file is also fastq]");
             System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
             System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
             System.err.println(" ------------------------");
             System.err.println("");
             System.err.println(" Example: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944");
-            System.err.println(" Example: java -jar InDelFixer.jar -i lib12_R1.fastq -ir lib12_R2.fastq -g referenceGenomes.fasta -r 342-944");
         }
     }
 
+    /**
+     * Creates output directory if not existing.
+     */
     private void checkOutput() {
         if (this.output == null) {
             this.output = System.getProperty("user.dir") + File.separator;
@@ -126,30 +151,37 @@ public class Start {
         }
     }
 
-    private int[][] splitRegion() {
-        String[] r = regions.split(",");
-        int[][] rs = new int[r.length][2];
-        int i = 0;
-        for (String s : r) {
-            String[] ss = s.split("-");
-            rs[i][0] = Integer.parseInt(ss[0]) - 1;
-            rs[i++][1] = Integer.parseInt(ss[1]);
-        }
-        return rs;
+    /**
+     * Splits input region in format x-y
+     *
+     * @return
+     */
+    private int[] splitRegion() {
+        String[] split = regions.split("-");
+        return new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])};
     }
 
+    /**
+     * Cuts genomes into defined region.
+     *
+     * @param genomes of type Genome
+     */
     private void cutGenomes(Genome[] genomes) {
-        int[][] rs = Globals.RS;
+        int[] rs = Globals.RS;
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < rs.length; i++) {
-            for (Genome g : genomes) {
-                sb.append(g.getHeader()).append("\n");
-                sb.append(g.getSequence().substring(rs[i][0] - 1, rs[i][1] - 1)).append("\n");
-            }
-            Utils.saveFile(Globals.output + "ref_" + (rs[i][0]) + "-" + (rs[i][1] - 1) + ".fasta", sb.toString());
+        for (Genome g : genomes) {
+            sb.append(g.getHeader()).append("\n");
+            sb.append(g.getSequence().substring(rs[0] - 1, rs[1] - 1)).append("\n");
         }
+        Utils.saveFile(Globals.output + "ref_" + (rs[0]) + "-" + (rs[1] - 1) + ".fasta", sb.toString());
     }
 
+    /**
+     * Parses genomes from multiple fasta file.
+     *
+     * @param genomePath multiple fasta file path
+     * @return Genome sequences wrapped into Genome class
+     */
     private Genome[] parseGenome(String genomePath) {
         Map<String, String> haps = FastaParser.parseHaplotypeFile(genomePath);
         Genome[] gs = new Genome[haps.size()];
@@ -164,6 +196,9 @@ public class Start {
         return gs;
     }
 
+    /**
+     * Set global variables from command-line parameters
+     */
     private void setGlobals() {
         Globals.MIN_LENGTH = minlength;
         Globals.FILL = this.fill;
@@ -173,20 +208,15 @@ public class Start {
         Globals.KMER_LENGTH = this.kmerLength;
     }
 
-    {
-        Logger rootLogger = Logger.getLogger("");
-        Handler[] handlers = rootLogger.getHandlers();
-        if (handlers.length > 0) {
-            rootLogger.removeHandler(handlers[0]);
-        }
-    }
-
+    /**
+     * Flats multiple fasta file and splits it files with 100 sequences.
+     */
     private void flatAndSave() {
         String[] far = FastaParser.parseFarFile(input);
         StringBuilder sb = new StringBuilder();
         int x = 0;
         for (int i = 0; i < far.length; i++) {
-            sb.append(">READ-").append(i).append("\n" + far[i] + "\n");
+            sb.append(">READ-").append(i).append("\n").append(far[i]).append("\n");
             if (i % 100 == 0) {
                 Utils.saveFile(output + "flat-" + x++ + ".fasta", sb.toString());
                 sb.setLength(0);

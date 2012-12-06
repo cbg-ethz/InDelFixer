@@ -15,6 +15,13 @@ public class SequenceEntry {
     public int pairedNumber;
     public String quality;
 
+    /**
+     *
+     * @param sequence
+     * @param tag
+     * @param pairedNumber
+     * @param quality
+     */
     public SequenceEntry(String sequence, String tag, int pairedNumber, String quality) {
         this.sequence = sequence;
         this.tag = tag;
@@ -22,6 +29,10 @@ public class SequenceEntry {
         this.quality = quality;
     }
 
+    /**
+     *
+     * @param sequence
+     */
     public SequenceEntry(String sequence) {
         this.sequence = sequence;
     }

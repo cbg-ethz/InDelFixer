@@ -18,7 +18,6 @@
 package ch.ethz.bsse.indelfixer.sffParser;
 
 import ch.ethz.bsse.indelfixer.stored.Globals;
-import ch.ethz.bsse.indelfixer.sffParser.SFFParser;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,10 +29,6 @@ import java.util.logging.Logger;
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
 public class SFFParsing {
-
-    public static void main(String args[]) {
-        parse("/Users/XLR/Documents/lib100-11_E2+NS5B_TV1-98NRBrescia.sff");
-    }
 
     public static String[] parse(String path) {
         Globals.N = 0;

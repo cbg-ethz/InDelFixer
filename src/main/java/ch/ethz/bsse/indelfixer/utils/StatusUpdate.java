@@ -35,20 +35,32 @@ public class StatusUpdate {
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
+    /**
+     *
+     * @param text
+     * @param percentage
+     */
     public static void print(String text, double percentage) {
-        System.out.print("\r" + time() + "  " + text + Math.round(percentage * 100) / 100 + "%");
     }
 
+    /**
+     *
+     * @param text
+     */
     public static void print(String text) {
-        System.out.print("\r" + time() + "  " + text);
     }
 
+    /**
+     *
+     */
     public synchronized static void processReads() {
-        System.out.print("\r" + time() + "  Processing reads:\t" + (++readCount));
     }
 
+    /**
+     *
+     * @param text
+     */
     public static void println(String text) {
-        System.out.println("\r" + time() + "  " + text);
     }
 
     private static String time() {

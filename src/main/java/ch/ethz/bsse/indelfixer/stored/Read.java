@@ -18,9 +18,11 @@ package ch.ethz.bsse.indelfixer.stored;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  *
@@ -42,13 +44,10 @@ public class Read implements Serializable {
     private int bestGenomeIndex = -1;
 
     public Read(int begin, int end, String alignedRead) {
+        super();
         this.begin = begin;
         this.end = end;
         this.alignedRead = alignedRead;
-        System.out.println("#########");
-//        this.quality = quality;
-//        this.kmers = new ArrayList<>();
-//        this.split();
     }
 
     public Read(String read, int number, boolean reverse) {
@@ -144,30 +143,58 @@ public class Read implements Serializable {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Kmer> getKmers() {
-        return kmers;
+        return Collections.unmodifiableList(kmers);
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRead() {
         return read;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getBegin() {
         return begin;
     }
 
+    /**
+     *
+     * @param begin
+     */
     public void setBegin(int begin) {
         this.begin = begin;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getEnd() {
         return end;
     }
 
+    /**
+     *
+     * @param end
+     */
     public void setEnd(int end) {
         this.end = end;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getBestFittingGenome() {
         if (this.bestGenomeIndex == -1) {
             int maximumHits = 0;
@@ -185,6 +212,10 @@ public class Read implements Serializable {
         return bestGenomeIndex;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getMaximumHits() {
         if (this.getBestFittingGenome() == -1) {
             return -1;
@@ -192,59 +223,111 @@ public class Read implements Serializable {
         return hits[this.getBestFittingGenome()].maximumHits;
     }
 
+    /**
+     *
+     * @return
+     */
     public int[] getRegion() {
         return hits[this.getBestFittingGenome()].region;
     }
 
+    /**
+     *
+     * @param genome
+     * @return
+     */
     public int[] getRegion(int genome) {
         return hits[genome].region;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAlignedRead() {
         return alignedRead;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isAligned() {
         return alignedRead != null;
     }
 
+    /**
+     *
+     * @param alignedRead
+     */
     public void setAlignedRead(String alignedRead) {
         this.alignedRead = alignedRead;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isReverse() {
         return reverse;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getNumber() {
         return number;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getQuality() {
         return quality;
     }
 
+    /**
+     *
+     * @param quality
+     */
     public void setQuality(String quality) {
         this.quality = quality;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     *
+     * @param description
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getMatePair() {
         return matePair;
     }
 
+    /**
+     *
+     * @param matePair
+     */
     public void setMatePair(int matePair) {
         this.matePair = matePair;
     }
 }
-
 class Hits {
 
     Map<Integer, Integer> hitMap = new HashMap<>();
@@ -253,4 +336,5 @@ class Hits {
     //from,to
     int[] region = new int[2];
     int maximumHits = Integer.MIN_VALUE;
+    private static final Logger LOG = Logger.getLogger(Hits.class.getName());
 }

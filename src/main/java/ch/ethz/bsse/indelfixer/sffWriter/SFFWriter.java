@@ -6,11 +6,8 @@ package ch.ethz.bsse.indelfixer.sffWriter;
 
 import ch.ethz.bsse.indelfixer.stored.Read;
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.sf.samtools.BAMFileWriter;
 import net.sf.samtools.BAMRecord;
 import net.sf.samtools.Cigar;
@@ -27,6 +24,9 @@ import net.sf.samtools.SAMSequenceRecord;
  */
 public class SFFWriter {
 
+    /**
+     *
+     */
     public SFFWriter() {
         SAMFileHeader sfh = new SAMFileHeader();
         List<SAMSequenceRecord> ssrlist = new LinkedList<>();
@@ -52,9 +52,5 @@ public class SFFWriter {
         outputSam.close();
 //        outputSam.
     
-    }
-    
-    public static void main(String[] args) {
-        new SFFWriter();
     }
 }

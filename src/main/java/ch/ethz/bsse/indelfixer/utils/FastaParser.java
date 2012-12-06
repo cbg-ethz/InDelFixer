@@ -87,11 +87,15 @@ public class FastaParser {
                 readList.add(sb.toString());
             }
         } catch (Exception e) {
-            System.err.println("Error Far: " + e.getMessage());
         }
         return readList.toArray(new String[readList.size()]);
     }
 
+    /**
+     *
+     * @param location
+     * @return
+     */
     public static Map<String, String> parseHaplotypeFile(String location) {
         Map<String, String> hapMap = new ConcurrentHashMap<>();
         try {
@@ -117,7 +121,6 @@ public class FastaParser {
 
             }
         } catch (IOException | NumberFormatException e) {
-            System.err.println("Error Far: " + e.getMessage());
         }
         return hapMap;
     }

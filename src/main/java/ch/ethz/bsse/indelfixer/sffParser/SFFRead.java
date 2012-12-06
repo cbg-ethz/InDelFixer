@@ -30,6 +30,14 @@ public class SFFRead {
     private int clipQualRight;
     private boolean clipped;
 
+    /**
+     *
+     * @param read
+     * @param quality
+     * @param description
+     * @param clipQualLeft
+     * @param clipQualRight
+     */
     public SFFRead(String read, int[] quality, String description,  int clipQualLeft, int clipQualRight) {
         this.read = read;
         this.quality = quality;
@@ -38,6 +46,9 @@ public class SFFRead {
         this.clipQualRight = clipQualRight;
     }
     
+    /**
+     *
+     */
     public void clip() {
         if (clipQualLeft!=0 && clipQualRight != 0) {
             this.read = this.read.substring(this.clipQualLeft-1, this.clipQualRight);
@@ -48,60 +59,106 @@ public class SFFRead {
                 qualityTmp[i] = this.quality[clipQualLeft-1+i];
                 this.errorProbability[i] = Math.pow(10d,-(this.quality[clipQualLeft+i-1]/10d));
                 } catch (Exception e) {
-                    System.out.println(clipQualLeft-1+i +"\t"+this.quality.length);
                 }
             }
             this.quality = qualityTmp;
             this.clipped = true;
         } else {
-            System.out.println(this.clipQualLeft+"\t"+this.clipQualRight);
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isClipped() {
         return clipped;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getClipQualLeft() {
         return clipQualLeft;
     }
 
+    /**
+     *
+     * @param clipQualLeft
+     */
     public void setClipQualLeft(int clipQualLeft) {
         this.clipQualLeft = clipQualLeft;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getClipQualRight() {
         return clipQualRight;
     }
 
+    /**
+     *
+     * @param clipQualRight
+     */
     public void setClipQualRight(int clipQualRight) {
         this.clipQualRight = clipQualRight;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     *
+     * @param description
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     *
+     * @return
+     */
     public int[] getQuality() {
         return quality;
     }
 
+    /**
+     *
+     * @param quality
+     */
     public void setQuality(int[] quality) {
         this.quality = quality;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRead() {
         return read;
     }
 
+    /**
+     *
+     * @param read
+     */
     public void setRead(String read) {
         this.read = read;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isEmpty() {
         return read == null;
     }

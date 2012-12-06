@@ -40,7 +40,7 @@ public class Globals {
     public static boolean SAVE;
     public static int GENOME_COUNT;
     public static Genome[] GENOMES;
-    public static int STEPSIZE = 1000;
+    public static int STEPSIZE = 1_000;
     public static int KMER_OVERLAP = 10;
     public static int KMER_LENGTH = 1;
     public static final ForkJoinPool fjPool = new ForkJoinPool();
@@ -50,8 +50,12 @@ public class Globals {
     public static double UNIDENTICAL = 0;
     public static String output = System.getProperty("user.dir") + File.separator;
     public static Matrix MATRIX = loadMatrix();
-    public static int[][] RS;
+    public static int[] RS;
     
+    /**
+     *
+     * @return
+     */
     public static Matrix loadMatrix() {
         Matrix m = null;
         try {
@@ -66,6 +70,7 @@ public class Globals {
         PERCENTAGE_EXTRACTING_READS += 100d / N;
         StatusUpdate.print("Extracting reads:\t", PERCENTAGE_EXTRACTING_READS);
     }
+
     public static void printPercentageProcessingReads() {
         PERCENTAGE_PROCESSING_READS += 100d / N;
         StatusUpdate.print("Processing reads:\t", PERCENTAGE_PROCESSING_READS);

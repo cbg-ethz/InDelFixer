@@ -54,6 +54,10 @@ public class ProcessingGeneral {
         return map;
     }
 
+    /**
+     *
+     * @param result
+     */
     protected void updateMatrix(Pair<String, List<Map<Integer, Map<Integer, Integer>>>> result) {
         for (Map<Integer, Map<Integer, Integer>> sub : result.getValue1()) {
             for (int v = 0; v < 6; v++) {
@@ -64,10 +68,12 @@ public class ProcessingGeneral {
         }
     }
 
+    /**
+     *
+     */
     protected void printMatrix() {
         System.out.print("\n\nr/g");
         for (int v = 0; v < 6; v++) {
-            System.out.print("\t" + convert(v));
         }
         System.out.println("");
         double sub = 0;
@@ -83,7 +89,6 @@ public class ProcessingGeneral {
             System.out.print(convert(v));
             for (int b = 0; b < 6; b++) {
                 double tmp = substitutions.get(v).get(b) / sum;
-                System.out.print("\t" + shorten(tmp));
                 if (v == 4 && b != 4) {
                     del += tmp;
                 } else if (v != 4 && b == 4) {
@@ -92,12 +97,10 @@ public class ProcessingGeneral {
                     sub += tmp;
                 }
             }
-            System.out.println("");
         }
 
         System.out.println("SUBSTITUTIONS: " + shorten(sub));
         System.out.println("DELETIONS:     " + shorten(del));
-        System.out.println("INSERTIONS:    " + shorten(ins));
     }
 
     private String convert(int c) {
@@ -119,6 +122,11 @@ public class ProcessingGeneral {
         }
     }
 
+    /**
+     *
+     * @param value
+     * @return
+     */
     public static String shorten(double value) {
         String s;
 //        if (value < 1e-20) {
@@ -143,6 +151,11 @@ public class ProcessingGeneral {
         return s;
     }
 
+    /**
+     *
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     protected void processResults() throws InterruptedException, ExecutionException {
         StringBuilder sb = new StringBuilder();
         for (Future<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> future : results) {

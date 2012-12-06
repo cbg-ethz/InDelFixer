@@ -30,24 +30,45 @@ public class Kmer implements Serializable {
     private int number;
 //    private String alignedSequence;
 
+    /**
+     *
+     * @return
+     */
     public boolean isMapped() {
         return mapped;
     }
 
+    /**
+     *
+     * @param mapped
+     */
     public void setMapped(boolean mapped) {
         this.mapped = mapped;
     }
     private boolean mapped = false;
 
+    /**
+     *
+     * @param sequence
+     * @param number
+     */
     public Kmer(String sequence, int number) {
         this.sequence = sequence;
         this.number = number;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getNumber() {
         return number;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSequence() {
         return sequence;
     }

@@ -33,15 +33,22 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
 
     private String inputWatson;
 
+    /**
+     * Constructor.
+     * 
+     * @param inputWatson Path to multiple fasta file
+     */
     public ProcessingFastaSingle(String inputWatson) {
         this.inputWatson = inputWatson;
         try {
             this.start();
         } catch (IOException | InterruptedException | ExecutionException e) {
-            System.err.println("Fastq problem " + e.getLocalizedMessage());
         }
     }
 
+    /**
+     * Queues sequences for threading and initiates processing of results.
+     */
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
         BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
 
@@ -61,6 +68,13 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
         executor.shutdown();
     }
 
+    /**
+     * Parses a single sequence of given BufferedReader.
+     * 
+     * @param br BufferedReader
+     * @return Single sequence
+     * @throws IllegalAccessError Thrown if BufferedReader has reached EOF.
+     */
     public static String parseFastaEntry(BufferedReader br) throws IOException, IllegalAccessError {
         boolean untouched = true;
         boolean cut = false;

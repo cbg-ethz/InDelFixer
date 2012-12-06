@@ -17,7 +17,6 @@
  */
 package ch.ethz.bsse.indelfixer.utils;
 
-import ch.ethz.bsse.indelfixer.stored.Globals;
 import java.io.*;
 
 /**
@@ -25,6 +24,11 @@ import java.io.*;
  */
 public class Utils {
 
+    /**
+     *
+     * @param path
+     * @param sb
+     */
     public static void saveFile(String path, String sb) {
         try {
             // Create file 
@@ -35,10 +39,14 @@ public class Utils {
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error save file: ");
             System.err.println(path);
-            System.err.println(sb);
         }
     }
 
+    /**
+     *
+     * @param s
+     * @return
+     */
     public static String reverseComplement(String s) {
         StringBuilder sb = new StringBuilder();
         for (char c : s.toUpperCase().toCharArray()) {
@@ -63,6 +71,11 @@ public class Utils {
         return sb.reverse().toString();
     }
 
+    /**
+     *
+     * @param path
+     * @return
+     */
     public static boolean isFastaFormat(String path) {
         try {
             FileInputStream fstream = new FileInputStream(path);
@@ -78,11 +91,15 @@ public class Utils {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error identifying format of input file: " + e.getMessage());
         }
         return false;
     }
     
+    /**
+     *
+     * @param path
+     * @return
+     */
     public static boolean isFastaGlobalMatePairFormat(String path) {
         try {
             FileInputStream fstream = new FileInputStream(path);
@@ -98,7 +115,6 @@ public class Utils {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error identifying format of input file: " + e.getMessage());
         }
         return false;
     }
