@@ -140,7 +140,9 @@ public class Start {
             System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
             System.err.println(" ------------------------");
             System.err.println("");
-            System.err.println(" Example: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944");
+            System.err.println(" Example 454: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944");
+            System.err.println(" Example PacBio: java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta -r 342-944");
+            System.err.println(" Example Illumina: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta -r 342-944");
         }
     }
 
