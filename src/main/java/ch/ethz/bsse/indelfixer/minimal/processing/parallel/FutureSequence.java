@@ -70,7 +70,6 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 System.err.println(e);
             }
         }
-        StatusUpdate.processReads();
         return null;
     }
 
