@@ -209,12 +209,12 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
             }
         }
-        if (((del / L) > (1 - Globals.MAX_DEL)) && ((ins / L) > (1 - Globals.MAX_INS)) && ((subs / L) > (1 - Globals.MAX_SUB))) {
-            r.setAlignedRead(sb.toString());
-            r.setEnd(r.getBegin() + sb.length());
-            return r;
+        if (((del / L) > Globals.MAX_DEL) || ((ins / L) > Globals.MAX_INS) || ((subs / L) > Globals.MAX_SUB)) {
+            return null;
         }
-        return null;
+        r.setAlignedRead(sb.toString());
+        r.setEnd(r.getBegin() + sb.length());
+        return r;
     }
 
     private boolean isGAP(char c) {
