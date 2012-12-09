@@ -31,6 +31,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -41,7 +42,8 @@ public class ProcessingGeneral {
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
-    protected List<Future<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>>> results = new LinkedList<>();
+    protected List<Future<Pair<String, Map<Integer, Map<Integer, Integer>>>>> results = new LinkedList<>();
+    protected List<Triplet<Double, Double, Double>> inDelSubsList = new LinkedList<>();
 
     private Map<Integer, Map<Integer, Integer>> initSubs() {
         Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
@@ -58,14 +60,37 @@ public class ProcessingGeneral {
      *
      * @param result
      */
-    protected void updateMatrix(Pair<String, List<Map<Integer, Map<Integer, Integer>>>> result) {
-        for (Map<Integer, Map<Integer, Integer>> sub : result.getValue1()) {
-            for (int v = 0; v < 6; v++) {
-                for (int b = 0; b < 6; b++) {
-                    substitutions.get(v).put(b, substitutions.get(v).get(b) + sub.get(v).get(b));
+    protected void updateMatrix(Pair<String, Map<Integer, Map<Integer, Integer>>> result) {
+        for (int v = 0; v < 6; v++) {
+            for (int b = 0; b < 6; b++) {
+                substitutions.get(v).put(b, substitutions.get(v).get(b) + result.getValue1().get(v).get(b));
+            }
+        }
+    }
+
+    protected Triplet<Double, Double, Double> getInDelSubRates(Map<Integer, Map<Integer, Integer>> map) {
+        double sub = 0;
+        double ins = 0;
+        double del = 0;
+        double sum = 0;
+        for (int v = 0; v < 6; v++) {
+            for (int b = 0; b < 6; b++) {
+                sum += map.get(v).get(b);
+            }
+        }
+        for (int v = 0; v < 6; v++) {
+            for (int b = 0; b < 6; b++) {
+                double tmp = map.get(v).get(b) / sum;
+                if (v == 4 && b != 4) {
+                    del += tmp;
+                } else if (v != 4 && b == 4) {
+                    ins += tmp;
+                } else if (v != b) {
+                    sub += tmp;
                 }
             }
         }
+        return Triplet.with(sub, del, ins);
     }
 
     /**
@@ -74,6 +99,7 @@ public class ProcessingGeneral {
     protected void printMatrix() {
         System.out.print("\n\nr/g");
         for (int v = 0; v < 6; v++) {
+            System.out.print("\t" + convert(v));
         }
         System.out.println("");
         double sub = 0;
@@ -89,6 +115,7 @@ public class ProcessingGeneral {
             System.out.print(convert(v));
             for (int b = 0; b < 6; b++) {
                 double tmp = substitutions.get(v).get(b) / sum;
+                System.out.print("\t" + shorten(tmp));
                 if (v == 4 && b != 4) {
                     del += tmp;
                 } else if (v != 4 && b == 4) {
@@ -97,10 +124,12 @@ public class ProcessingGeneral {
                     sub += tmp;
                 }
             }
+            System.out.println("");
         }
 
         System.out.println("SUBSTITUTIONS: " + shorten(sub));
         System.out.println("DELETIONS:     " + shorten(del));
+        System.out.println("INSERTIONS:    " + shorten(ins));
     }
 
     private String convert(int c) {
@@ -151,20 +180,21 @@ public class ProcessingGeneral {
         return s;
     }
 
-    /**
-     *
-     * @throws InterruptedException
-     * @throws ExecutionException
-     */
     protected void processResults() throws InterruptedException, ExecutionException {
         StringBuilder sb = new StringBuilder();
-        for (Future<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> future : results) {
-            Pair<String, List<Map<Integer, Map<Integer, Integer>>>> result = future.get();
+        StringBuilder indelsubrateSB = new StringBuilder();
+        for (Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> future : results) {
+            Pair<String, Map<Integer, Map<Integer, Integer>>> result = future.get();
             if (result != null) {
                 sb.append(result.getValue0());
                 this.updateMatrix(result);
+                Triplet<Double, Double, Double> inDelSubRates = this.getInDelSubRates(result.getValue1());
+                indelsubrateSB.append(inDelSubRates.getValue0()).append("\t");
+                indelsubrateSB.append(inDelSubRates.getValue1()).append("\t");
+                indelsubrateSB.append(inDelSubRates.getValue2()).append("\n");
             }
         }
+        Utils.saveFile(Globals.output + "indelsub.txt", indelsubrateSB.toString());
         Utils.saveFile(Globals.output + "reads.fasta", sb.toString());
         this.printMatrix();
     }

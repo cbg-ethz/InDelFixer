@@ -27,7 +27,6 @@ import jaligner.Alignment;
 import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
 import jaligner.matrix.Matrix;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ import org.javatuples.Pair;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class FutureSequence implements Callable<Pair<String, List<Map<Integer, Map<Integer, Integer>>>>> {
+public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<Integer, Integer>>>> {
 
     private SequenceEntry watsonTriple;
     private Genome[] genome;
@@ -45,11 +44,6 @@ public class FutureSequence implements Callable<Pair<String, List<Map<Integer, M
     private int number;
     private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
 
-    /**
-     *
-     * @param watson
-     * @param number
-     */
     public FutureSequence(SequenceEntry watson, int number) {
         this.watsonTriple = watson;
         this.genome = Globals.GENOMES;
@@ -59,20 +53,25 @@ public class FutureSequence implements Callable<Pair<String, List<Map<Integer, M
     }
 
     @Override
-    public Pair<String, List<Map<Integer, Map<Integer, Integer>>>> call() {
-        List<Map<Integer, Map<Integer, Integer>>> subList = new ArrayList<>();
+    public Pair<String, Map<Integer, Map<Integer, Integer>>> call() {
         StringBuilder sb = new StringBuilder();
         if (this.watsonTriple != null) {
             Read watsonRead = map(createRead(watsonTriple, false));
             Read watsonRevRead = map(createRead(watsonTriple, true));
-            Read watson = cut(align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward));
-            if (watson != null) {
-                subList.add(substitutionsForward);
-                sb.append(toString(watson));
+            try {
+                Read align = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
+                Read watson = cut(align);
+                if (watson != null) {
+                    sb.append(toString(watson));
+                    StatusUpdate.processReads();
+                    return Pair.with(sb.toString(), substitutionsForward);
+                }
+            } catch (Exception e) {
+                System.err.println(e);
             }
         }
         StatusUpdate.processReads();
-        return Pair.with(sb.toString(), subList);
+        return null;
     }
 
     private void initSubs() {
@@ -166,49 +165,56 @@ public class FutureSequence implements Callable<Pair<String, List<Map<Integer, M
         char[] m = align.getMarkupLine();
         char[] c = align.getSequence2();
         char[] g = align.getSequence1();
-        int L = m.length;
+        double L = m.length;
         if (m.length != c.length) {
         }
         int ins = 0;
         int del = 0;
+        int subs = 0;
 
         for (int j = 0; j < L; j++) {
-            sub.get(convert(c[j])).put(convert(g[j]), sub.get(convert(c[j])).get(convert(g[j])) + 1);
+            char currentConsensus = '*';
             if (m[j] == '|') {
-                sb.append(c[j]);
+                currentConsensus = c[j];
             } else if (m[j] == ' ') {
                 if (isGAP(c[j]) && isGAP(g[j])) {
-                    sb.append("-");
+                    currentConsensus = '-';
                 } else if (isGAP(c[j])) {
                     if (c[j] != 'N') {
                         del++;
                     }
                     if (Globals.FILL) {
-                        sb.append(g[j]);
+                        currentConsensus = g[j];
                     } else {
-                        sb.append("-");
+                        currentConsensus = '-';
                     }
                 } else if (isGAP(g[j])) {
                     ins++;
                 }
             } else if (m[j] == '.') {
+                subs++;
                 if (isGAP(g[j])) {
-                    sb.append(c[j]);
+                    currentConsensus = c[j];
                 } else if (isGAP(c[j])) {
-                    sb.append(g[j]);
+                    currentConsensus = g[j];
                     if (c[j] != 'N') {
                         System.err.println("strange");
                     }
                 } else {
-                    sb.append(c[j]);
+                    currentConsensus = c[j];
                 }
-            } else {
+            }
+            if (currentConsensus != '*') {
+                sb.append(currentConsensus);
+                sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
             }
         }
-//        if (del < (L * 0.01d) && ins < (L * 0.01d)) 
-        r.setAlignedRead(sb.toString());
-        r.setEnd(r.getBegin() + sb.length());
-        return r;
+        if (((del / L) > (1 - Globals.MAX_DEL)) && ((ins / L) > (1 - Globals.MAX_INS)) && ((subs / L) > (1 - Globals.MAX_SUB))) {
+            r.setAlignedRead(sb.toString());
+            r.setEnd(r.getBegin() + sb.length());
+            return r;
+        }
+        return null;
     }
 
     private boolean isGAP(char c) {

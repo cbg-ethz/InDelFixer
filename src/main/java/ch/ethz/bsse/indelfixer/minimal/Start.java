@@ -66,6 +66,12 @@ public class Start {
     private boolean count;
     @Option(name = "-l")
     private int minlength = 0;
+    @Option(name = "-sub")
+    private double sub = 1;
+    @Option(name = "-del")
+    private double del = 1;
+    @Option(name = "-ins")
+    private double ins = 1;
 
     /**
      * Remove logging of jaligner.
@@ -86,6 +92,7 @@ public class Start {
      */
     public static void main(String[] args) throws IOException {
         new Start().doMain(args);
+        System.exit(0);
     }
 
     /**
@@ -206,18 +213,22 @@ public class Start {
         Globals.THRESHOLD = this.threshold;
         Globals.KMER_OVERLAP = this.overlap;
         Globals.KMER_LENGTH = this.kmerLength;
+        Globals.MAX_DEL = this.del;
+        Globals.MAX_INS = this.ins;
+        Globals.MAX_SUB = this.sub;
     }
 
     /**
      * Flats multiple fasta file and splits it files with 100 sequences.
      */
     private void flatAndSave() {
-        String[] far = FastaParser.parseFarFile(input);
+        Map<String, String> far = FastaParser.parseHaplotypeFile(input);
         StringBuilder sb = new StringBuilder();
         int x = 0;
-        for (int i = 0; i < far.length; i++) {
-            sb.append(">READ-").append(i).append("\n").append(far[i]).append("\n");
-            if (i % 100 == 0) {
+        int i = 0;
+        for (Map.Entry<String,String> entry : far.entrySet()) {
+            sb.append(entry.getValue()).append("\n").append(entry.getKey()).append("\n");
+            if (i++ % 1000 == 0) {
                 Utils.saveFile(output + "flat-" + x++ + ".fasta", sb.toString());
                 sb.setLength(0);
             }

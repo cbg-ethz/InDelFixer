@@ -63,8 +63,8 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
                 break;
             }
         }
-
         this.processResults();
+        
         executor.shutdown();
     }
 
