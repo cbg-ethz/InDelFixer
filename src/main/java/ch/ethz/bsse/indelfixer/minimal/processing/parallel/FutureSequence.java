@@ -179,12 +179,10 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 if (isGAP(c[j]) && isGAP(g[j])) {
                     currentConsensus = '-';
                 } else if (isGAP(c[j])) {
-                    if (c[j] != 'N') {
-                        del++;
-                    }
                     if (Globals.FILL) {
                         currentConsensus = g[j];
                     } else {
+                        del++;
                         currentConsensus = '-';
                     }
                 } else if (isGAP(g[j])) {
