@@ -17,30 +17,30 @@ frame shifts. In addition, only a specific region can be considered.The output i
 `java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta`
  
 #### Illumina paired end:
-  `java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta`
+`java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta`
 
 ### Remove InDels:
- Remove insertions and deletions with `-adjust`
+Remove insertions and deletions with `-adjust`
 
 ### Extract region:
- In addition, only a specific region can be extracted with `-r begin-end`, for example a certain gene:
+In addition, only a specific region can be extracted with `-r begin-end`, for example a certain gene:
   `java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944`
 
 ### Help:
- Further help can be showed by running without additional parameters:
+Further help can be showed by running without additional parameters:
     `java -jar InDelFixer.jar`
 
 ### BAM output:
- In order to convert the `reads.sam` into the BAM format, please install samtools and run:
+In order to convert the `reads.sam` into the BAM format, please install samtools and run:
     samtools view -bS reads.sam > out.bam; 
     samtools sort out.bam reads; 
     samtools index reads.bam; 
     rm out.bam;
 
-## PREREQUISITES COMPILE (only for dev):
+
+# COMPILE (only for dev):
  - Maven 3 (http://maven.apache.org/)
 
-## INSTALL (only for dev):
     cd InDelFixer
     mvn clean package
     java -jar InDelFixer/target/InDelFixer.jar
