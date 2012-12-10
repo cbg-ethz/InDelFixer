@@ -42,6 +42,7 @@ public class Read implements Serializable {
     private String description;
     private int matePair = -1;
     private int bestGenomeIndex = -1;
+    private String cigars;
 
     public Read(int begin, int end, String alignedRead) {
         super();
@@ -327,7 +328,37 @@ public class Read implements Serializable {
     public void setMatePair(int matePair) {
         this.matePair = matePair;
     }
+
+    public void setCigars(char[] cigars) {
+        StringBuilder cigarSB = new StringBuilder();
+        char prev = 'x';
+        int count = 0;
+        for (char c : cigars) {
+            if (c != 0) {
+                if (prev == 'x') {
+                    prev = c;
+                    count++;
+                } else {
+                    if (c == prev) {
+                        count++;
+                    } else {
+                        cigarSB.append(count).append(prev);
+                        prev = c;
+                        count = 1;
+                    }
+                }
+            }
+        }
+        cigarSB.append(count).append(prev);
+
+        this.cigars = cigarSB.toString();
+    }
+
+    public String getCigars() {
+        return cigars;
+    }
 }
+
 class Hits {
 
     Map<Integer, Integer> hitMap = new HashMap<>();

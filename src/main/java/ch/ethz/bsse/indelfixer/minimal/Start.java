@@ -52,8 +52,8 @@ public class Start {
     private int overlap = 10;
     @Option(name = "-k")
     private int kmerLength = 21;
-    @Option(name = "-fill")
-    private boolean fill = false;
+    @Option(name = "-adjust")
+    private boolean adjust;
     @Option(name = "-t")
     private int threshold = 30;
     @Option(name = "-step")
@@ -212,7 +212,7 @@ public class Start {
      */
     private void setGlobals() {
         Globals.MIN_LENGTH = minlength;
-        Globals.FILL = this.fill;
+        Globals.ADJUST = this.adjust;
         Globals.STEPSIZE = this.step;
         Globals.THRESHOLD = this.threshold;
         Globals.KMER_OVERLAP = this.overlap;

@@ -16,6 +16,7 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing;
 
+import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.util.HashMap;
@@ -181,12 +182,18 @@ public class ProcessingGeneral {
     }
 
     protected void processResults() throws InterruptedException, ExecutionException {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder samSB = new StringBuilder();
+        samSB.append("@HD\tVN:1.0\tSO:unsorted\n");
+        for (Genome g : Globals.GENOMES) {
+            samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
+        }
+        samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.2.1\n");
+
         StringBuilder indelsubrateSB = new StringBuilder();
         for (Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> future : results) {
             Pair<String, Map<Integer, Map<Integer, Integer>>> result = future.get();
             if (result != null) {
-                sb.append(result.getValue0());
+                samSB.append(result.getValue0());
                 this.updateMatrix(result);
                 Triplet<Double, Double, Double> inDelSubRates = this.getInDelSubRates(result.getValue1());
                 indelsubrateSB.append(inDelSubRates.getValue0()).append("\t");
@@ -195,7 +202,7 @@ public class ProcessingGeneral {
             }
         }
         Utils.saveFile(Globals.output + "indelsub.txt", indelsubrateSB.toString());
-        Utils.saveFile(Globals.output + "reads.fasta", sb.toString());
+        Utils.saveFile(Globals.output + "reads.sam", samSB.toString());
         this.printMatrix();
     }
 }

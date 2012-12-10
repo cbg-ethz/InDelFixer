@@ -49,7 +49,7 @@ public class Genome {
      */
     public Genome(Map.Entry<String,String> hap) throws IllegalStateException {
         this.sequence = hap.getKey();
-        this.header = hap.getValue();
+        this.header = hap.getValue().replaceAll(">", "").replace(" ", "");
         this.split();
     }
 

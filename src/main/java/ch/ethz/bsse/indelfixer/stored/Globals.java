@@ -39,7 +39,7 @@ public class Globals {
     public static int GENOME_LENGTH;
     public static int THRESHOLD;
     public static String[] GENOME_SEQUENCES;
-    public static boolean FILL;
+    public static boolean ADJUST;
     public static boolean SAVE;
     public static int GENOME_COUNT;
     public static Genome[] GENOMES;

@@ -170,45 +170,73 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         int ins = 0;
         int del = 0;
         int subs = 0;
-
+        char[] cigar = new char[m.length];
         for (int j = 0; j < L; j++) {
             char currentConsensus = '*';
             if (m[j] == '|') {
                 currentConsensus = c[j];
+                cigar[j] = 'M';
             } else if (m[j] == ' ') {
                 if (isGAP(c[j]) && isGAP(g[j])) {
+                    cigar[j] = 'M';
                     currentConsensus = '-';
                 } else if (isGAP(c[j])) {
-                    if (Globals.FILL) {
+                    if (Globals.ADJUST) {
+                        cigar[j] = 'M';
                         currentConsensus = g[j];
                     } else {
                         del++;
                         currentConsensus = '-';
+                        cigar[j] = 'D';
                     }
                 } else if (isGAP(g[j])) {
-                    ins++;
+                    if (Globals.ADJUST) {
+                        ins++;
+                    } else {
+                        cigar[j] = 'I';
+                        currentConsensus = c[j];
+                    }
                 }
             } else if (m[j] == '.') {
                 subs++;
                 if (isGAP(g[j])) {
-                    currentConsensus = c[j];
+                    if (!isGAP(c[j])) {
+                        cigar[j] = 'M';
+                        if (Globals.ADJUST) {
+                            ins++;
+                            currentConsensus = g[j];
+                        } else {
+                            currentConsensus = c[j];
+                        }
+                    } else {
+                        System.out.println("Contact program creator");
+                        System.exit(0);
+                    }
                 } else if (isGAP(c[j])) {
-                    currentConsensus = g[j];
-                    if (c[j] != 'N') {
-                        System.err.println("strange");
+                    if (Globals.ADJUST) {
+                        del++;
+                        cigar[j] = 'M';
+                        currentConsensus = g[j];
+                    } else {
+                        cigar[j] = 'D';
+                        currentConsensus = c[j];
                     }
                 } else {
+                    cigar[j] = 'M';
                     currentConsensus = c[j];
                 }
             }
-            if (currentConsensus != '*') {
-                sb.append(currentConsensus);
+            if (cigar[j] != 0) {
+                if (cigar[j] == 'M' || cigar[j] == 'I') {
+                    sb.append(currentConsensus);
+                }
                 sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
             }
         }
         if (((del / L) > Globals.MAX_DEL) || ((ins / L) > Globals.MAX_INS) || ((subs / L) > Globals.MAX_SUB)) {
             return null;
         }
+        r.setCigars(cigar);
         r.setAlignedRead(sb.toString());
         r.setEnd(r.getBegin() + sb.length());
         return r;
@@ -239,12 +267,31 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
 
     private StringBuilder toString(Read read) {
         StringBuilder sb = new StringBuilder();
-        sb.append(">READ").append(this.number).append("_").append(read.getBegin()).append("-").append(read.getEnd());
+        sb.append("R");
         if (read.getDescription() != null) {
-            sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+            sb.append(read.getDescription());
+        } else {
+            sb.append(this.number);
         }
+        sb.append("\t0\t").append(Globals.GENOMES[read.getBestFittingGenome()].getHeader());
+        sb.append("\t").append(read.getBegin());
+        sb.append("\t").append("255");
+        sb.append("\t").append(read.getCigars());
+        sb.append("\t").append("*");
+        sb.append("\t").append("0");
+        sb.append("\t").append("0");
+        sb.append("\t").append(read.getAlignedRead());
+        sb.append("\t").append("*");
+//        for (int i = 0; i < read.getAlignedRead().length(); i++) {
+//            sb.append("I");
+//        }
         sb.append("\n");
-        sb.append(read.getAlignedRead()).append("\n");
+//        sb.append(">READ").append(this.number).append("_").append(read.getBegin()).append("-").append(read.getEnd());
+//        if (read.getDescription() != null) {
+//            sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
+//        }
+//        sb.append("\n");
+//        sb.append(read.getAlignedRead()).append("\n");
         return sb;
     }
 
