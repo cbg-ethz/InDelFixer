@@ -1,8 +1,10 @@
 # InDelFixer
-A insertion and deletion fixing aligner for 454, Illumina and PacBio.
+An insertion and deletion fixing aligner for 454, Illumina and PacBio.
 This java command line application aligns Next-Generation Sequencing (NGS) and third-generation reads
 to a set of reference sequences, by a fast k-mer matching and removes indels, causing
-frame shifts. In addition, only a specific region can be considered.The output is in SAM format.
+frame shifts. In addition, only a specific region can be considered. 
+
+The output is in SAM format.
 - - -
 
 #### PREREQUISITES TO RUN:
@@ -25,26 +27,26 @@ Remove insertions and deletions with `-adjust`
 ### Extract region:
 In addition, only a specific region can be extracted with `-r begin-end`, for example a certain gene:
   `java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944`
-
+* * *
 ### Help:
 Further help can be showed by running without additional parameters:
     `java -jar InDelFixer.jar`
 
 ### BAM output:
 In order to convert the `reads.sam` into the BAM format, please install samtools and run:
+
     samtools view -bS reads.sam > out.bam; 
     samtools sort out.bam reads; 
     samtools index reads.bam; 
     rm out.bam;
 
-
-# COMPILE (only for dev):
- - Maven 3 (http://maven.apache.org/)
+### COMPILE (only for dev):
+Install Maven 3 (http://maven.apache.org/)
 
     cd InDelFixer
     mvn clean package
     java -jar InDelFixer/target/InDelFixer.jar
-
+* * *
 # CONTACT:
     Armin Töpfer
     armin.toepfer (at) gmail.com
