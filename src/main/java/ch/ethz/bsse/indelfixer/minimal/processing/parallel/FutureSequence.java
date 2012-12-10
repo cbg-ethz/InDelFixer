@@ -178,7 +178,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 cigar[j] = 'M';
             } else if (m[j] == ' ') {
                 if (isGAP(c[j]) && isGAP(g[j])) {
-                    cigar[j] = 'M';
+                    cigar[j] = 'D';
                     currentConsensus = '-';
                 } else if (isGAP(c[j])) {
                     if (Globals.ADJUST) {
@@ -201,12 +201,16 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 subs++;
                 if (isGAP(g[j])) {
                     if (!isGAP(c[j])) {
-                        cigar[j] = 'M';
                         if (Globals.ADJUST) {
                             ins++;
                             currentConsensus = g[j];
                         } else {
                             currentConsensus = c[j];
+                        }
+                        if (currentConsensus == '-') {
+                            cigar[j] = 'D';
+                        } else {
+                            cigar[j] = 'M';
                         }
                     } else {
                         System.out.println("Contact program creator");

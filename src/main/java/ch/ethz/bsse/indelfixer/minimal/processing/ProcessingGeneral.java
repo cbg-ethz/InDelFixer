@@ -98,7 +98,7 @@ public class ProcessingGeneral {
      *
      */
     protected void printMatrix() {
-        System.out.print("\n\nr/g");
+        System.out.print("\n\nSubstitution matrix:\nr/g");
         for (int v = 0; v < 6; v++) {
             System.out.print("\t" + convert(v));
         }

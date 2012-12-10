@@ -27,10 +27,11 @@ import java.util.TimeZone;
 public class StatusUpdate {
 
     private static final long start = System.currentTimeMillis();
-    private static DateFormat df = new SimpleDateFormat("HH:mm:ss");
+    private static final DateFormat df;
     private static int readCount = 0;
 
-    {
+    static {
+        df = new SimpleDateFormat("HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
