@@ -50,7 +50,13 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
      * Queues sequences for threading and initiates processing of results.
      */
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
-        BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
+        BufferedReader brWatson;
+        if (Globals.FLAT) {
+            flattenFastq(this.inputWatson);
+            brWatson = new BufferedReader(new FileReader(new File(this.inputWatson + "_flat")));
+        } else {
+            brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
+        }
 
         for (int i = 0;; i++) {
             try {

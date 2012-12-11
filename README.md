@@ -21,6 +21,9 @@ The output is in SAM format.
 #### Illumina paired end:
 `java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta`
 
+### Line breaks
+In the case that a single fastq entry is longer than four lines, which is caused by line breaks in the sequence and quality string, use `-flat`.
+
 ### Remove InDels:
 Remove insertions and deletions with `-adjust`
 

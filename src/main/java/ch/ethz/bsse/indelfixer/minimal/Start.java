@@ -61,7 +61,7 @@ public class Start {
     private int step = 1_000;
     @Option(name = "-r")
     private String regions;
-    @Option(name = "--flat")
+    @Option(name = "-flat")
     private boolean flat;
     @Option(name = "--count")
     private boolean count;
@@ -112,32 +112,32 @@ public class Start {
             if (this.input == null && this.genome == null) {
                 throw new CmdLineException("");
             }
-            if (this.flat) {
-                flatAndSave();
-            } else {
-                this.setGlobals();
-                Genome[] genomes = parseGenome(this.genome);
-                if (this.regions != null) {
-                    Globals.RS = this.splitRegion();
-                    this.cutGenomes(genomes);
-                }
-
-                if (!new File(this.input).exists()) {
-                    throw new CmdLineException("Input file does not exist");
-                }
-                if (this.inputReverse != null) {
-                    if (!new File(this.inputReverse).exists()) {
-                        throw new CmdLineException("Input reverse file does not exist");
-                    }
-                    new ProcessingIlluminaPaired(this.input, this.inputReverse);
-                } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
-                    new ProcessingIlluminaSingle(this.input);
-                } else if (Utils.isFastaFormat(this.input)) {
-                    new ProcessingFastaSingle(this.input);
-                } else {
-                    new ProcessingSFFSingle(SFFParsing.parse(this.input));
-                }
+//            if (this.flat) {
+//                flatAndSave();
+//            } else {
+            this.setGlobals();
+            Genome[] genomes = parseGenome(this.genome);
+            if (this.regions != null) {
+                Globals.RS = this.splitRegion();
+                this.cutGenomes(genomes);
             }
+
+            if (!new File(this.input).exists()) {
+                throw new CmdLineException("Input file does not exist");
+            }
+            if (this.inputReverse != null) {
+                if (!new File(this.inputReverse).exists()) {
+                    throw new CmdLineException("Input reverse file does not exist");
+                }
+                new ProcessingIlluminaPaired(this.input, this.inputReverse);
+            } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
+                new ProcessingIlluminaSingle(this.input);
+            } else if (Utils.isFastaFormat(this.input)) {
+                new ProcessingFastaSingle(this.input);
+            } else {
+                new ProcessingSFFSingle(SFFParsing.parse(this.input));
+            }
+//            }
         } catch (CmdLineException e) {
             System.err.println(e.getMessage());
             System.err.println("USAGE:");
@@ -230,6 +230,7 @@ public class Start {
         Globals.MAX_DEL = this.del;
         Globals.MAX_INS = this.ins;
         Globals.MAX_SUB = this.sub;
+        Globals.FLAT = this.flat;
     }
 
     /**

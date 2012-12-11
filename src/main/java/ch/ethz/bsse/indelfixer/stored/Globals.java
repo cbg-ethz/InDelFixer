@@ -30,6 +30,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static boolean FLAT;
     public static double MAX_DEL;
     public static double MAX_INS;
     public static double MAX_SUB;

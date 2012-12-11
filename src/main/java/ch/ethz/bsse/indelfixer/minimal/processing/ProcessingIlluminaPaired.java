@@ -53,8 +53,16 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
      * Queues sequences for threading and initiates processing of results.
      */
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
-        BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
-        BufferedReader brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
+        BufferedReader brWatson;
+        BufferedReader brCrick;
+        if (Globals.FLAT) {
+            flattenFastq(this.inputWatson);
+            brWatson = new BufferedReader(new FileReader(new File(this.inputWatson + "_flat")));
+            brCrick = new BufferedReader(new FileReader(new File(this.inputCrick + "_flat")));
+        } else {
+            brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
+            brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
+        }
 
         for (int i = 0;; i++) {
             try {

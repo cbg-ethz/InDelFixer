@@ -19,6 +19,13 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.Utils;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +38,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -55,6 +64,52 @@ public class ProcessingGeneral {
             }
         }
         return map;
+    }
+    
+    protected void flattenFastq(String input) {
+        final String newline = System.getProperty("line.separator");
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = Files.newBufferedReader(FileSystems.getDefault().getPath(input), Charset.defaultCharset())) {
+            String line = br.readLine();
+            do {
+                if (!line.startsWith("@")) {
+                    Utils.error();
+                }
+                sb.append(line.trim());
+                sb.append(newline);
+                int lines = 0;
+                for (;;) {
+                    line = br.readLine();
+                    if (line.startsWith("+")) {
+                        break;
+                    }
+                    lines++;
+                    sb.append(line.trim());
+                }
+                sb.append(newline);
+                sb.append(line.trim());
+                sb.append(newline);
+                for (int i = 0; i < lines; i++) {
+                    line = br.readLine();
+                    sb.append(line.trim());
+                }
+                sb.append(newline);
+                line = br.readLine();
+            } while (line != null);
+        } catch (IOException e) {
+            System.err.println("Error parsing file " + input);
+        }
+        try {
+            Files.deleteIfExists(FileSystems.getDefault().getPath(input + "_flat"));
+        } catch (IOException ex) {
+            Logger.getLogger(ProcessingIlluminaSingle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try (BufferedWriter bw = Files.newBufferedWriter(FileSystems.getDefault().getPath(input + "_flat"), Charset.defaultCharset(), StandardOpenOption.CREATE)) {
+            bw.write(sb.toString());
+            bw.flush();
+        } catch (IOException e) {
+            System.err.println("Error parsing file " + input);
+        }
     }
 
     /**
