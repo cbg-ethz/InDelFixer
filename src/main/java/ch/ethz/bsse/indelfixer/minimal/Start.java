@@ -18,6 +18,7 @@ package ch.ethz.bsse.indelfixer.minimal;
 
 import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingFastaSingle;
 import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingIlluminaPaired;
+import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingIlluminaSingle;
 import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingSFFSingle;
 import ch.ethz.bsse.indelfixer.sffParser.SFFParsing;
 import ch.ethz.bsse.indelfixer.stored.Genome;
@@ -86,7 +87,7 @@ public class Start {
 
     /**
      * Forwards command-line parameters.
-     * 
+     *
      * @param args command-line parameters
      * @throws IOException If parameters are wrong
      */
@@ -97,6 +98,7 @@ public class Start {
 
     /**
      * Main.
+     *
      * @param args command-line parameters
      */
     public void doMain(String[] args) {
@@ -120,8 +122,16 @@ public class Start {
                     this.cutGenomes(genomes);
                 }
 
+                if (!new File(this.input).exists()) {
+                    throw new CmdLineException("Input file does not exist");
+                }
                 if (this.inputReverse != null) {
+                    if (!new File(this.inputReverse).exists()) {
+                        throw new CmdLineException("Input reverse file does not exist");
+                    }
                     new ProcessingIlluminaPaired(this.input, this.inputReverse);
+                } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
+                    new ProcessingIlluminaSingle(this.input);
                 } else if (Utils.isFastaFormat(this.input)) {
                     new ProcessingFastaSingle(this.input);
                 } else {
@@ -230,7 +240,7 @@ public class Start {
         StringBuilder sb = new StringBuilder();
         int x = 0;
         int i = 0;
-        for (Map.Entry<String,String> entry : far.entrySet()) {
+        for (Map.Entry<String, String> entry : far.entrySet()) {
             sb.append(entry.getValue()).append("\n").append(entry.getKey()).append("\n");
             if (i++ % 1000 == 0) {
                 Utils.saveFile(output + "flat-" + x++ + ".fasta", sb.toString());

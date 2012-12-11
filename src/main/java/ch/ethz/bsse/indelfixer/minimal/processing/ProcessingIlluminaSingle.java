@@ -29,20 +29,17 @@ import java.util.concurrent.ExecutionException;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class ProcessingIlluminaPaired extends ProcessingGeneral {
+public class ProcessingIlluminaSingle extends ProcessingGeneral {
 
     private String inputWatson;
-    private String inputCrick;
 
     /**
      * Constructor.
      *
      * @param inputWatson Path to multiple fastq file for forward.
-     * @param inputCrick Path to multiple fastq file for reverse.
      */
-    public ProcessingIlluminaPaired(String inputWatson, String inputCrick) {
+    public ProcessingIlluminaSingle(String inputWatson) {
         this.inputWatson = inputWatson;
-        this.inputCrick = inputCrick;
         try {
             this.start();
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -54,17 +51,12 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
      */
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
         BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
-        BufferedReader brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
 
         for (int i = 0;; i++) {
             try {
                 SequenceEntry watsonQ = parseFastq(brWatson);
-                if (watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
+                if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
                     results.add(executor.submit(new FutureSequence(watsonQ, i)));
-                }
-                SequenceEntry crickQ = parseFastq(brCrick);
-                if (crickQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    results.add(executor.submit(new FutureSequence(crickQ, i)));
                 }
             } catch (IllegalAccessError e) {
                 // used to halt in case of EOF
@@ -90,7 +82,6 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             throw new IllegalAccessError();
         }
         String tag = header.split(" ")[0];
-        int pairedNumber = Integer.parseInt(header.split(" ")[1].split(":")[0]);
         //sequence
         String seq = br.readLine();
         char[] c = seq.toCharArray();
@@ -144,7 +135,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         qualitySum /= end - begin - 1;
         return new SequenceEntry(seq.substring(begin, end + 1),
                 tag,
-                pairedNumber,
+                1,
                 qualityString.substring(begin, end + 1));
     }
 }
