@@ -67,11 +67,11 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         for (int i = 0;; i++) {
             try {
                 SequenceEntry watsonQ = parseFastq(brWatson);
-                if (watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
+                if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
                     results.add(executor.submit(new FutureSequence(watsonQ, i)));
                 }
                 SequenceEntry crickQ = parseFastq(brCrick);
-                if (crickQ.sequence.length() >= Globals.MIN_LENGTH) {
+                if (crickQ != null && crickQ.sequence.length() >= Globals.MIN_LENGTH) {
                     results.add(executor.submit(new FutureSequence(crickQ, i)));
                 }
             } catch (IllegalAccessError e) {

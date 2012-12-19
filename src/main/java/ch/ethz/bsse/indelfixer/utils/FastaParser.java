@@ -109,7 +109,7 @@ public class FastaParser {
                 while ((strLine = br.readLine()) != null) {
                     if (strLine.startsWith(">")) {
                         if (sb.length() > 0) {
-                            hapMap.put(sb.toString(), head);
+                            hapMap.put(sb.toString().toUpperCase(), head);
                             sb.setLength(0);
                         }
                         head = strLine;
@@ -117,7 +117,7 @@ public class FastaParser {
                         sb.append(strLine);
                     }
                 }
-                hapMap.put(sb.toString(), head);
+                hapMap.put(sb.toString().toUpperCase(), head);
 
             }
         } catch (IOException | NumberFormatException e) {

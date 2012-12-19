@@ -131,14 +131,42 @@ public class Read implements Serializable {
     }
 
     public void cut(int from) {
-        this.alignedRead = this.alignedRead.substring(from);
+        char[] cs = this.cigars.toCharArray();
+        int preoffset = 0;
+        for (int i = 0; i < from; i++) {
+            if (cs[i] == 'D') {
+                preoffset--;
+            }
+        }
+        this.cigars = this.cigars.substring(from);
+        this.alignedRead = this.alignedRead.substring(preoffset+from);
         if (this.quality != null) {
             this.quality = this.quality.substring(from);
         }
     }
 
     public void cut(int from, int to) {
-        this.alignedRead = this.alignedRead.substring(from, to);
+        char[] cs = this.cigars.toCharArray();
+        int preoffset = 0;
+        for (int i = 0; i < from; i++) {
+            if (cs[i] == 'D') {
+                preoffset--;
+//            } else if (cs[i] == 'I') {
+//                preoffset++;
+            }
+        }
+
+        this.cigars = this.cigars.substring(from, to);
+        int offset = 0;
+        for (char c : this.cigars.toCharArray()) {
+            if (c == 'D') {
+                offset--;
+//            } else if (c == 'I') {
+//                offset++;
+            }
+        }
+        int l = this.alignedRead.length();
+        this.alignedRead = this.alignedRead.substring(preoffset + from, offset + to);
         if (this.quality != null) {
             this.quality = this.quality.substring(from, to);
         }
@@ -331,10 +359,19 @@ public class Read implements Serializable {
 
     public void setCigars(char[] cigars) {
         StringBuilder cigarSB = new StringBuilder();
+        for (char c : cigars) {
+            cigarSB.append(c);
+        }
+
+        this.cigars = cigarSB.toString();
+    }
+
+    public String getCigars() {
+        StringBuilder cigarSB = new StringBuilder();
         char prev = 'x';
         int count = 0;
-        for (char c : cigars) {
-            if (c != 0) {
+        for (char c : cigars.toCharArray()) {
+            if (c != 0 && c != 'I') {
                 if (prev == 'x') {
                     prev = c;
                     count++;
@@ -350,12 +387,7 @@ public class Read implements Serializable {
             }
         }
         cigarSB.append(count).append(prev);
-
-        this.cigars = cigarSB.toString();
-    }
-
-    public String getCigars() {
-        return cigars;
+        return cigarSB.toString();
     }
 }
 

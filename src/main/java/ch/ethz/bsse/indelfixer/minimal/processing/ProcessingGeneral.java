@@ -48,7 +48,7 @@ import org.javatuples.Triplet;
  */
 public class ProcessingGeneral {
 
-    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(100 * Runtime.getRuntime().availableProcessors());
+    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(1000 * Runtime.getRuntime().availableProcessors());
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
@@ -95,7 +95,7 @@ public class ProcessingGeneral {
                 }
                 sb.append(newline);
                 line = br.readLine();
-            } while (line != null);
+            } while (line != null && !line.isEmpty());
         } catch (IOException e) {
             System.err.println("Error parsing file " + input);
         }

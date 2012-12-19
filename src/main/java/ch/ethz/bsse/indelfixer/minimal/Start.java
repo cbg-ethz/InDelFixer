@@ -102,59 +102,64 @@ public class Start {
      * @param args command-line parameters
      */
     public void doMain(String[] args) {
-        CmdLineParser parser = new CmdLineParser(this);
-
-        parser.setUsageWidth(80);
         try {
-            parser.parseArgument(args);
-            this.checkOutput();
+            CmdLineParser parser = new CmdLineParser(this);
 
-            if (this.input == null && this.genome == null) {
-                throw new CmdLineException("");
-            }
+            parser.setUsageWidth(80);
+            try {
+                parser.parseArgument(args);
+                this.checkOutput();
+
+                if (this.input == null && this.genome == null) {
+                    throw new CmdLineException("");
+                }
 //            if (this.flat) {
 //                flatAndSave();
 //            } else {
-            this.setGlobals();
-            Genome[] genomes = parseGenome(this.genome);
-            if (this.regions != null) {
-                Globals.RS = this.splitRegion();
-                this.cutGenomes(genomes);
-            }
-
-            if (!new File(this.input).exists()) {
-                throw new CmdLineException("Input file does not exist");
-            }
-            if (this.inputReverse != null) {
-                if (!new File(this.inputReverse).exists()) {
-                    throw new CmdLineException("Input reverse file does not exist");
+                this.setGlobals();
+                Genome[] genomes = parseGenome(this.genome);
+                if (this.regions != null) {
+                    Globals.RS = this.splitRegion();
+                    this.cutGenomes(genomes);
                 }
-                new ProcessingIlluminaPaired(this.input, this.inputReverse);
-            } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
-                new ProcessingIlluminaSingle(this.input);
-            } else if (Utils.isFastaFormat(this.input)) {
-                new ProcessingFastaSingle(this.input);
-            } else {
-                new ProcessingSFFSingle(SFFParsing.parse(this.input));
-            }
+
+                if (!new File(this.input).exists()) {
+                    throw new CmdLineException("Input file does not exist");
+                }
+                if (this.inputReverse != null) {
+                    if (!new File(this.inputReverse).exists()) {
+                        throw new CmdLineException("Input reverse file does not exist");
+                    }
+                    new ProcessingIlluminaPaired(this.input, this.inputReverse);
+                } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
+                    new ProcessingIlluminaSingle(this.input);
+                } else if (Utils.isFastaFormat(this.input)) {
+                    new ProcessingFastaSingle(this.input);
+                } else {
+                    new ProcessingSFFSingle(SFFParsing.parse(this.input));
+                }
 //            }
-        } catch (CmdLineException e) {
-            System.err.println(e.getMessage());
-            System.err.println("USAGE:");
-            System.err.println("java -jar InDelFixer.jar options...\n");
-            System.err.println(" ------------------------");
-            System.err.println(" === GENERAL options ===");
-            System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory)");
-            System.err.println("  -i PATH\t\t: Path to the NGS input file (FASTA, FASTQ or SFF format) [REQUIRED]");
-            System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [ONLY REQUIRED if first file is also fastq]");
-            System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
-            System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
-            System.err.println(" ------------------------");
-            System.err.println(" === EXAMPLES ===");
-            System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta");
-            System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta");
-            System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta");
-            System.err.println(" ------------------------");
+            } catch (CmdLineException e) {
+                System.err.println(e.getMessage());
+                System.err.println("USAGE:");
+                System.err.println("java -jar InDelFixer.jar options...\n");
+                System.err.println(" ------------------------");
+                System.err.println(" === GENERAL options ===");
+                System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory)");
+                System.err.println("  -i PATH\t\t: Path to the NGS input file (FASTA, FASTQ or SFF format) [REQUIRED]");
+                System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [ONLY REQUIRED if first file is also fastq]");
+                System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
+                System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
+                System.err.println(" ------------------------");
+                System.err.println(" === EXAMPLES ===");
+                System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta");
+                System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta");
+                System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta");
+                System.err.println(" ------------------------");
+            }
+        } catch (OutOfMemoryError e) {
+            Utils.error();
+            System.err.println("Please increase the heap space.");
         }
     }
 

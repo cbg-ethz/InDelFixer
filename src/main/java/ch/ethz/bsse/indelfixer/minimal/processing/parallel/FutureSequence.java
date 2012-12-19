@@ -59,8 +59,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
             Read watsonRead = map(createRead(watsonTriple, false));
             Read watsonRevRead = map(createRead(watsonTriple, true));
             try {
-                Read align = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
-                Read watson = cut(align);
+                Read watson = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
                 if (watson != null) {
                     sb.append(toString(watson));
                     StatusUpdate.processReads();
@@ -68,6 +67,8 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 }
             } catch (Exception e) {
                 System.err.println(e);
+                Utils.error();
+                System.exit(0);
             }
         }
         return null;
@@ -85,9 +86,9 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
     private Read createRead(SequenceEntry entry, boolean reverse) {
         Read r;
         if (reverse) {
-            r = new Read(Utils.reverseComplement(entry.sequence), 0, true);
+            r = new Read(Utils.reverseComplement(entry.sequence.toUpperCase()), 0, true);
         } else {
-            r = new Read(entry.sequence, 0, false);
+            r = new Read(entry.sequence.toUpperCase(), 0, false);
         }
         if (entry.tag != null) {
             r.setDescription(entry.tag);
@@ -132,17 +133,8 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
 
     private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) {
         Alignment align;
-        if (r.getBestFittingGenome() == -1) {
+        if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
             return null;
-//                    System.out.println(r.getRead());
-        }
-        if (r.getEnd() < 0) {
-            return null;
-//            Globals.printPercentageAligningReads();
-//                    align = SmithWatermanGotoh.align(
-//                            new Sequence(genome, "", "", Sequence.NUCLEIC),
-//                            new Sequence(reads[i].getRead(), "", "", Sequence.NUCLEIC),
-//                            matrix, 10, 1);
         } else {
             if (r.getBegin() <= 0) {
                 align = SmithWatermanGotoh.align(
@@ -165,81 +157,131 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         char[] c = align.getSequence2();
         char[] g = align.getSequence1();
         double L = m.length;
-        if (m.length != c.length) {
-        }
         int ins = 0;
         int del = 0;
         int subs = 0;
         char[] cigar = new char[m.length];
         for (int j = 0; j < L; j++) {
             char currentConsensus = '*';
-            if (m[j] == '|') {
-                currentConsensus = c[j];
-                cigar[j] = 'M';
-            } else if (m[j] == ' ') {
-                if (isGAP(c[j]) && isGAP(g[j])) {
-                    cigar[j] = 'D';
-                    currentConsensus = '-';
-                } else if (isGAP(c[j])) {
-                    if (Globals.ADJUST) {
-                        cigar[j] = 'M';
-                        currentConsensus = g[j];
-                    } else {
-                        del++;
-                        currentConsensus = '-';
+            try {
+                if (m[j] == '|') {
+                    currentConsensus = c[j];
+                    cigar[j] = 'M';
+                } else if (m[j] == ' ') {
+                    if (isGAP(c[j]) && isGAP(g[j])) {
                         cigar[j] = 'D';
-                    }
-                } else if (isGAP(g[j])) {
-                    if (Globals.ADJUST) {
-                        ins++;
-                    } else {
-                        cigar[j] = 'I';
-                        currentConsensus = c[j];
-                    }
-                }
-            } else if (m[j] == '.') {
-                subs++;
-                if (isGAP(g[j])) {
-                    if (!isGAP(c[j])) {
+                        currentConsensus = '-';
+                    } else if (isGAP(c[j])) {
                         if (Globals.ADJUST) {
-                            ins++;
+                            cigar[j] = 'M';
                             currentConsensus = g[j];
                         } else {
+                            del++;
+                            currentConsensus = '-';
+                            cigar[j] = 'D';
+                        }
+                    } else if (isGAP(g[j])) {
+                        if (Globals.ADJUST) {
+                            ins++;
+                        } else {
+                            cigar[j] = 'I';
                             currentConsensus = c[j];
                         }
-                        if (currentConsensus == '-') {
-                            cigar[j] = 'D';
+                    }
+                } else if (m[j] == '.') {
+                    subs++;
+                    if (isGAP(g[j])) {
+                        if (!isGAP(c[j])) {
+                            if (Globals.ADJUST) {
+                                ins++;
+                                currentConsensus = g[j];
+                            } else {
+                                currentConsensus = c[j];
+                            }
+                            if (currentConsensus == '-') {
+                                cigar[j] = 'D';
+                            } else {
+                                cigar[j] = 'M';
+                            }
                         } else {
+                            System.out.println("Contact program creator");
+                            System.exit(0);
+                        }
+                    } else if (isGAP(c[j])) {
+                        if (Globals.ADJUST) {
+                            del++;
                             cigar[j] = 'M';
+                            currentConsensus = g[j];
+                        } else {
+                            cigar[j] = 'D';
+                            currentConsensus = c[j];
                         }
                     } else {
-                        System.out.println("Contact program creator");
-                        System.exit(0);
-                    }
-                } else if (isGAP(c[j])) {
-                    if (Globals.ADJUST) {
-                        del++;
                         cigar[j] = 'M';
-                        currentConsensus = g[j];
-                    } else {
-                        cigar[j] = 'D';
                         currentConsensus = c[j];
                     }
-                } else {
-                    cigar[j] = 'M';
-                    currentConsensus = c[j];
                 }
-            }
-            if (cigar[j] != 0) {
-                if (cigar[j] == 'M' || cigar[j] == 'I') {
-                    sb.append(currentConsensus);
+
+                if (c[j] == 'N') {
+                    currentConsensus = g[j];
+                    if (isGAP(g[j])) {
+                        cigar[j] = 'I';
+                    } else {
+                        cigar[j] = 'M';
+                    }
+
                 }
-                sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
+                if (cigar[j] != 0) {
+                    if (cigar[j] == 'M') {
+                        sb.append(currentConsensus);
+                    }
+                    sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
+//                    if (cigar[j] == 'M' || cigar[j] == 'I') {
+//                        sb.append(currentConsensus);
+//                    }
+//                    sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
+                }
+            } catch (Exception e) {
+                System.err.println(e);
             }
         }
         if (((del / L) > Globals.MAX_DEL) || ((ins / L) > Globals.MAX_INS) || ((subs / L) > Globals.MAX_SUB)) {
             return null;
         }
+
+//        StringBuilder cigarSB = new StringBuilder();
+//        char prev = 'x';
+//        for (char h : cigar) {
+//            if (h != 0) {
+//                if (prev == 'x') {
+//                    prev = h;
+//                } else {
+//                    if (h == prev) {
+//                    } else {
+//                        if (prev == 'I' && h == 'D') {
+//                            return null;
+//                        } else if (prev == 'D' && h == 'I') {
+//                            return null;
+//                        }
+//                        prev = h;
+//                    }
+//                }
+//            }
+//        }
+
+        int length = 0;
+        for (char h : cigar) {
+            if (h != 0) {
+                if (h == 'M') {
+                    length++;
+                }
+            }
+        }
+        if (sb.toString().length() != length) {
+            System.out.println("kick out");
+            return null;
+        }
+
         r.setCigars(cigar);
         r.setAlignedRead(sb.toString());
         r.setEnd(r.getBegin() + sb.length());
@@ -297,34 +339,5 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
 //        sb.append("\n");
 //        sb.append(read.getAlignedRead()).append("\n");
         return sb;
-    }
-
-    private Read cut(Read read) {
-        if (read == null || !read.isAligned()) {
-            return null;
-        }
-        if (Globals.RS == null) {
-            return read;
-        }
-        int[] rs = Globals.RS;
-        if (read.getEnd() > rs[0] && read.getBegin() < rs[1] && read.isAligned()) {
-            if (read.getBegin() < rs[0]) {
-                if (read.getEnd() > rs[1]) {
-                    read.cut(rs[0] - read.getBegin(), rs[1] - read.getBegin());
-                    read.setBegin(rs[0]);
-                    read.setEnd(rs[1]);
-                } else if (read.getEnd() <= rs[1]) {
-                    read.cut(rs[0] - read.getBegin());
-                    read.setBegin(rs[0]);
-                }
-            } else if (read.getBegin() >= rs[0]) {
-                if (read.getEnd() > rs[1]) {
-                    read.cut(0, rs[1] - read.getBegin());
-                    read.setEnd(rs[1]);
-                }
-            }
-            return read;
-        }
-        return null;
     }
 }
