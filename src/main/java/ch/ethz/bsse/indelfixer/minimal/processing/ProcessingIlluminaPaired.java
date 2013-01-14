@@ -24,7 +24,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.javatuples.Pair;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -68,11 +71,17 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             try {
                 SequenceEntry watsonQ = parseFastq(brWatson);
                 if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    results.add(executor.submit(new FutureSequence(watsonQ, i)));
+                    Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> submit = executor.submit(new FutureSequence(watsonQ, i));
+                    if (submit != null) {
+                        results.add(submit);
+                    }
                 }
                 SequenceEntry crickQ = parseFastq(brCrick);
                 if (crickQ != null && crickQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    results.add(executor.submit(new FutureSequence(crickQ, i)));
+                    Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> submit = executor.submit(new FutureSequence(crickQ, i));
+                    if (submit != null) {
+                        results.add(submit);
+                    }
                 }
             } catch (IllegalAccessError e) {
                 // used to halt in case of EOF

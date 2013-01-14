@@ -63,16 +63,24 @@ public class Start {
     private String regions;
     @Option(name = "-flat")
     private boolean flat;
-    @Option(name = "--count")
-    private boolean count;
     @Option(name = "-l")
     private int minlength = 0;
+    @Option(name = "-la")
+    private int minlengthAligned = 0;
     @Option(name = "-sub")
     private double sub = 1;
     @Option(name = "-del")
     private double del = 1;
     @Option(name = "-ins")
     private double ins = 1;
+    @Option(name = "-gop")
+    private float gop = 5;
+    @Option(name = "-gex")
+    private float gex = 2;
+    @Option(name = "-pacbio")
+    private boolean pacbio;
+    @Option(name = "-illumina")
+    private boolean illumina;
 
     /**
      * Remove logging of jaligner.
@@ -120,7 +128,7 @@ public class Start {
                 Genome[] genomes = parseGenome(this.genome);
                 if (this.regions != null) {
                     Globals.RS = this.splitRegion();
-                    this.cutGenomes(genomes);
+                    genomes = parseGenome(this.cutGenomes(genomes));
                 }
 
                 if (!new File(this.input).exists()) {
@@ -192,14 +200,16 @@ public class Start {
      *
      * @param genomes of type Genome
      */
-    private void cutGenomes(Genome[] genomes) {
+    private String cutGenomes(Genome[] genomes) {
         int[] rs = Globals.RS;
         StringBuilder sb = new StringBuilder();
         for (Genome g : genomes) {
-            sb.append(g.getHeader()).append("\n");
+            sb.append(">").append(g.getHeader()).append("\n");
             sb.append(g.getSequence().substring(rs[0] - 1, rs[1] - 1)).append("\n");
         }
-        Utils.saveFile(Globals.output + "ref_" + (rs[0]) + "-" + (rs[1] - 1) + ".fasta", sb.toString());
+        String output = Globals.output + "ref_" + (rs[0]) + "-" + (rs[1] - 1) + ".fasta";
+        Utils.saveFile(output, sb.toString());
+        return output;
     }
 
     /**
@@ -226,6 +236,17 @@ public class Start {
      * Set global variables from command-line parameters
      */
     private void setGlobals() {
+        if (this.pacbio) {
+            Globals.GOP = 10;
+            Globals.GEX = 10;
+        } else if (this.illumina) {
+            Globals.GOP = 46;
+            Globals.GEX = 10;
+        } else {
+            Globals.GOP = this.gop;
+            Globals.GEX = this.gex;
+        }
+        Globals.MIN_LENGTH_ALIGNED = minlengthAligned;
         Globals.MIN_LENGTH = minlength;
         Globals.ADJUST = this.adjust;
         Globals.STEPSIZE = this.step;

@@ -24,9 +24,10 @@ import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import jaligner.Alignment;
-import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
 import jaligner.matrix.Matrix;
+import jaligner.util.SequenceParser;
+import jaligner.util.SequenceParserException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,9 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 if (watson != null) {
                     sb.append(toString(watson));
                     StatusUpdate.processReads();
-                    return Pair.with(sb.toString(), substitutionsForward);
+                    if (watson.getAlignedRead().length() > Globals.MIN_LENGTH_ALIGNED) {
+                        return Pair.with(sb.toString(), substitutionsForward);
+                    }
                 }
             } catch (Exception e) {
                 System.err.println(e);
@@ -131,24 +134,24 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         return r;
     }
 
-    private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) {
+    private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) throws SequenceParserException {
+        
         Alignment align;
         if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
             return null;
         } else {
             if (r.getBegin() <= 0) {
                 align = SmithWatermanGotoh.align(
-                        new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()], "", "", Sequence.NUCLEIC),
-                        new Sequence(r.getRead(), "", "", Sequence.NUCLEIC),
-                        matrix, 10, 1);
+                        SequenceParser.parse(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()]),
+                        SequenceParser.parse(r.getRead()),
+                        matrix, Globals.GOP, Globals.GEX);
                 r.setBegin(r.getBegin() + 1);
             } else {
                 int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
                 align = SmithWatermanGotoh.align(
-                        new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC),
-                        new Sequence(r.getRead(), "", "", Sequence.NUCLEIC),
-                        matrix, 10, 1);
-
+                        SequenceParser.parse(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd)),
+                        SequenceParser.parse(r.getRead()),
+                        matrix, Globals.GOP, Globals.GEX);
             }
         }
         StringBuilder sb = new StringBuilder();

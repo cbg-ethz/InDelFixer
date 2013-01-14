@@ -31,11 +31,14 @@ import java.util.concurrent.ForkJoinPool;
 public class Globals {
 
     public static boolean FLAT;
+    public static float GOP;
+    public static float GEX;
     public static double MAX_DEL;
     public static double MAX_INS;
     public static double MAX_SUB;
     public static boolean KEEP;
     public static List<Read> READS;
+    public static int MIN_LENGTH_ALIGNED;
     public static int MIN_LENGTH;
     public static int GENOME_LENGTH;
     public static int THRESHOLD;
