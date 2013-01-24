@@ -135,7 +135,13 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
                 break;
             }
         }
-        if (begin == -1) {
+        if (begin == -1 || end == -1) {
+            return null;
+        }
+        if (begin < Globals.CUT) {
+            begin = Globals.CUT;
+        }
+        if (begin > end) {
             return null;
         }
         qualitySum /= end - begin - 1;

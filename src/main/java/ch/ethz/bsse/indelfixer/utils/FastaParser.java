@@ -16,6 +16,7 @@
  */
 package ch.ethz.bsse.indelfixer.utils;
 
+import ch.ethz.bsse.indelfixer.stored.Globals;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -84,7 +85,7 @@ public class FastaParser {
                         }
                     }
                 }
-                readList.add(sb.toString());
+                readList.add(sb.toString().substring(Globals.CUT));
             }
         } catch (Exception e) {
         }
@@ -118,7 +119,6 @@ public class FastaParser {
                     }
                 }
                 hapMap.put(sb.toString().toUpperCase(), head);
-
             }
         } catch (IOException | NumberFormatException e) {
         }

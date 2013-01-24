@@ -18,6 +18,7 @@
 package ch.ethz.bsse.indelfixer.sffParser;
 
 import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.SimpleRead;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class SFFParsing {
 
-    public static String[] parse(String path) {
+    public static SimpleRead[] parse(String path) {
         Globals.N = 0;
         List<SFFRead> sffReads = new ArrayList<>();
         String[] split = path.split(";");
@@ -47,10 +48,10 @@ public class SFFParsing {
             sffReads.addAll(sff.getReads());
         }
 
-        String[] reads = new String[sffReads.size()];
+        SimpleRead[] reads = new SimpleRead[sffReads.size()];
         int i = 0;
         for (SFFRead r : sffReads) {
-            reads[i++] = r.getRead();
+            reads[i++] = new SimpleRead(r.getRead(),r.getQuality());
         }
         sffReads = null;
         System.gc();

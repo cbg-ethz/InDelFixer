@@ -7,15 +7,16 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
  */
 package ch.ethz.bsse.indelfixer.sffParser;
+
+import ch.ethz.bsse.indelfixer.stored.Globals;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -29,7 +30,7 @@ public class SFFRead {
     private int clipQualLeft;
     private int clipQualRight;
     private boolean clipped;
-
+    
     /**
      *
      * @param read
@@ -38,26 +39,29 @@ public class SFFRead {
      * @param clipQualLeft
      * @param clipQualRight
      */
-    public SFFRead(String read, int[] quality, String description,  int clipQualLeft, int clipQualRight) {
+    public SFFRead(String read, int[] quality, String description, int clipQualLeft, int clipQualRight) {
         this.read = read;
         this.quality = quality;
         this.description = description;
         this.clipQualLeft = clipQualLeft;
         this.clipQualRight = clipQualRight;
     }
-    
+
     /**
      *
      */
     public void clip() {
-        if (clipQualLeft!=0 && clipQualRight != 0) {
-            this.read = this.read.substring(this.clipQualLeft-1, this.clipQualRight);
+        if (clipQualLeft != 0 && clipQualRight != 0) {
+            if (clipQualLeft < Globals.CUT) {
+                clipQualLeft = Globals.CUT;
+            }
+            this.read = this.read.substring(this.clipQualLeft - 1, this.clipQualRight);
             int[] qualityTmp = new int[this.read.length()];
             this.errorProbability = new double[this.read.length()];
             for (int i = 0; i < read.length(); i++) {
                 try {
-                qualityTmp[i] = this.quality[clipQualLeft-1+i];
-                this.errorProbability[i] = Math.pow(10d,-(this.quality[clipQualLeft+i-1]/10d));
+                    qualityTmp[i] = this.quality[clipQualLeft - 1 + i];
+                    this.errorProbability[i] = Math.pow(10d, -(this.quality[clipQualLeft + i - 1] / 10d));
                 } catch (Exception e) {
                 }
             }
@@ -127,8 +131,12 @@ public class SFFRead {
      *
      * @return
      */
-    public int[] getQuality() {
-        return quality;
+    public String getQuality() {
+        StringBuilder sb = new StringBuilder(this.quality.length);
+        for (int q : quality) {
+            sb.append(String.valueOf(q));
+        }
+        return sb.toString();
     }
 
     /**

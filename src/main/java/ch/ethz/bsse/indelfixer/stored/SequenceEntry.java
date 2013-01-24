@@ -36,4 +36,14 @@ public class SequenceEntry {
     public SequenceEntry(String sequence) {
         this.sequence = sequence;
     }
+
+    public SequenceEntry(String sequence, String quality) {
+        this.sequence = sequence;
+        this.quality = quality;
+    }
+    
+    public SequenceEntry(SimpleRead sr) {
+        this.sequence = sr.read;
+        this.quality = sr.quality;
+    }
 }

@@ -39,14 +39,14 @@ import org.javatuples.Pair;
  */
 public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<Integer, Integer>>>> {
 
-    private SequenceEntry watsonTriple;
+    private SequenceEntry watsonEntry;
     private Genome[] genome;
     private Matrix matrix;
     private int number;
     private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
 
     public FutureSequence(SequenceEntry watson, int number) {
-        this.watsonTriple = watson;
+        this.watsonEntry = watson;
         this.genome = Globals.GENOMES;
         this.matrix = Globals.MATRIX;
         this.number = number;
@@ -56,9 +56,9 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
     @Override
     public Pair<String, Map<Integer, Map<Integer, Integer>>> call() {
         StringBuilder sb = new StringBuilder();
-        if (this.watsonTriple != null) {
-            Read watsonRead = map(createRead(watsonTriple, false));
-            Read watsonRevRead = map(createRead(watsonTriple, true));
+        if (this.watsonEntry != null) {
+            Read watsonRead = map(createRead(watsonEntry, false));
+            Read watsonRevRead = map(createRead(watsonEntry, true));
             try {
                 Read watson = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
                 if (watson != null) {
@@ -135,7 +135,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
     }
 
     private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) throws SequenceParserException {
-        
+
         Alignment align;
         if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
             return null;
@@ -164,6 +164,8 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         int del = 0;
         int subs = 0;
         char[] cigar = new char[m.length];
+        StringBuilder qualitySB = new StringBuilder(m.length);
+        int qualityStart = align.getStart2();
         for (int j = 0; j < L; j++) {
             char currentConsensus = '*';
             try {
@@ -194,22 +196,23 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 } else if (m[j] == '.') {
                     subs++;
                     if (isGAP(g[j])) {
-                        if (!isGAP(c[j])) {
-                            if (Globals.ADJUST) {
-                                ins++;
-                                currentConsensus = g[j];
-                            } else {
-                                currentConsensus = c[j];
-                            }
-                            if (currentConsensus == '-') {
-                                cigar[j] = 'D';
-                            } else {
-                                cigar[j] = 'M';
-                            }
+//                        if (!isGAP(c[j])) {
+                        if (Globals.ADJUST) {
+                            ins++;
+                            currentConsensus = g[j];
                         } else {
-                            System.out.println("Contact program creator");
-                            System.exit(0);
+                            currentConsensus = c[j];
                         }
+                        if (currentConsensus == '-') {
+                            cigar[j] = 'D';
+                        } else {
+                            cigar[j] = 'M';
+                        }
+//                        } else {
+//                            System.out.println("Contact program creator");
+//                            System.err.println(g[j]+""+m[j]+""+c[j]);
+//                            System.exit(0);
+//                        }
                     } else if (isGAP(c[j])) {
                         if (Globals.ADJUST) {
                             del++;
@@ -237,6 +240,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 if (cigar[j] != 0) {
                     if (cigar[j] == 'M') {
                         sb.append(currentConsensus);
+//                        qualitySB.append(r.getQuality().charAt(qualityStart+j));
                     }
                     sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
 //                    if (cigar[j] == 'M' || cigar[j] == 'I') {
@@ -245,7 +249,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
 //                    sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                System.err.println("FUTURE: " + e);
             }
         }
         if (((del / L) > Globals.MAX_DEL) || ((ins / L) > Globals.MAX_INS) || ((subs / L) > Globals.MAX_SUB)) {
@@ -284,7 +288,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
             System.out.println("kick out");
             return null;
         }
-
+        r.setQuality(qualitySB.toString());
         r.setCigars(cigar);
         r.setAlignedRead(sb.toString());
         r.setEnd(r.getBegin() + sb.length());
@@ -331,6 +335,9 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         sb.append("\t").append("0");
         sb.append("\t").append(read.getAlignedRead());
         sb.append("\t").append("*");
+//        for (int i = 0; i < read.getQuality().length(); i++) {
+//            sb.append(String.valueOf(read.getQuality().charAt(i)+33));
+//        }
 //        for (int i = 0; i < read.getAlignedRead().length(); i++) {
 //            sb.append("I");
 //        }

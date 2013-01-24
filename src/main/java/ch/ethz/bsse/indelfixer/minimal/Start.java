@@ -27,6 +27,8 @@ import ch.ethz.bsse.indelfixer.utils.FastaParser;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -81,6 +83,14 @@ public class Start {
     private boolean pacbio;
     @Option(name = "-illumina")
     private boolean illumina;
+    @Option(name = "-cut")
+    private int cut;
+    @Option(name = "-header")
+    private String header;
+    @Option(name = "--filter")
+    private boolean filter;
+    @Option(name = "--freq")
+    private boolean freq;
 
     /**
      * Remove logging of jaligner.
@@ -129,6 +139,33 @@ public class Start {
                 if (this.regions != null) {
                     Globals.RS = this.splitRegion();
                     genomes = parseGenome(this.cutGenomes(genomes));
+                }
+                if (this.freq) {
+                    double[][] allels = new double[genomes[0].getSequence().length()][5];
+                    for (Genome g : genomes) {
+                        byte[] a = splitReadIntoByteArray(g.getSequence());
+                        for (int j = 0; j < g.getSequence().length(); j++) {
+                            allels[j][a[j]] += 1d / genomes.length;
+                        }
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("\tA\tC\tG\tT\t-\n");
+                    for (int j = 0; j < allels.length; j++) {
+                        sb.append(j);
+                        double sum = 0d;
+                        for (int v = 0; v < 5; v++) {
+                            sum += allels[j][v] > 1e-5 ? allels[j][v] : 0;;
+                        }
+                        for (int v = 0; v < 5; v++) {
+                            sb.append("\t").append(shortenSmall(allels[j][v]/sum));
+                        }
+                        sb.append("\n");
+                    }
+                    Utils.saveFile("Genome_allels.txt", sb.toString());
+                    return;
+                }
+                for (Genome g : genomes) {
+                    g.split();
                 }
 
                 if (!new File(this.input).exists()) {
@@ -204,8 +241,13 @@ public class Start {
         int[] rs = Globals.RS;
         StringBuilder sb = new StringBuilder();
         for (Genome g : genomes) {
-            sb.append(">").append(g.getHeader()).append("\n");
-            sb.append(g.getSequence().substring(rs[0] - 1, rs[1] - 1)).append("\n");
+            try {
+                sb.append(">").append(g.getHeader()).append("\n");
+                sb.append(g.getSequence().substring(rs[0] - 1, rs[1] - 1)).append("\n");
+            } catch (Exception e) {
+                System.err.println(e);
+                Utils.error();
+            }
         }
         String output = Globals.output + "ref_" + (rs[0]) + "-" + (rs[1] - 1) + ".fasta";
         Utils.saveFile(output, sb.toString());
@@ -220,11 +262,13 @@ public class Start {
      */
     private Genome[] parseGenome(String genomePath) {
         Map<String, String> haps = FastaParser.parseHaplotypeFile(genomePath);
-        Genome[] gs = new Genome[haps.size()];
-        int i = 0;
+        List<Genome> genomeList = new LinkedList<>();
         for (Map.Entry<String, String> hap : haps.entrySet()) {
-            gs[i++] = new Genome(hap);
+            if (header == null || hap.getValue().startsWith(this.header)) {
+                genomeList.add(new Genome(hap));
+            }
         }
+        Genome[] gs = genomeList.toArray(new Genome[genomeList.size()]);
         Globals.GENOMES = gs;
         Globals.GENOME_COUNT = gs.length;
         Globals.GENOME_SEQUENCES = haps.keySet().toArray(new String[gs.length]);
@@ -257,6 +301,8 @@ public class Start {
         Globals.MAX_INS = this.ins;
         Globals.MAX_SUB = this.sub;
         Globals.FLAT = this.flat;
+        Globals.CUT = this.cut;
+        Globals.FILTER = this.filter;
     }
 
     /**
@@ -277,5 +323,56 @@ public class Start {
         if (sb.length() > 0) {
             Utils.saveFile(output + "flat-" + x + ".fasta", sb.toString());
         }
+    }
+
+    public static byte[] splitReadIntoByteArray(String read) {
+        byte[] Rs = new byte[read.length()];
+        char[] readSplit = read.toCharArray();
+        int length = readSplit.length;
+        for (int i = 0; i < length; i++) {
+            switch ((short) readSplit[i]) {
+                case 65:
+                    Rs[i] = 0;
+                    break;
+                case 67:
+                    Rs[i] = 1;
+                    break;
+                case 71:
+                    Rs[i] = 2;
+                    break;
+                case 84:
+                    Rs[i] = 3;
+                    break;
+                case 45:
+                    Rs[i] = 4;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return Rs;
+    }
+
+    public static String shortenSmall(double value) {
+        String s;
+        if (value < 1e-16) {
+            s = "0      ";
+        } else if (value == 1.0) {
+            s = "1      ";
+        } else {
+            String t = "" + value;
+            String r;
+            if (t.length() > 7) {
+                r = t.substring(0, 7);
+                if (t.contains("E")) {
+                    r = r.substring(0, 4);
+                    r += "E" + t.split("E")[1];
+                }
+                s = r;
+            } else {
+                s = String.valueOf(value);
+            }
+        }
+        return s;
     }
 }

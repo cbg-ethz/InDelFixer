@@ -50,10 +50,9 @@ public class Genome {
     public Genome(Map.Entry<String,String> hap) throws IllegalStateException {
         this.sequence = hap.getKey();
         this.header = hap.getValue().replaceAll(">", "").replace(" ", "");
-        this.split();
     }
 
-    private void split() throws IllegalStateException {
+    public void split() throws IllegalStateException {
         for (int i = Globals.KMER_LENGTH; i <= this.sequence.length(); i++) {
             String tmp = this.sequence.substring(i-Globals.KMER_LENGTH, i);
             if (kmerMap.containsKey(tmp)) {

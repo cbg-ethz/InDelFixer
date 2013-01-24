@@ -158,6 +158,9 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         if (begin == -1) {
             return null;
         }
+        if (begin < Globals.CUT) {
+            begin = Globals.CUT;
+        }
         qualitySum /= end - begin - 1;
         return new SequenceEntry(seq.substring(begin, end + 1),
                 tag,

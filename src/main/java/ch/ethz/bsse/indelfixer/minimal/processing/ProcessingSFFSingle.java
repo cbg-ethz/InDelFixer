@@ -19,6 +19,7 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
+import ch.ethz.bsse.indelfixer.stored.SimpleRead;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -28,14 +29,14 @@ import java.util.concurrent.ExecutionException;
  */
 public class ProcessingSFFSingle extends ProcessingGeneral {
 
-    private String[] sequences;
+    private SimpleRead[] sequences;
 
     /**
      * Constructor.
      *
      * @param sequences
      */
-    public ProcessingSFFSingle(String[] sequences) {
+    public ProcessingSFFSingle(SimpleRead[] sequences) {
         this.sequences = sequences;
         try {
             this.start();
