@@ -242,7 +242,7 @@ public class ProcessingGeneral {
         for (Genome g : Globals.GENOMES) {
             samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
         }
-        samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.2.1\n");
+        samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.4\n");
 
         StringBuilder indelsubrateSB = new StringBuilder();
         for (Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> future : results) {
