@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2012 Armin Töpfer
+ * Copyright (c) 2011-2013 Armin Töpfer
  *
  * This file is part of InDelFixer.
  *
@@ -165,7 +165,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         int subs = 0;
         char[] cigar = new char[m.length];
         StringBuilder qualitySB = new StringBuilder(m.length);
-        int qualityStart = align.getStart2();
+        int qualityStart = 0;
         for (int j = 0; j < L; j++) {
             char currentConsensus = '*';
             try {
