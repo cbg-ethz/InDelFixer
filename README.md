@@ -30,6 +30,7 @@ Gap costs for the used Smith-Waterman can be set with
 or
 -illumina (46 open / 10 extend)
 -pacbio (10 open / 10 extend)
+-roche (10 open/ 8 extend)
 ```
 
 ### Line breaks
