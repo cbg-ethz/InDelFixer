@@ -16,10 +16,21 @@ The output is in SAM format.
 `java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta`
  
 #### Fasta / PacBio ccs:
-`java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta`
+`java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta -pacbio`
  
 #### Illumina paired end:
-`java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta`
+`java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta -illumina`
+
+### Affine GAP costs
+Gap costs for the used Smith-Waterman can be set with
+```
+-gop 3 (gap open)
+-gex 1 (gap extend)
+
+or
+-illumina (46 open / 10 extend)
+-pacbio (10 open / 10 extend)
+```
 
 ### Line breaks
 In the case that a single fastq entry is longer than four lines, which is caused by line breaks in the sequence and quality string, use `-flat`.
