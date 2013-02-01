@@ -130,11 +130,11 @@ public class SFFFile {
         raf.read(basesByte);
         String bases = new String(basesByte);
         // qualityScores
-        int qualityScores[] = new int[numberOfBasesBig.intValue()];
+        char qualityScores[] = new char[numberOfBasesBig.intValue()];
         byte[] qualityScoresByte = new byte[numberOfBasesBig.intValue()];
         raf.read(qualityScoresByte);
         for (int i = 0; i < qualityScoresByte.length; i++) {
-            qualityScores[i] = Integer.valueOf((qualityScoresByte[i] + "")).intValue();
+            qualityScores[i] = (char)(qualityScoresByte[i]+33);
         }
 
         // construct a DNASequence object with additional information

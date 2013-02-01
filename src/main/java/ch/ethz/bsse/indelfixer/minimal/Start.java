@@ -83,6 +83,8 @@ public class Start {
     private boolean pacbio;
     @Option(name = "-illumina")
     private boolean illumina;
+    @Option(name = "-roche")
+    private boolean roche;
     @Option(name = "-cut")
     private int cut;
     @Option(name = "-header")
@@ -286,6 +288,9 @@ public class Start {
         } else if (this.illumina) {
             Globals.GOP = 46;
             Globals.GEX = 10;
+        } else if (this.roche) {
+            Globals.GOP = 10;
+            Globals.GEX = 8;
         } else {
             Globals.GOP = this.gop;
             Globals.GEX = this.gex;

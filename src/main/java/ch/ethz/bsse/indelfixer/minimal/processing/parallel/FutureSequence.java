@@ -240,7 +240,12 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                 if (cigar[j] != 0) {
                     if (cigar[j] == 'M') {
                         sb.append(currentConsensus);
-//                        qualitySB.append(r.getQuality().charAt(qualityStart+j));
+                        if (r.getQuality() != null) {
+                            qualitySB.append(r.getQuality().charAt(qualityStart));
+                        }
+                    }
+                    if (cigar[j] == 'M' || cigar[j] == 'I') {
+                        qualityStart++;
                     }
                     sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
 //                    if (cigar[j] == 'M' || cigar[j] == 'I') {
@@ -334,10 +339,14 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         sb.append("\t").append("0");
         sb.append("\t").append("0");
         sb.append("\t").append(read.getAlignedRead());
-        sb.append("\t").append("*");
-//        for (int i = 0; i < read.getQuality().length(); i++) {
-//            sb.append(String.valueOf(read.getQuality().charAt(i)+33));
-//        }
+        sb.append("\t");//.append("*");
+        if (read.getQuality() != null && !read.getQuality().isEmpty()) {
+            for (int i = 0; i < read.getQuality().length(); i++) {
+                sb.append((char) read.getQuality().charAt(i));
+            }
+        } else {
+            sb.append("*");
+        }
 //        for (int i = 0; i < read.getAlignedRead().length(); i++) {
 //            sb.append("I");
 //        }

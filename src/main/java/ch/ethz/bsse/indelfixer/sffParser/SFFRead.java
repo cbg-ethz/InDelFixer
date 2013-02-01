@@ -24,7 +24,7 @@ import ch.ethz.bsse.indelfixer.stored.Globals;
 public class SFFRead {
 
     private String read;
-    private int[] quality;
+    private char[] quality;
     private double[] errorProbability;
     private String description;
     private int clipQualLeft;
@@ -39,7 +39,7 @@ public class SFFRead {
      * @param clipQualLeft
      * @param clipQualRight
      */
-    public SFFRead(String read, int[] quality, String description, int clipQualLeft, int clipQualRight) {
+    public SFFRead(String read, char[] quality, String description, int clipQualLeft, int clipQualRight) {
         this.read = read;
         this.quality = quality;
         this.description = description;
@@ -56,7 +56,7 @@ public class SFFRead {
                 clipQualLeft = Globals.CUT;
             }
             this.read = this.read.substring(this.clipQualLeft - 1, this.clipQualRight);
-            int[] qualityTmp = new int[this.read.length()];
+            char[] qualityTmp = new char[this.read.length()];
             this.errorProbability = new double[this.read.length()];
             for (int i = 0; i < read.length(); i++) {
                 try {
@@ -133,8 +133,8 @@ public class SFFRead {
      */
     public String getQuality() {
         StringBuilder sb = new StringBuilder(this.quality.length);
-        for (int q : quality) {
-            sb.append(String.valueOf(q));
+        for (char q : quality) {
+            sb.append(q);
         }
         return sb.toString();
     }
@@ -143,7 +143,7 @@ public class SFFRead {
      *
      * @param quality
      */
-    public void setQuality(int[] quality) {
+    public void setQuality(char[] quality) {
         this.quality = quality;
     }
 
