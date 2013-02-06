@@ -53,6 +53,9 @@ public class ProcessingSFFSingle extends ProcessingGeneral {
             if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
                 results.add(executor.submit(new FutureSequence(watsonS, i)));
             }
+            if (i % 10000 == 0) {
+                this.processResults();
+            }
         }
 
         this.processResults();

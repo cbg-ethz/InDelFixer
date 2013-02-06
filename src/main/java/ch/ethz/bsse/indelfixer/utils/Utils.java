@@ -41,6 +41,20 @@ public class Utils {
             System.err.println(path);
         }
     }
+    
+    public static void appendFile(String path, String sb) {
+        try {
+            // Create file 
+            FileWriter fstream = new FileWriter(path, true);
+            try (BufferedWriter out = new BufferedWriter(fstream)) {
+                out.write(sb);
+            }
+        } catch (Exception e) {//Catch exception if any
+            System.err.println("Error append file: ");
+            System.err.println(path);
+            System.err.println(sb);
+        }
+    }
 
     /**
      *

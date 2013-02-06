@@ -67,6 +67,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
         }
 
+        
         for (int i = 0;; i++) {
             try {
                 SequenceEntry watsonQ = parseFastq(brWatson);
@@ -86,6 +87,9 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             } catch (IllegalAccessError e) {
                 // used to halt in case of EOF
                 break;
+            }
+            if (i % 10000 == 0) {
+                this.processResults();
             }
         }
 

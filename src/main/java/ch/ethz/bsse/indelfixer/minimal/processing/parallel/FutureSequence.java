@@ -206,7 +206,7 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                         if (currentConsensus == '-') {
                             cigar[j] = 'D';
                         } else {
-                            cigar[j] = 'M';
+                            cigar[j] = 'X';
                         }
 //                        } else {
 //                            System.out.println("Contact program creator");
@@ -216,14 +216,14 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
                     } else if (isGAP(c[j])) {
                         if (Globals.ADJUST) {
                             del++;
-                            cigar[j] = 'M';
+                            cigar[j] = 'X';
                             currentConsensus = g[j];
                         } else {
                             cigar[j] = 'D';
                             currentConsensus = c[j];
                         }
                     } else {
-                        cigar[j] = 'M';
+                        cigar[j] = 'X';
                         currentConsensus = c[j];
                     }
                 }
@@ -238,13 +238,13 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
 
                 }
                 if (cigar[j] != 0) {
-                    if (cigar[j] == 'M') {
+                    if (cigar[j] == 'M' || cigar[j] == 'X') {
                         sb.append(currentConsensus);
                         if (r.getQuality() != null) {
                             qualitySB.append(r.getQuality().charAt(qualityStart));
                         }
                     }
-                    if (cigar[j] == 'M' || cigar[j] == 'I') {
+                    if (cigar[j] == 'X' || cigar[j] == 'M' || cigar[j] == 'I') {
                         qualityStart++;
                     }
                     sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
@@ -282,13 +282,25 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
 //        }
 
         int length = 0;
+        int matches = 0;
+        int mismatches = 0;
         for (char h : cigar) {
             if (h != 0) {
                 if (h == 'M') {
                     length++;
+                    matches++;
+                }
+                if (h == 'X') {
+                    length++;
+                    mismatches++;
                 }
             }
         }
+        if (mismatches > (matches * .5)) {
+//            System.err.println("M:" + matches + "\tX:" + mismatches);
+            return null;
+        }
+
         if (sb.toString().length() != length) {
             System.out.println("kick out");
             return null;

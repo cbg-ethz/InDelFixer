@@ -21,6 +21,7 @@ import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -48,6 +49,7 @@ import org.javatuples.Triplet;
  */
 public class ProcessingGeneral {
 
+    private boolean virgin = true;
     protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(1000 * Runtime.getRuntime().availableProcessors());
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
@@ -65,7 +67,7 @@ public class ProcessingGeneral {
         }
         return map;
     }
-    
+
     protected void flattenFastq(String input) {
         final String newline = System.getProperty("line.separator");
         StringBuilder sb = new StringBuilder();
@@ -238,26 +240,22 @@ public class ProcessingGeneral {
 
     protected void processResults() throws InterruptedException, ExecutionException {
         StringBuilder samSB = new StringBuilder();
-        samSB.append("@HD\tVN:1.0\tSO:unsorted\n");
-        for (Genome g : Globals.GENOMES) {
-            samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
+        if (virgin) {
+            samSB.append("@HD\tVN:1.0\tSO:unsorted\n");
+            for (Genome g : Globals.GENOMES) {
+                samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
+            }
+            samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.6\n");
+            virgin = false;
         }
-        samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.4\n");
-
-        StringBuilder indelsubrateSB = new StringBuilder();
         for (Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> future : results) {
             Pair<String, Map<Integer, Map<Integer, Integer>>> result = future.get();
             if (result != null) {
                 samSB.append(result.getValue0());
                 this.updateMatrix(result);
-                Triplet<Double, Double, Double> inDelSubRates = this.getInDelSubRates(result.getValue1());
-                indelsubrateSB.append(inDelSubRates.getValue0()).append("\t");
-                indelsubrateSB.append(inDelSubRates.getValue1()).append("\t");
-                indelsubrateSB.append(inDelSubRates.getValue2()).append("\n");
             }
         }
-        Utils.saveFile(Globals.output + "indelsub.txt", indelsubrateSB.toString());
-        Utils.saveFile(Globals.output + "reads.sam", samSB.toString());
-        this.printMatrix();
+        results.clear();
+        Utils.appendFile(Globals.output + "reads.sam", samSB.toString());
     }
 }

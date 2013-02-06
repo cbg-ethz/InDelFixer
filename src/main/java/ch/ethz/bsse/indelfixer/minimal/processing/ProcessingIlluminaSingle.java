@@ -68,6 +68,9 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
                 // used to halt in case of EOF
                 break;
             }
+            if (i % 10000 == 0) {
+                this.processResults();
+            }
         }
 
         this.processResults();
