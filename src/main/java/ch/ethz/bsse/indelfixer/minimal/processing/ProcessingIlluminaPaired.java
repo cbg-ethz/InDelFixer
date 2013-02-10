@@ -67,7 +67,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
         }
 
-        
+
         for (int i = 0;; i++) {
             try {
                 SequenceEntry watsonQ = parseFastq(brWatson);
@@ -94,6 +94,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         }
 
         this.processResults();
+        this.printMatrix();
         executor.shutdown();
     }
 
@@ -110,8 +111,15 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         if (header == null) {
             throw new IllegalAccessError();
         }
-        String tag = header.split(" ")[0];
-        int pairedNumber = Integer.parseInt(header.split(" ")[1].split(":")[0]);
+        String tag = null;
+        int pairedNumber = 0;
+        if (header.contains("/")) {
+            tag = header.split("/")[0];
+            pairedNumber = Integer.parseInt(header.split("/")[1]);
+        } else {
+            tag = header.split(" ")[0];
+            pairedNumber = Integer.parseInt(header.split(" ")[1].split(":")[0]);
+        }
         //sequence
         String seq = br.readLine();
         char[] c = seq.toCharArray();

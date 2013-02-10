@@ -173,6 +173,10 @@ public class Start {
                 if (!new File(this.input).exists()) {
                     throw new CmdLineException("Input file does not exist");
                 }
+                File readsSam = new File(this.output+"reads.sam");
+                if (readsSam.exists()) {
+                    readsSam.delete();
+                }
                 if (this.inputReverse != null) {
                     if (!new File(this.inputReverse).exists()) {
                         throw new CmdLineException("Input reverse file does not exist");

@@ -74,6 +74,7 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         }
 
         this.processResults();
+        this.printMatrix();
         executor.shutdown();
     }
 

@@ -21,7 +21,6 @@ import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -52,7 +51,7 @@ public class ProcessingGeneral {
     private boolean virgin = true;
     protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(1000 * Runtime.getRuntime().availableProcessors());
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-    protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
+    protected ExecutorService executor = new ThreadPoolExecutor(2 * Runtime.getRuntime().availableProcessors(), 2 * Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
     protected List<Future<Pair<String, Map<Integer, Map<Integer, Integer>>>>> results = new LinkedList<>();
     protected List<Triplet<Double, Double, Double>> inDelSubsList = new LinkedList<>();
