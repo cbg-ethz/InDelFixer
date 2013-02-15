@@ -84,7 +84,7 @@ public class Start {
     private boolean pacbio;
     @Option(name = "-illumina")
     private boolean illumina;
-    @Option(name = "-roche")
+    @Option(name = "-454")
     private boolean roche;
     @Option(name = "-cut")
     private int cut;
@@ -249,7 +249,7 @@ public class Start {
             Globals.GEX = 10;
         } else if (this.roche) {
             Globals.GOP = 10;
-            Globals.GEX = 8;
+            Globals.GEX = 1;
         } else {
             Globals.GOP = this.gop;
             Globals.GEX = this.gex;
