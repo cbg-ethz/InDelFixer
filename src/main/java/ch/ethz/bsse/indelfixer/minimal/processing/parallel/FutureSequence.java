@@ -37,7 +37,7 @@ import org.javatuples.Pair;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<Integer, Integer>>>> {
+public class FutureSequence implements Callable<Pair<Read, Map<Integer, Map<Integer, Integer>>>> {
 
     private SequenceEntry watsonEntry;
     private Genome[] genome;
@@ -54,18 +54,16 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
     }
 
     @Override
-    public Pair<String, Map<Integer, Map<Integer, Integer>>> call() {
-        StringBuilder sb = new StringBuilder();
+    public Pair<Read, Map<Integer, Map<Integer, Integer>>> call() {
         if (this.watsonEntry != null) {
             Read watsonRead = map(createRead(watsonEntry, false));
             Read watsonRevRead = map(createRead(watsonEntry, true));
             try {
                 Read watson = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
                 if (watson != null) {
-                    sb.append(toString(watson));
                     StatusUpdate.processReads();
                     if (watson.getAlignedRead().length() > Globals.MIN_LENGTH_ALIGNED) {
-                        return Pair.with(sb.toString(), substitutionsForward);
+                        return Pair.with(watson, substitutionsForward);
                     }
                 }
             } catch (Exception e) {
@@ -93,15 +91,13 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
         } else {
             r = new Read(entry.sequence.toUpperCase(), 0, false);
         }
-        if (entry.tag != null) {
-            r.setDescription(entry.tag);
-        }
-        if (entry.pairedNumber != 0) {
-            r.setMatePair(entry.pairedNumber);
+        if (entry.header != null) {
+            r.setHeader(entry.header);
         }
         if (entry.quality != null) {
             r.setQuality(entry.quality);
         }
+        r.setNumber(number);
         return r;
     }
 
@@ -333,42 +329,5 @@ public class FutureSequence implements Callable<Pair<String, Map<Integer, Map<In
             default:
                 return 6;
         }
-    }
-
-    private StringBuilder toString(Read read) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("R");
-        if (read.getDescription() != null) {
-            sb.append(read.getDescription());
-        } else {
-            sb.append(this.number);
-        }
-        sb.append("\t0\t").append(Globals.GENOMES[read.getBestFittingGenome()].getHeader());
-        sb.append("\t").append(read.getBegin());
-        sb.append("\t").append("255");
-        sb.append("\t").append(read.getCigars());
-        sb.append("\t").append("*");
-        sb.append("\t").append("0");
-        sb.append("\t").append("0");
-        sb.append("\t").append(read.getAlignedRead());
-        sb.append("\t");//.append("*");
-        if (read.getQuality() != null && !read.getQuality().isEmpty()) {
-            for (int i = 0; i < read.getQuality().length(); i++) {
-                sb.append((char) read.getQuality().charAt(i));
-            }
-        } else {
-            sb.append("*");
-        }
-//        for (int i = 0; i < read.getAlignedRead().length(); i++) {
-//            sb.append("I");
-//        }
-        sb.append("\n");
-//        sb.append(">READ").append(this.number).append("_").append(read.getBegin()).append("-").append(read.getEnd());
-//        if (read.getDescription() != null) {
-//            sb.append("|").append(read.getDescription()).append("/").append(read.getMatePair());
-//        }
-//        sb.append("\n");
-//        sb.append(read.getAlignedRead()).append("\n");
-        return sb;
     }
 }

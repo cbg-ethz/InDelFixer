@@ -84,6 +84,31 @@ public class Utils {
         }
         return sb.reverse().toString();
     }
+    
+    public static int[] reverse(String s) {
+        int[] r = new int[s.length()];
+        int i = 0;
+        for (char c : s.toUpperCase().toCharArray()) {
+            switch (c) {
+                case 'A':
+                    r[i++] = 0;
+                    break;
+                case 'C':
+                    r[i++] = 1;
+                    break;
+                case 'G':
+                    r[i++] = 2;
+                    break;
+                case 'T':
+                    r[i++] = 3;
+                    break;
+                case '-':
+                    r[i++] = 4;
+                    break;
+            }
+        }
+        return r;
+    }
 
     /**
      *

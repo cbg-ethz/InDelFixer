@@ -11,21 +11,12 @@ package ch.ethz.bsse.indelfixer.stored;
 public class SequenceEntry {
 
     public String sequence;
-    public String tag;
-    public int pairedNumber;
+    public String header;
     public String quality;
 
-    /**
-     *
-     * @param sequence
-     * @param tag
-     * @param pairedNumber
-     * @param quality
-     */
-    public SequenceEntry(String sequence, String tag, int pairedNumber, String quality) {
+    public SequenceEntry(String sequence, String header, String quality) {
         this.sequence = sequence;
-        this.tag = tag;
-        this.pairedNumber = pairedNumber;
+        this.header = header;
         this.quality = quality;
     }
 

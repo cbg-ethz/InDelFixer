@@ -39,8 +39,7 @@ public class Read implements Serializable {
     private int number;
     private boolean reverse;
     private String quality;
-    private String description;
-    private int matePair = -1;
+    private String header;
     private int bestGenomeIndex = -1;
     private String cigars;
 
@@ -139,7 +138,7 @@ public class Read implements Serializable {
             }
         }
         this.cigars = this.cigars.substring(from);
-        this.alignedRead = this.alignedRead.substring(preoffset+from);
+        this.alignedRead = this.alignedRead.substring(preoffset + from);
         if (this.quality != null) {
             this.quality = this.quality.substring(from);
         }
@@ -325,38 +324,6 @@ public class Read implements Serializable {
         this.quality = quality;
     }
 
-    /**
-     *
-     * @return
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     *
-     * @param description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getMatePair() {
-        return matePair;
-    }
-
-    /**
-     *
-     * @param matePair
-     */
-    public void setMatePair(int matePair) {
-        this.matePair = matePair;
-    }
-
     public void setCigars(char[] cigars) {
         StringBuilder cigarSB = new StringBuilder();
         for (char c : cigars) {
@@ -388,6 +355,51 @@ public class Read implements Serializable {
         }
         cigarSB.append(count).append(prev);
         return cigarSB.toString();
+    }
+    
+    public char[] getCigarsPure() {
+        return cigars.toCharArray();
+    }
+
+    public String getHeader() {
+        return header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("R");
+        if (this.getHeader() != null) {
+            sb.append(this.getHeader().split(" ")[0]);
+        } else {
+            sb.append("READ_").append(this.number);
+        }
+        sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
+        sb.append("\t").append(this.getBegin());
+        sb.append("\t").append("255");
+        sb.append("\t").append(this.getCigars());
+        sb.append("\t").append("*");
+        sb.append("\t").append("0");
+        sb.append("\t").append("0");
+        sb.append("\t").append(this.getAlignedRead());
+        sb.append("\t");
+        if (this.getQuality() != null && !this.getQuality().isEmpty()) {
+            for (int i = 0; i < this.getQuality().length(); i++) {
+                sb.append((char) this.getQuality().charAt(i));
+            }
+        } else {
+            sb.append("*");
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 }
 

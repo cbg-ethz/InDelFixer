@@ -28,7 +28,7 @@ public class StatusUpdate {
 
     private static final long start = System.currentTimeMillis();
     private static final DateFormat df;
-    private static int readCount = 0;
+    public static int readCount = 0;
 
     static {
         df = new SimpleDateFormat("HH:mm:ss");

@@ -16,9 +16,13 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing;
 
+import align.ElementaryCost;
+import bioObject.CodingDnaSeq;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.utils.Utils;
+import codesInterfaces.MacsEparamCode;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -26,7 +30,9 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +48,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
+import utils.AlignmentParameterWrappers;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -53,7 +60,7 @@ public class ProcessingGeneral {
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(2 * Runtime.getRuntime().availableProcessors(), 2 * Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
-    protected List<Future<Pair<String, Map<Integer, Map<Integer, Integer>>>>> results = new LinkedList<>();
+    protected List<Future<Pair<Read, Map<Integer, Map<Integer, Integer>>>>> results = new LinkedList<>();
     protected List<Triplet<Double, Double, Double>> inDelSubsList = new LinkedList<>();
 
     private Map<Integer, Map<Integer, Integer>> initSubs() {
@@ -117,7 +124,7 @@ public class ProcessingGeneral {
      *
      * @param result
      */
-    protected void updateMatrix(Pair<String, Map<Integer, Map<Integer, Integer>>> result) {
+    protected void updateMatrix(Pair<Read, Map<Integer, Map<Integer, Integer>>> result) {
         for (int v = 0; v < 6; v++) {
             for (int b = 0; b < 6; b++) {
                 substitutions.get(v).put(b, substitutions.get(v).get(b) + result.getValue1().get(v).get(b));
@@ -237,7 +244,36 @@ public class ProcessingGeneral {
         return s;
     }
 
+    private static AlignmentParameterWrappers createAlignmentParameterWrappers(Hashtable<String, String> sequences2add, String refSequence, String refSequenceName) {
+        float gapE = -1f;
+        float gapO = -7f;
+        float gapC = 0f;
+        float stop = -100f;
+        float fs = -30f;
+        float begEndGapFact = .95f;
+        float optPessFact = 1.0f;
+        float fsLR = -10f;
+        float stopLR = -10f;
+
+        ElementaryCost cost = new ElementaryCost(fs, gapE, gapO, gapC, stop, begEndGapFact, optPessFact);
+        ElementaryCost costLR = new ElementaryCost(fsLR, gapE, gapO, gapC, stopLR, begEndGapFact, optPessFact);
+
+        ArrayList<CodingDnaSeq> sequences = new ArrayList<>();
+        sequences.add(new CodingDnaSeq(refSequenceName, refSequence, true, cost));
+
+        ArrayList<CodingDnaSeq> lessReliableSequences = new ArrayList<>();
+        for (String seqNmae : sequences2add.keySet()) {
+            lessReliableSequences.add(new CodingDnaSeq(seqNmae, sequences2add.get(seqNmae), true, costLR));
+        }
+
+        return new AlignmentParameterWrappers(cost, costLR, sequences, lessReliableSequences, MacsEparamCode.default_GC);
+    }
+    int[][] alignment;
+
     protected void processResults() throws InterruptedException, ExecutionException {
+        if (alignment == null) {
+            alignment = new int[Globals.GENOME_LENGTH][5];
+        }
         StringBuilder samSB = new StringBuilder();
         if (virgin) {
             samSB.append("@HD\tVN:1.0\tSO:unsorted\n");
@@ -247,14 +283,106 @@ public class ProcessingGeneral {
             samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.6\n");
             virgin = false;
         }
-        for (Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> future : results) {
-            Pair<String, Map<Integer, Map<Integer, Integer>>> result = future.get();
+
+        for (Future<Pair<Read, Map<Integer, Map<Integer, Integer>>>> future : results) {
+            Pair<Read, Map<Integer, Map<Integer, Integer>>> result = future.get();
             if (result != null) {
-                samSB.append(result.getValue0());
+                Read r = result.getValue0();
+                samSB.append(r.toString());
+                if (Globals.REFINE) {
+                    int[] x = Utils.reverse(r.getAlignedRead());
+                    int i = 0;
+                    int y = 0;
+                    for (char c : r.getCigarsPure()) {
+                        switch (c) {
+                            case 'X':
+                            case 'M':
+                                try {
+                                    int a = x[y++];
+                                    alignment[r.getBegin() - 1 + i++][a]++;
+                                } catch (ArrayIndexOutOfBoundsException e) {
+                                    System.err.println(r.getCigarsPure().length);
+                                    System.err.println(y);
+                                    System.exit(9);
+                                }
+                                break;
+                            case 'D':
+                                alignment[r.getBegin() - 1 + i++][4]++;
+                                break;
+                            case 'I':
+                                break;
+                            default:
+                                System.err.println("why");
+                                break;
+                        }
+                    }
+                }
                 this.updateMatrix(result);
             }
         }
         results.clear();
         Utils.appendFile(Globals.output + "reads.sam", samSB.toString());
+    }
+
+    protected void saveConsensus() {
+        if (Globals.REFINE) {
+            int[] cons = new int[alignment.length];
+            for (int i = 0; i < cons.length; i++) {
+                cons[i] = -1;
+            }
+            for (int i = 0; i < alignment.length; i++) {
+                int index = -1;
+                int max = Integer.MIN_VALUE;
+                for (int v = 0; v < 5; v++) {
+                    if (alignment[i][v] > max) {
+                        index = v;
+                        max = alignment[i][v];
+                    }
+                }
+                if (max > 0) {
+                    cons[i] = index;
+                }
+            }
+            int from = 0;
+            int to = 0;
+            for (int i = 0; i < cons.length; i++) {
+                if (cons[i] != -1) {
+                    from = i;
+                    break;
+                }
+            }
+            for (int i = cons.length - 1; i >= 0; i--) {
+                if (cons[i] != -1) {
+                    to = i;
+                    break;
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append(">CONSENSUS\n");
+            for (int i = from; i <= to; i++) {
+                switch (cons[i]) {
+                    case 0:
+                        sb.append("A");
+                        break;
+                    case 1:
+                        sb.append("C");
+                        break;
+                    case 2:
+                        sb.append("G");
+                        break;
+                    case 3:
+                        sb.append("T");
+                        break;
+                    case 4:
+                        sb.append("-");
+                        break;
+                    default:
+                        System.err.println("w00t");
+                        break;
+                }
+            }
+            sb.append("\n");
+            Utils.saveFile(Globals.output + "consensus.fasta", sb.toString());
+        }
     }
 }

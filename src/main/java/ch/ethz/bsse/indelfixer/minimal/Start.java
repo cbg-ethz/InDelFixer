@@ -24,6 +24,7 @@ import ch.ethz.bsse.indelfixer.sffParser.SFFParsing;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.utils.FastaParser;
+import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.File;
 import java.io.IOException;
@@ -93,6 +94,8 @@ public class Start {
     private boolean filter;
     @Option(name = "--freq")
     private boolean freq;
+    @Option(name = "-refine")
+    private int refine;
 
     /**
      * Remove logging of jaligner.
@@ -133,63 +136,15 @@ public class Start {
                 if (this.input == null && this.genome == null) {
                     throw new CmdLineException("");
                 }
-//            if (this.flat) {
-//                flatAndSave();
-//            } else {
                 this.setGlobals();
-                Genome[] genomes = parseGenome(this.genome);
-                if (this.regions != null) {
-                    Globals.RS = this.splitRegion();
-                    genomes = parseGenome(this.cutGenomes(genomes));
-                }
-                if (this.freq) {
-                    double[][] allels = new double[genomes[0].getSequence().length()][5];
-                    for (Genome g : genomes) {
-                        byte[] a = splitReadIntoByteArray(g.getSequence());
-                        for (int j = 0; j < g.getSequence().length(); j++) {
-                            allels[j][a[j]] += 1d / genomes.length;
-                        }
+                compute();
+                if (this.refine > 0) {
+                    this.genome = this.output + "consensus.fasta";
+                    for (int i = 0; i < this.refine; i++) {
+                        StatusUpdate.readCount = 0;
+                        compute();
                     }
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("\tA\tC\tG\tT\t-\n");
-                    for (int j = 0; j < allels.length; j++) {
-                        sb.append(j);
-                        double sum = 0d;
-                        for (int v = 0; v < 5; v++) {
-                            sum += allels[j][v] > 1e-5 ? allels[j][v] : 0;;
-                        }
-                        for (int v = 0; v < 5; v++) {
-                            sb.append("\t").append(shortenSmall(allels[j][v]/sum));
-                        }
-                        sb.append("\n");
-                    }
-                    Utils.saveFile("Genome_allels.txt", sb.toString());
-                    return;
                 }
-                for (Genome g : genomes) {
-                    g.split();
-                }
-
-                if (!new File(this.input).exists()) {
-                    throw new CmdLineException("Input file does not exist");
-                }
-                File readsSam = new File(this.output+"reads.sam");
-                if (readsSam.exists()) {
-                    readsSam.delete();
-                }
-                if (this.inputReverse != null) {
-                    if (!new File(this.inputReverse).exists()) {
-                        throw new CmdLineException("Input reverse file does not exist");
-                    }
-                    new ProcessingIlluminaPaired(this.input, this.inputReverse);
-                } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
-                    new ProcessingIlluminaSingle(this.input);
-                } else if (Utils.isFastaFormat(this.input)) {
-                    new ProcessingFastaSingle(this.input);
-                } else {
-                    new ProcessingSFFSingle(SFFParsing.parse(this.input));
-                }
-//            }
             } catch (CmdLineException e) {
                 System.err.println(e.getMessage());
                 System.err.println("USAGE:");
@@ -312,6 +267,7 @@ public class Start {
         Globals.FLAT = this.flat;
         Globals.CUT = this.cut;
         Globals.FILTER = this.filter;
+        Globals.REFINE = this.refine > 0;
     }
 
     /**
@@ -383,5 +339,60 @@ public class Start {
             }
         }
         return s;
+    }
+
+    private boolean compute() throws CmdLineException, IllegalStateException {
+        Genome[] genomes = parseGenome(this.genome);
+        if (this.regions != null) {
+            Globals.RS = this.splitRegion();
+            genomes = parseGenome(this.cutGenomes(genomes));
+        }
+        if (this.freq) {
+            double[][] allels = new double[genomes[0].getSequence().length()][5];
+            for (Genome g : genomes) {
+                byte[] a = splitReadIntoByteArray(g.getSequence());
+                for (int j = 0; j < g.getSequence().length(); j++) {
+                    allels[j][a[j]] += 1d / genomes.length;
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("\tA\tC\tG\tT\t-\n");
+            for (int j = 0; j < allels.length; j++) {
+                sb.append(j);
+                double sum = 0d;
+                for (int v = 0; v < 5; v++) {
+                    sum += allels[j][v] > 1e-5 ? allels[j][v] : 0;;
+                }
+                for (int v = 0; v < 5; v++) {
+                    sb.append("\t").append(shortenSmall(allels[j][v] / sum));
+                }
+                sb.append("\n");
+            }
+            Utils.saveFile("Genome_allels.txt", sb.toString());
+            return true;
+        }
+        for (Genome g : genomes) {
+            g.split();
+        }
+        if (!new File(this.input).exists()) {
+            throw new CmdLineException("Input file does not exist");
+        }
+        File readsSam = new File(this.output + "reads.sam");
+        if (readsSam.exists()) {
+            readsSam.delete();
+        }
+        if (this.inputReverse != null) {
+            if (!new File(this.inputReverse).exists()) {
+                throw new CmdLineException("Input reverse file does not exist");
+            }
+            new ProcessingIlluminaPaired(this.input, this.inputReverse);
+        } else if (Utils.isFastaGlobalMatePairFormat(this.input)) {
+            new ProcessingIlluminaSingle(this.input);
+        } else if (Utils.isFastaFormat(this.input)) {
+            new ProcessingFastaSingle(this.input);
+        } else {
+            new ProcessingSFFSingle(SFFParsing.parse(this.input));
+        }
+        return false;
     }
 }

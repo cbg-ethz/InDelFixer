@@ -75,6 +75,7 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
 
         this.processResults();
         this.printMatrix();
+        this.saveConsensus();
         executor.shutdown();
     }
 
@@ -91,7 +92,6 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         if (header == null) {
             throw new IllegalAccessError();
         }
-        String tag = header.split(" ")[0];
         //sequence
         String seq = br.readLine();
         char[] c = seq.toCharArray();
@@ -150,8 +150,7 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         }
         qualitySum /= end - begin - 1;
         return new SequenceEntry(seq.substring(begin, end + 1),
-                tag,
-                1,
+                header,
                 qualityString.substring(begin, end + 1));
     }
 }

@@ -18,6 +18,7 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import java.io.BufferedReader;
 import java.io.File;
@@ -72,14 +73,14 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             try {
                 SequenceEntry watsonQ = parseFastq(brWatson);
                 if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> submit = executor.submit(new FutureSequence(watsonQ, i));
+                    Future<Pair<Read, Map<Integer, Map<Integer, Integer>>>> submit = executor.submit(new FutureSequence(watsonQ, i));
                     if (submit != null) {
                         results.add(submit);
                     }
                 }
                 SequenceEntry crickQ = parseFastq(brCrick);
                 if (crickQ != null && crickQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    Future<Pair<String, Map<Integer, Map<Integer, Integer>>>> submit = executor.submit(new FutureSequence(crickQ, i));
+                    Future<Pair<Read, Map<Integer, Map<Integer, Integer>>>> submit = executor.submit(new FutureSequence(crickQ, i));
                     if (submit != null) {
                         results.add(submit);
                     }
@@ -94,6 +95,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         }
 
         this.processResults();
+        this.saveConsensus();
         this.printMatrix();
         executor.shutdown();
     }
@@ -110,15 +112,6 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         String header = br.readLine();
         if (header == null) {
             throw new IllegalAccessError();
-        }
-        String tag = null;
-        int pairedNumber = 0;
-        if (header.contains("/")) {
-            tag = header.split("/")[0];
-            pairedNumber = Integer.parseInt(header.split("/")[1]);
-        } else {
-            tag = header.split(" ")[0];
-            pairedNumber = Integer.parseInt(header.split(" ")[1].split(":")[0]);
         }
         //sequence
         String seq = br.readLine();
@@ -175,8 +168,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         }
         qualitySum /= end - begin - 1;
         return new SequenceEntry(seq.substring(begin, end + 1),
-                tag,
-                pairedNumber,
+                header,
                 qualityString.substring(begin, end + 1));
     }
 }

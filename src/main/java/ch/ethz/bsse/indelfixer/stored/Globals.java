@@ -30,6 +30,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static boolean REFINE;
     public static boolean FILTER;
     public static boolean FLAT;
     public static float GOP;

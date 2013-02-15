@@ -68,6 +68,7 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
         }
         this.processResults();
         this.printMatrix();
+        this.saveConsensus();
         executor.shutdown();
     }
 
