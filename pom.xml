@@ -5,7 +5,7 @@
 
     <groupId>ch.ethz.bsse</groupId>
     <artifactId>InDelFixer</artifactId>
-    <version>0.7</version>
+    <version>0.7.1</version>
     <packaging>jar</packaging>
 
     <name>InDelFixer</name>
@@ -45,6 +45,9 @@
                     <archive>
                         <manifest>
                             <mainClass>ch.ethz.bsse.indelfixer.minimal.Start</mainClass>
+                            <addDefaultImplementationEntries>
+                                true
+                            </addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
                             <mode>development</mode>
@@ -86,11 +89,11 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--        <dependency>
             <groupId>macse</groupId>
             <artifactId>macse</artifactId>
             <version>1.0.0</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>args4j</groupId>
             <artifactId>args4j</artifactId>

@@ -9,7 +9,7 @@ The output is in SAM format.
 
 #### PREREQUISITES TO RUN:
  - JDK 7 (http://jdk7.java.net/)
- - Get latest version: https://github.com/armintoepfer/InDelFixer/downloads
+ - Get latest version: https://sourceforge.net/projects/indelfixer
 
 ## RUN:
 #### 454/Roche:

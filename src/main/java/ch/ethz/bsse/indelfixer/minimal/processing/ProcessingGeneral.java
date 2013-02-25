@@ -16,13 +16,10 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing;
 
-import align.ElementaryCost;
-import bioObject.CodingDnaSeq;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.utils.Utils;
-import codesInterfaces.MacsEparamCode;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -30,9 +27,7 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +43,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
-import utils.AlignmentParameterWrappers;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -244,30 +238,30 @@ public class ProcessingGeneral {
         return s;
     }
 
-    private static AlignmentParameterWrappers createAlignmentParameterWrappers(Hashtable<String, String> sequences2add, String refSequence, String refSequenceName) {
-        float gapE = -1f;
-        float gapO = -7f;
-        float gapC = 0f;
-        float stop = -100f;
-        float fs = -30f;
-        float begEndGapFact = .95f;
-        float optPessFact = 1.0f;
-        float fsLR = -10f;
-        float stopLR = -10f;
-
-        ElementaryCost cost = new ElementaryCost(fs, gapE, gapO, gapC, stop, begEndGapFact, optPessFact);
-        ElementaryCost costLR = new ElementaryCost(fsLR, gapE, gapO, gapC, stopLR, begEndGapFact, optPessFact);
-
-        ArrayList<CodingDnaSeq> sequences = new ArrayList<>();
-        sequences.add(new CodingDnaSeq(refSequenceName, refSequence, true, cost));
-
-        ArrayList<CodingDnaSeq> lessReliableSequences = new ArrayList<>();
-        for (String seqNmae : sequences2add.keySet()) {
-            lessReliableSequences.add(new CodingDnaSeq(seqNmae, sequences2add.get(seqNmae), true, costLR));
-        }
-
-        return new AlignmentParameterWrappers(cost, costLR, sequences, lessReliableSequences, MacsEparamCode.default_GC);
-    }
+//    private static AlignmentParameterWrappers createAlignmentParameterWrappers(Hashtable<String, String> sequences2add, String refSequence, String refSequenceName) {
+//        float gapE = -1f;
+//        float gapO = -7f;
+//        float gapC = 0f;
+//        float stop = -100f;
+//        float fs = -30f;
+//        float begEndGapFact = .95f;
+//        float optPessFact = 1.0f;
+//        float fsLR = -10f;
+//        float stopLR = -10f;
+//
+//        ElementaryCost cost = new ElementaryCost(fs, gapE, gapO, gapC, stop, begEndGapFact, optPessFact);
+//        ElementaryCost costLR = new ElementaryCost(fsLR, gapE, gapO, gapC, stopLR, begEndGapFact, optPessFact);
+//
+//        ArrayList<CodingDnaSeq> sequences = new ArrayList<>();
+//        sequences.add(new CodingDnaSeq(refSequenceName, refSequence, true, cost));
+//
+//        ArrayList<CodingDnaSeq> lessReliableSequences = new ArrayList<>();
+//        for (String seqNmae : sequences2add.keySet()) {
+//            lessReliableSequences.add(new CodingDnaSeq(seqNmae, sequences2add.get(seqNmae), true, costLR));
+//        }
+//
+//        return new AlignmentParameterWrappers(cost, costLR, sequences, lessReliableSequences, MacsEparamCode.default_GC);
+//    }
     int[][] alignment;
 
     protected void processResults() throws InterruptedException, ExecutionException {

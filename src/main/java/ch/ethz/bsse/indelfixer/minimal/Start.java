@@ -96,6 +96,8 @@ public class Start {
     private boolean freq;
     @Option(name = "-refine")
     private int refine;
+    @Option(name = "--version")
+    private boolean version;
 
     /**
      * Remove logging of jaligner.
@@ -131,6 +133,10 @@ public class Start {
             parser.setUsageWidth(80);
             try {
                 parser.parseArgument(args);
+                if (this.version) {
+                    System.out.println("InDelFixer version: " + Start.class.getPackage().getImplementationVersion());
+                    return;
+                }
                 this.checkOutput();
 
                 if (this.input == null && this.genome == null) {
@@ -147,8 +153,10 @@ public class Start {
                 }
             } catch (CmdLineException e) {
                 System.err.println(e.getMessage());
-                System.err.println("USAGE:");
-                System.err.println("java -jar InDelFixer.jar options...\n");
+                System.err.println("InDelFixer version: " + Start.class.getPackage().getImplementationVersion());
+                System.err.println("Get latest version from http://bit.ly/indelfixer");
+                System.err.println("");
+                System.err.println("USAGE: java -jar InDelFixer.jar options...\n");
                 System.err.println(" ------------------------");
                 System.err.println(" === GENERAL options ===");
                 System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory)");
@@ -156,11 +164,12 @@ public class Start {
                 System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [ONLY REQUIRED if first file is also fastq]");
                 System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
+                System.err.println("  -refine INT\t\t: Computes consensus sequence and re-aligns against that, repeated as many times as provided");
                 System.err.println(" ------------------------");
                 System.err.println(" === EXAMPLES ===");
-                System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta");
-                System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta");
-                System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta");
+                System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -454");
+                System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.ccs.fastq -g referenceGenomes.fasta -pacbio");
+                System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta -illumina");
                 System.err.println(" ------------------------");
             }
         } catch (OutOfMemoryError e) {

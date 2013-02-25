@@ -337,7 +337,7 @@ public class Read implements Serializable {
         StringBuilder cigarSB = new StringBuilder();
         char prev = 'x';
         int count = 0;
-        for (char c : cigars.toCharArray()) {
+        for (char c : cigars.replaceAll("X", "M").toCharArray()) {
             if (c != 0 && c != 'I') {
                 if (prev == 'x') {
                     prev = c;
