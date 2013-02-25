@@ -33,11 +33,14 @@ or
 -roche (10 open/ 8 extend)
 ```
 
+### Iterative refinement
+The alignment can be improved by aligning against the consensus sequence. The parameter `-refine INT` takes a positive number as input and activates the iterative refinement.
+
+#### Remove conserved deletions:
+During the iterative alignment, conserved deletions can be removed with `-rmDel`.
+
 ### Line breaks
 In the case that a single fastq entry is longer than four lines, which is caused by line breaks in the sequence and quality string, use `-flat`.
-
-### Remove InDels:
-Remove insertions and deletions with `-adjust`
 
 ### Extract region:
 In addition, only a specific region can be extracted with `-r begin-end`, for example a certain gene:

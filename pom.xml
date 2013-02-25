@@ -5,7 +5,7 @@
 
     <groupId>ch.ethz.bsse</groupId>
     <artifactId>InDelFixer</artifactId>
-    <version>0.7.1</version>
+    <version>0.7.2</version>
     <packaging>jar</packaging>
 
     <name>InDelFixer</name>
@@ -22,7 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-  
+    
     <build>
         <plugins>
             <plugin>
@@ -103,22 +103,6 @@
             <groupId>net.sourceforge</groupId>
             <artifactId>jaligner</artifactId>
             <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf</groupId>
-            <artifactId>samtools</artifactId>
-            <version>1.8.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.javatuples</groupId>
-            <artifactId>javatuples</artifactId>
-            <version>1.2</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>13.0.1</version>
         </dependency>
     </dependencies>
   

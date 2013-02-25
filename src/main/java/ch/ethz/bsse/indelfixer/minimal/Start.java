@@ -98,6 +98,8 @@ public class Start {
     private int refine;
     @Option(name = "--version")
     private boolean version;
+    @Option(name = "-rmDel")
+    private boolean rmDel;
 
     /**
      * Remove logging of jaligner.
@@ -165,6 +167,7 @@ public class Start {
                 System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
                 System.err.println("  -refine INT\t\t: Computes consensus sequence and re-aligns against that, repeated as many times as provided");
+                System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
                 System.err.println(" ------------------------");
                 System.err.println(" === EXAMPLES ===");
                 System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -454");
@@ -277,6 +280,7 @@ public class Start {
         Globals.CUT = this.cut;
         Globals.FILTER = this.filter;
         Globals.REFINE = this.refine > 0;
+        Globals.RM_DEL = this.rmDel;
     }
 
     /**

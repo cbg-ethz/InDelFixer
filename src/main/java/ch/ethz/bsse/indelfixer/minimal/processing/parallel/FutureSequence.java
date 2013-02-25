@@ -18,6 +18,7 @@ package ch.ethz.bsse.indelfixer.minimal.processing.parallel;
 
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.GridOutput;
 import ch.ethz.bsse.indelfixer.stored.Kmer;
 import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
@@ -32,12 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import org.javatuples.Pair;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class FutureSequence implements Callable<Pair<Read, Map<Integer, Map<Integer, Integer>>>> {
+public class FutureSequence implements Callable<GridOutput> {
 
     private SequenceEntry watsonEntry;
     private Genome[] genome;
@@ -54,7 +54,7 @@ public class FutureSequence implements Callable<Pair<Read, Map<Integer, Map<Inte
     }
 
     @Override
-    public Pair<Read, Map<Integer, Map<Integer, Integer>>> call() {
+    public GridOutput call() {
         if (this.watsonEntry != null) {
             Read watsonRead = map(createRead(watsonEntry, false));
             Read watsonRevRead = map(createRead(watsonEntry, true));
@@ -63,7 +63,7 @@ public class FutureSequence implements Callable<Pair<Read, Map<Integer, Map<Inte
                 if (watson != null) {
                     StatusUpdate.processReads();
                     if (watson.getAlignedRead().length() > Globals.MIN_LENGTH_ALIGNED) {
-                        return Pair.with(watson, substitutionsForward);
+                        return new GridOutput(watson, substitutionsForward);
                     }
                 }
             } catch (Exception e) {

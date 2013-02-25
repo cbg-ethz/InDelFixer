@@ -18,7 +18,9 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
+import ch.ethz.bsse.indelfixer.stored.GridOutput;
 import ch.ethz.bsse.indelfixer.stored.Read;
+import ch.ethz.bsse.indelfixer.stored.TripleDouble;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -41,8 +43,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.javatuples.Pair;
-import org.javatuples.Triplet;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -54,8 +54,8 @@ public class ProcessingGeneral {
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(2 * Runtime.getRuntime().availableProcessors(), 2 * Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
-    protected List<Future<Pair<Read, Map<Integer, Map<Integer, Integer>>>>> results = new LinkedList<>();
-    protected List<Triplet<Double, Double, Double>> inDelSubsList = new LinkedList<>();
+    protected List<Future<GridOutput>> results = new LinkedList<>();
+    protected List<TripleDouble> inDelSubsList = new LinkedList<>();
 
     private Map<Integer, Map<Integer, Integer>> initSubs() {
         Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
@@ -118,15 +118,15 @@ public class ProcessingGeneral {
      *
      * @param result
      */
-    protected void updateMatrix(Pair<Read, Map<Integer, Map<Integer, Integer>>> result) {
+    protected void updateMatrix(GridOutput result) {
         for (int v = 0; v < 6; v++) {
             for (int b = 0; b < 6; b++) {
-                substitutions.get(v).put(b, substitutions.get(v).get(b) + result.getValue1().get(v).get(b));
+                substitutions.get(v).put(b, substitutions.get(v).get(b) + result.substitutionMap.get(v).get(b));
             }
         }
     }
 
-    protected Triplet<Double, Double, Double> getInDelSubRates(Map<Integer, Map<Integer, Integer>> map) {
+    protected TripleDouble getInDelSubRates(Map<Integer, Map<Integer, Integer>> map) {
         double sub = 0;
         double ins = 0;
         double del = 0;
@@ -148,7 +148,7 @@ public class ProcessingGeneral {
                 }
             }
         }
-        return Triplet.with(sub, del, ins);
+        return new TripleDouble(sub, del, ins);
     }
 
     /**
@@ -237,7 +237,6 @@ public class ProcessingGeneral {
         }
         return s;
     }
-
 //    private static AlignmentParameterWrappers createAlignmentParameterWrappers(Hashtable<String, String> sequences2add, String refSequence, String refSequenceName) {
 //        float gapE = -1f;
 //        float gapO = -7f;
@@ -278,10 +277,10 @@ public class ProcessingGeneral {
             virgin = false;
         }
 
-        for (Future<Pair<Read, Map<Integer, Map<Integer, Integer>>>> future : results) {
-            Pair<Read, Map<Integer, Map<Integer, Integer>>> result = future.get();
+        for (Future<GridOutput> future : results) {
+            GridOutput result = future.get();
             if (result != null) {
-                Read r = result.getValue0();
+                Read r = result.read;
                 samSB.append(r.toString());
                 if (Globals.REFINE) {
                     int[] x = Utils.reverse(r.getAlignedRead());
@@ -368,7 +367,9 @@ public class ProcessingGeneral {
                         sb.append("T");
                         break;
                     case 4:
-                        sb.append("-");
+                        if (!Globals.RM_DEL) {
+                            sb.append("-");
+                        }
                         break;
                     default:
                         System.err.println("w00t");
