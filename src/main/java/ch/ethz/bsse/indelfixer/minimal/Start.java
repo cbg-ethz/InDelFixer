@@ -168,6 +168,11 @@ public class Start {
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
                 System.err.println("  -refine INT\t\t: Computes consensus sequence and re-aligns against that, repeated as many times as provided");
                 System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
+                System.err.println("  -k INT\t\t: Kmer size (default 21)");
+                System.err.println("  -v INT\t\t: Kmer offset (default 10)");
+                System.err.println("");
+                System.err.println(" === GAP costs ===");
+                System.err.println("  -454 INT\t\t: Kmer offset (default 10)");
                 System.err.println(" ------------------------");
                 System.err.println(" === EXAMPLES ===");
                 System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -454");
