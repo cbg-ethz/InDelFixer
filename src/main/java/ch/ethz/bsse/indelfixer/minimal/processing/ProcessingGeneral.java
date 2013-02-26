@@ -372,7 +372,7 @@ public class ProcessingGeneral {
                         }
                         break;
                     default:
-                        System.err.println("w00t");
+//                        System.err.println("w00t " + cons[i] + "\t" + i);
                         break;
                 }
             }

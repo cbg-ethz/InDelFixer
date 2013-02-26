@@ -145,12 +145,18 @@ public class Start {
                     throw new CmdLineException("");
                 }
                 this.setGlobals();
-                compute();
+                Genome[] genomes = parseGenome(this.genome);
+                if (this.regions != null) {
+                    Globals.RS = this.splitRegion();
+                    genomes = parseGenome(this.cutGenomes(genomes));
+                }
+                compute(genomes);
                 if (this.refine > 0) {
                     this.genome = this.output + "consensus.fasta";
+                    genomes = parseGenome(this.genome);
                     for (int i = 0; i < this.refine; i++) {
                         StatusUpdate.readCount = 0;
-                        compute();
+                        compute(genomes);
                     }
                 }
             } catch (CmdLineException e) {
@@ -367,12 +373,7 @@ public class Start {
         return s;
     }
 
-    private boolean compute() throws CmdLineException, IllegalStateException {
-        Genome[] genomes = parseGenome(this.genome);
-        if (this.regions != null) {
-            Globals.RS = this.splitRegion();
-            genomes = parseGenome(this.cutGenomes(genomes));
-        }
+    private boolean compute(Genome[] genomes) throws CmdLineException, IllegalStateException {
         if (this.freq) {
             double[][] allels = new double[genomes[0].getSequence().length()][5];
             for (Genome g : genomes) {
