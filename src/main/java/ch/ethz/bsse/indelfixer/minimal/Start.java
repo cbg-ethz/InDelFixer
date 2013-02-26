@@ -53,9 +53,9 @@ public class Start {
     @Option(name = "-o", usage = "Path to the output directory (default: current directory)", metaVar = "PATH")
     private String output;
     @Option(name = "-v")
-    private int overlap = 10;
+    private int overlap = 2;
     @Option(name = "-k")
-    private int kmerLength = 21;
+    private int kmerLength = 10;
     @Option(name = "-adjust")
     private boolean adjust;
     @Option(name = "-t")
@@ -166,13 +166,21 @@ public class Start {
                 System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [ONLY REQUIRED if first file is also fastq]");
                 System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
-                System.err.println("  -refine INT\t\t: Computes consensus sequence and re-aligns against that, repeated as many times as provided");
+                System.err.println("  -k INT\t\t: Kmer size (default 10)");
+                System.err.println("  -v INT\t\t: Kmer offset (default 2)");
+                System.err.println("  -refine INT\t\t: Computes a consensus sequence from alignment and re-aligns against that.");
+                System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
                 System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
-                System.err.println("  -k INT\t\t: Kmer size (default 21)");
-                System.err.println("  -v INT\t\t: Kmer offset (default 10)");
                 System.err.println("");
                 System.err.println(" === GAP costs ===");
-                System.err.println("  -454 INT\t\t: Kmer offset (default 10)");
+                System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman");
+                System.err.println("  -gex\t\t\t: Gap extension costs for Smith-Waterman");
+                System.err.println("");
+                System.err.println(" === GAP costs predefined ===");
+                System.err.println("  -454\t\t\t: 10 open / 8 extend");
+                System.err.println("  -illumina\t\t: 46 open / 10 extend");
+                System.err.println("  -pacbio\t\t: 10 open / 10 extend");
+                System.err.println("");
                 System.err.println(" ------------------------");
                 System.err.println(" === EXAMPLES ===");
                 System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -454");
