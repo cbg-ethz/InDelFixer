@@ -29,5 +29,4 @@ public class GridOutput {
         this.read = read;
         this.substitutionMap = substitutionMap;
     }
-    
 }

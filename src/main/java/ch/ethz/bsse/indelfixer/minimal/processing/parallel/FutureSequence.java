@@ -37,7 +37,7 @@ import java.util.concurrent.Callable;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class FutureSequence implements Callable<GridOutput> {
+public class FutureSequence implements Callable<Object> {
 
     private SequenceEntry watsonEntry;
     private Genome[] genome;
@@ -54,7 +54,7 @@ public class FutureSequence implements Callable<GridOutput> {
     }
 
     @Override
-    public GridOutput call() {
+    public Object call() {
         if (this.watsonEntry != null) {
             Read watsonRead = map(createRead(watsonEntry, false));
             Read watsonRevRead = map(createRead(watsonEntry, true));
@@ -72,7 +72,7 @@ public class FutureSequence implements Callable<GridOutput> {
                 System.exit(0);
             }
         }
-        return null;
+        return watsonEntry;
     }
 
     private void initSubs() {

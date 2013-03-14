@@ -23,6 +23,7 @@ import jaligner.matrix.MatrixLoader;
 import jaligner.matrix.MatrixLoaderException;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -30,6 +31,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static List<SequenceEntry> TRASH_READS = new CopyOnWriteArrayList<>();
     public static boolean RM_DEL;
     public static boolean REFINE;
     public static boolean FILTER;

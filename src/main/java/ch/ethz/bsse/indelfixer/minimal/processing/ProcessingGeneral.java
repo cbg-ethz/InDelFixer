@@ -20,6 +20,7 @@ import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.GridOutput;
 import ch.ethz.bsse.indelfixer.stored.Read;
+import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.stored.TripleDouble;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.BufferedReader;
@@ -54,7 +55,7 @@ public class ProcessingGeneral {
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
     protected ExecutorService executor = new ThreadPoolExecutor(2 * Runtime.getRuntime().availableProcessors(), 2 * Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
-    protected List<Future<GridOutput>> results = new LinkedList<>();
+    protected List<Future<Object>> results = new LinkedList<>();
     protected List<TripleDouble> inDelSubsList = new LinkedList<>();
 
     private Map<Integer, Map<Integer, Integer>> initSubs() {
@@ -276,10 +277,16 @@ public class ProcessingGeneral {
             samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.6\n");
             virgin = false;
         }
-
-        for (Future<GridOutput> future : results) {
-            GridOutput result = future.get();
-            if (result != null) {
+        List<SequenceEntry> trash = new LinkedList<>();
+        for (Future<Object> future : results) {
+            Object o = future.get();
+            if (o == null) {
+                continue;
+            } else if (o instanceof SequenceEntry) {
+                SequenceEntry result = (SequenceEntry) o;
+                trash.add(result);
+            } else if (o instanceof GridOutput) {
+                GridOutput result = (GridOutput) o;
                 Read r = result.read;
                 samSB.append(r.toString());
                 if (Globals.REFINE) {
@@ -315,6 +322,15 @@ public class ProcessingGeneral {
         }
         results.clear();
         Utils.appendFile(Globals.output + "reads.sam", samSB.toString());
+
+        StringBuilder sb = new StringBuilder();
+        for (SequenceEntry s : trash) {
+            sb.append(s.header).append("\n");
+            sb.append(s.sequence).append("\n");
+            sb.append("+").append("\n");
+            sb.append(s.quality).append("\n");
+        }
+        Utils.appendFile(Globals.output + "trash.fastq", sb.toString());
     }
 
     protected void saveConsensus() {

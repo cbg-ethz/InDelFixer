@@ -18,15 +18,12 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
-import ch.ethz.bsse.indelfixer.stored.GridOutput;
-import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -73,14 +70,14 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             try {
                 SequenceEntry watsonQ = parseFastq(brWatson);
                 if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    Future<GridOutput> submit = executor.submit(new FutureSequence(watsonQ, i));
+                    Future<Object> submit = executor.submit(new FutureSequence(watsonQ, i));
                     if (submit != null) {
                         results.add(submit);
                     }
                 }
                 SequenceEntry crickQ = parseFastq(brCrick);
                 if (crickQ != null && crickQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    Future<GridOutput> submit = executor.submit(new FutureSequence(crickQ, i));
+                    Future<Object> submit = executor.submit(new FutureSequence(crickQ, i));
                     if (submit != null) {
                         results.add(submit);
                     }
