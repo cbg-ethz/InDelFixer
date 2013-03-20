@@ -31,6 +31,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static int STEPS;
     public static List<SequenceEntry> TRASH_READS = new CopyOnWriteArrayList<>();
     public static boolean RM_DEL;
     public static boolean REFINE;
@@ -53,7 +54,6 @@ public class Globals {
     public static int GENOME_COUNT;
     public static Genome[] GENOMES;
     public static int CUT = 0;
-    public static int STEPSIZE = 1_000;
     public static int KMER_OVERLAP = 10;
     public static int KMER_LENGTH = 1;
     public static final ForkJoinPool fjPool = new ForkJoinPool();

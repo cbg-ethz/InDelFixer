@@ -30,6 +30,7 @@ import jaligner.matrix.Matrix;
 import jaligner.util.SequenceParser;
 import jaligner.util.SequenceParserException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -37,42 +38,46 @@ import java.util.concurrent.Callable;
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
-public class FutureSequence implements Callable<Object> {
+public class FutureSequence implements Callable<List<Object>> {
 
-    private SequenceEntry watsonEntry;
+    private List<SequenceEntry> watsonEntries;
     private Genome[] genome;
     private Matrix matrix;
-    private int number;
     private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
 
-    public FutureSequence(SequenceEntry watson, int number) {
-        this.watsonEntry = watson;
+    public FutureSequence(List<SequenceEntry> watson) {
+        this.watsonEntries = watson;
         this.genome = Globals.GENOMES;
         this.matrix = Globals.MATRIX;
-        this.number = number;
         this.initSubs();
     }
 
     @Override
-    public Object call() {
-        if (this.watsonEntry != null) {
-            Read watsonRead = map(createRead(watsonEntry, false));
-            Read watsonRevRead = map(createRead(watsonEntry, true));
-            try {
-                Read watson = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
-                if (watson != null) {
-                    StatusUpdate.processReads();
-                    if (watson.getAlignedRead().length() > Globals.MIN_LENGTH_ALIGNED) {
-                        return new GridOutput(watson, substitutionsForward);
+    public List<Object> call() {
+        List<Object> output = new LinkedList<>();
+        for (SequenceEntry watsonEntry : watsonEntries) {
+            if (watsonEntry != null) {
+                Read watsonRead = map(createRead(watsonEntry, false));
+                Read watsonRevRead = map(createRead(watsonEntry, true));
+                try {
+                    Read watson = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
+                    if (watson != null) {
+                        StatusUpdate.processReads();
+                        if (watson.getAlignedRead().length() > Globals.MIN_LENGTH_ALIGNED) {
+                            output.add(new GridOutput(watson, substitutionsForward));
+                        }
+                    } else {
+                        StatusUpdate.processUnmapped();
+                        output.add(watsonEntry);
                     }
+                } catch (Exception e) {
+                    System.err.println(e);
+                    Utils.error();
+                    System.exit(0);
                 }
-            } catch (Exception e) {
-                System.err.println(e);
-                Utils.error();
-                System.exit(0);
             }
         }
-        return watsonEntry;
+        return output;
     }
 
     private void initSubs() {
@@ -97,7 +102,6 @@ public class FutureSequence implements Callable<Object> {
         if (entry.quality != null) {
             r.setQuality(entry.quality);
         }
-        r.setNumber(number);
         return r;
     }
 

@@ -16,6 +16,7 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing;
 
+import static ch.ethz.bsse.indelfixer.minimal.processing.ProcessingFastaSingle.parseFastaEntry;
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
@@ -24,6 +25,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -58,18 +61,30 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
             brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
         }
 
-        for (int i = 0;; i++) {
+        List<SequenceEntry> list = new LinkedList<>();
+        for (int i = 0;;) {
             try {
-                SequenceEntry watsonQ = parseFastq(brWatson);
-                if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    results.add(executor.submit(new FutureSequence(watsonQ, i)));
+                for (int j = 0; j < Globals.STEPS; j++) {
+                    i++;
+                    SequenceEntry watsonQ = parseFastq(brWatson);
+                    if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
+                        list.add(watsonQ);
+                    }
+                    if (i % 10000 == 0) {
+                        this.processResults();
+                    }
+                }
+                synchronized (results) {
+                    results.add(executor.submit(new FutureSequence(list)));
                 }
             } catch (IllegalAccessError e) {
+                if (!list.isEmpty()) {
+                    synchronized (results) {
+                        results.add(executor.submit(new FutureSequence(list)));
+                    }
+                }
                 // used to halt in case of EOF
                 break;
-            }
-            if (i % 10000 == 0) {
-                this.processResults();
             }
         }
 

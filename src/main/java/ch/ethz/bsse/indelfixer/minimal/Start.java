@@ -61,7 +61,7 @@ public class Start {
     @Option(name = "-t")
     private int threshold = 30;
     @Option(name = "-step")
-    private int step = 1_000;
+    private int step = 10;
     @Option(name = "-r")
     private String regions;
     @Option(name = "-flat")
@@ -288,7 +288,7 @@ public class Start {
         Globals.MIN_LENGTH_ALIGNED = minlengthAligned;
         Globals.MIN_LENGTH = minlength;
         Globals.ADJUST = this.adjust;
-        Globals.STEPSIZE = this.step;
+        Globals.STEPS = this.step;
         Globals.THRESHOLD = this.threshold;
         Globals.KMER_OVERLAP = this.overlap;
         Globals.KMER_LENGTH = this.kmerLength;

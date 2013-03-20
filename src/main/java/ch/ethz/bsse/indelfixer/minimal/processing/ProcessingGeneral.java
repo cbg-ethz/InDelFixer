@@ -38,6 +38,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -49,15 +50,15 @@ import java.util.logging.Logger;
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
 public class ProcessingGeneral {
-
+    
     private boolean virgin = true;
-    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(1000 * Runtime.getRuntime().availableProcessors());
+    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(Runtime.getRuntime().availableProcessors() - 1);
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-    protected ExecutorService executor = new ThreadPoolExecutor(2 * Runtime.getRuntime().availableProcessors(), 2 * Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
+    protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
-    protected List<Future<Object>> results = new LinkedList<>();
+    protected final List<Future<List<Object>>> results = new LinkedList<>();
     protected List<TripleDouble> inDelSubsList = new LinkedList<>();
-
+    
     private Map<Integer, Map<Integer, Integer>> initSubs() {
         Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
         for (int v = 0; v < 6; v++) {
@@ -68,7 +69,7 @@ public class ProcessingGeneral {
         }
         return map;
     }
-
+    
     protected void flattenFastq(String input) {
         final String newline = System.getProperty("line.separator");
         StringBuilder sb = new StringBuilder();
@@ -112,18 +113,6 @@ public class ProcessingGeneral {
             bw.flush();
         } catch (IOException e) {
             System.err.println("Error parsing file " + input);
-        }
-    }
-
-    /**
-     *
-     * @param result
-     */
-    protected void updateMatrix(GridOutput result) {
-        for (int v = 0; v < 6; v++) {
-            for (int b = 0; b < 6; b++) {
-                substitutions.get(v).put(b, substitutions.get(v).get(b) + result.substitutionMap.get(v).get(b));
-            }
         }
     }
 
@@ -185,12 +174,12 @@ public class ProcessingGeneral {
             }
             System.out.println("");
         }
-
+        
         System.out.println("SUBSTITUTIONS: " + shorten(sub));
         System.out.println("DELETIONS:     " + shorten(del));
         System.out.println("INSERTIONS:    " + shorten(ins));
     }
-
+    
     private String convert(int c) {
         switch (c) {
             case 0:
@@ -263,8 +252,15 @@ public class ProcessingGeneral {
 //        return new AlignmentParameterWrappers(cost, costLR, sequences, lessReliableSequences, MacsEparamCode.default_GC);
 //    }
     int[][] alignment;
-
+    protected ExecutorService resultsExecutor = Executors.newSingleThreadExecutor();
+    
     protected void processResults() throws InterruptedException, ExecutionException {
+        List<Future<List<Object>>> newList = new LinkedList();
+        synchronized (results) {
+            newList.addAll(results);
+            results.clear();
+        }
+//        System.out.println("");
         if (alignment == null) {
             alignment = new int[Globals.GENOME_LENGTH][5];
         }
@@ -277,62 +273,11 @@ public class ProcessingGeneral {
             samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.6\n");
             virgin = false;
         }
-        List<SequenceEntry> trash = new LinkedList<>();
-        for (Future<Object> future : results) {
-            Object o = future.get();
-            if (o == null) {
-                continue;
-            } else if (o instanceof SequenceEntry) {
-                SequenceEntry result = (SequenceEntry) o;
-                trash.add(result);
-            } else if (o instanceof GridOutput) {
-                GridOutput result = (GridOutput) o;
-                Read r = result.read;
-                samSB.append(r.toString());
-                if (Globals.REFINE) {
-                    int[] x = Utils.reverse(r.getAlignedRead());
-                    int i = 0;
-                    int y = 0;
-                    for (char c : r.getCigarsPure()) {
-                        switch (c) {
-                            case 'X':
-                            case 'M':
-                                try {
-                                    int a = x[y++];
-                                    alignment[r.getBegin() - 1 + i++][a]++;
-                                } catch (ArrayIndexOutOfBoundsException e) {
-                                    System.err.println(r.getCigarsPure().length);
-                                    System.err.println(y);
-                                    System.exit(9);
-                                }
-                                break;
-                            case 'D':
-                                alignment[r.getBegin() - 1 + i++][4]++;
-                                break;
-                            case 'I':
-                                break;
-                            default:
-                                System.err.println("why");
-                                break;
-                        }
-                    }
-                }
-                this.updateMatrix(result);
-            }
-        }
-        results.clear();
         Utils.appendFile(Globals.output + "reads.sam", samSB.toString());
-
-        StringBuilder sb = new StringBuilder();
-        for (SequenceEntry s : trash) {
-            sb.append(s.header).append("\n");
-            sb.append(s.sequence).append("\n");
-            sb.append("+").append("\n");
-            sb.append(s.quality).append("\n");
-        }
-        Utils.appendFile(Globals.output + "trash.fastq", sb.toString());
+        
+        resultsExecutor.submit(new ProcessResults(this, newList)).get();
     }
-
+    
     protected void saveConsensus() {
         if (Globals.REFINE) {
             int[] cons = new int[alignment.length];

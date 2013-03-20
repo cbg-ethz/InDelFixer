@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -35,7 +37,7 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
 
     /**
      * Constructor.
-     * 
+     *
      * @param inputWatson Path to multiple fasta file
      */
     public ProcessingFastaSingle(String inputWatson) {
@@ -52,29 +54,42 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
         BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
 
-        for (int i = 0;; i++) {
+        for (int i = 0;;) {
+            List<SequenceEntry> list = new LinkedList<>();
             try {
-                SequenceEntry watsonS = new SequenceEntry(parseFastaEntry(brWatson));
-                if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
-                    results.add(executor.submit(new FutureSequence(watsonS, i)));
+                for (int j = 0; j < Globals.STEPS; j++) {
+                    i++;
+                    SequenceEntry watsonS = new SequenceEntry(parseFastaEntry(brWatson));
+                    if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
+                        list.add(watsonS);
+                    }
+                    if (i % 10000 == 0) {
+                        this.processResults();
+                    }
+                }
+                synchronized (results) {
+                    results.add(executor.submit(new FutureSequence(list)));
                 }
             } catch (IllegalAccessError e) {
+                if (!list.isEmpty()) {
+                    synchronized (results) {
+                        results.add(executor.submit(new FutureSequence(list)));
+                    }
+                }
                 // used to halt in case of EOF
                 break;
-            }
-            if (i % 10000 == 0) {
-                this.processResults();
             }
         }
         this.processResults();
         this.printMatrix();
         this.saveConsensus();
         executor.shutdown();
+        this.processResults();
     }
 
     /**
      * Parses a single sequence of given BufferedReader.
-     * 
+     *
      * @param br BufferedReader
      * @return Single sequence
      * @throws IllegalAccessError Thrown if BufferedReader has reached EOF.
@@ -90,6 +105,7 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
             untouched = false;
             if (strLine.startsWith(">")) {
                 if (sb.length() > 0) {
+                     System.out.println(sb.toString());
                     return sb.toString();
                 }
             } else {
@@ -130,6 +146,7 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
         if (untouched) {
             throw new IllegalAccessError("done");
         }
+        System.out.println(sb.toString());
         return sb.toString();
     }
 }

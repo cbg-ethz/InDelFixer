@@ -24,8 +24,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -47,6 +50,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         try {
             this.start();
         } catch (IOException | InterruptedException | ExecutionException e) {
+            System.out.println(e);
         }
     }
 
@@ -65,36 +69,49 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
             brCrick = new BufferedReader(new FileReader(new File(this.inputCrick)));
         }
 
-
-        for (int i = 0;; i++) {
+        for (int i = 0;;) {
+            List<SequenceEntry> list = new LinkedList<>();
             try {
-                SequenceEntry watsonQ = parseFastq(brWatson);
-                if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    Future<Object> submit = executor.submit(new FutureSequence(watsonQ, i));
-                    if (submit != null) {
-                        results.add(submit);
+                for (int j = 0; j < Globals.STEPS; j++) {
+                    i++;
+                    SequenceEntry watsonQ = parseFastq(brWatson);
+                    if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
+                        list.add(watsonQ);
+                    }
+                    SequenceEntry crickQ = parseFastq(brCrick);
+                    if (crickQ != null && crickQ.sequence.length() >= Globals.MIN_LENGTH) {
+                        list.add(crickQ);
+                    }
+                    if (i % 10000 == 0) {
+                        this.processResults();
                     }
                 }
-                SequenceEntry crickQ = parseFastq(brCrick);
-                if (crickQ != null && crickQ.sequence.length() >= Globals.MIN_LENGTH) {
-                    Future<Object> submit = executor.submit(new FutureSequence(crickQ, i));
-                    if (submit != null) {
-                        results.add(submit);
-                    }
+                synchronized (results) {
+                    results.add(executor.submit(new FutureSequence(list)));
                 }
             } catch (IllegalAccessError e) {
+                if (!list.isEmpty()) {
+                    synchronized (results) {
+                        results.add(executor.submit(new FutureSequence(list)));
+                    }
+                }
                 // used to halt in case of EOF
                 break;
             }
-            if (i % 10000 == 0) {
-                this.processResults();
-            }
         }
 
+        executor.shutdown();
+        try {
+            while (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+                TimeUnit.MILLISECONDS.sleep(10);
+            }
+        } catch (InterruptedException e) {
+            System.err.println(e);
+            System.exit(0);
+        }
         this.processResults();
         this.saveConsensus();
         this.printMatrix();
-        executor.shutdown();
     }
 
     /**

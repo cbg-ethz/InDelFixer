@@ -22,6 +22,8 @@ import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.stored.SimpleRead;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -51,7 +53,11 @@ public class ProcessingSFFSingle extends ProcessingGeneral {
         for (int i = 0; i < this.sequences.length; i++) {
             SequenceEntry watsonS = new SequenceEntry(sequences[i]);
             if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
-                results.add(executor.submit(new FutureSequence(watsonS, i)));
+                List<SequenceEntry> l = new LinkedList<>();
+                l.add(watsonS);
+                synchronized (results) {
+                    results.add(executor.submit(new FutureSequence(l)));
+                }
             }
             if (i % 10000 == 0) {
                 this.processResults();

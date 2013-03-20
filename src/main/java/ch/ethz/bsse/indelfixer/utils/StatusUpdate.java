@@ -29,6 +29,7 @@ public class StatusUpdate {
     private static final long start = System.currentTimeMillis();
     private static final DateFormat df;
     public static int readCount = 0;
+    public static int unmappedCount = 0;
 
     static {
         df = new SimpleDateFormat("HH:mm:ss");
@@ -44,7 +45,11 @@ public class StatusUpdate {
     }
 
     public synchronized static void processReads() {
-        System.out.print("\r" + time() + "  Processing reads:\t" + (++readCount));
+        System.out.print("\r" + time() + "  Processing reads:\t" + (++readCount) + "\tunmapped:" + unmappedCount);
+    }
+
+    public synchronized static void processUnmapped() {
+        System.out.print("\r" + time() + "  Processing reads:\t" + (readCount) + "\tunmapped:" + (++unmappedCount));
     }
 
     public static void println(String text) {
