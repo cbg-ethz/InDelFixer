@@ -45,11 +45,11 @@ public class StatusUpdate {
     }
 
     public synchronized static void processReads() {
-        System.out.print("\r" + time() + "  Processing reads:\t" + (++readCount) + "\tunmapped:" + unmappedCount);
+        System.out.print("\r" + time() + " Mapped: " + (++readCount) + "\t\tUnmapped: " + unmappedCount);
     }
 
     public synchronized static void processUnmapped() {
-        System.out.print("\r" + time() + "  Processing reads:\t" + (readCount) + "\tunmapped:" + (++unmappedCount));
+        System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + (++unmappedCount));
     }
 
     public static void println(String text) {
