@@ -31,6 +31,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static int READCOUNTER = 0;
     public static int STEPS;
     public static List<SequenceEntry> TRASH_READS = new CopyOnWriteArrayList<>();
     public static boolean RM_DEL;

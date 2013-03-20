@@ -380,7 +380,7 @@ public class Read implements Serializable {
         if (this.getHeader() != null) {
             sb.append(this.getHeader().split(" ")[0]);
         } else {
-            sb.append("READ_").append(this.number);
+            sb.append("READ_").append(Globals.READCOUNTER++);
         }
         sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
         sb.append("\t").append(this.getBegin());

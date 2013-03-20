@@ -16,7 +16,6 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing;
 
-import ch.ethz.bsse.indelfixer.minimal.processing.ProcessingGeneral;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.GridOutput;
 import ch.ethz.bsse.indelfixer.stored.Read;
