@@ -105,7 +105,6 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
             untouched = false;
             if (strLine.startsWith(">")) {
                 if (sb.length() > 0) {
-                     System.out.println(sb.toString());
                     return sb.toString();
                 }
             } else {
@@ -146,7 +145,6 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
         if (untouched) {
             throw new IllegalAccessError("done");
         }
-        System.out.println(sb.toString());
         return sb.toString();
     }
 }
