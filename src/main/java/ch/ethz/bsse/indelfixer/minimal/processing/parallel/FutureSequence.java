@@ -25,6 +25,7 @@ import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import jaligner.Alignment;
+import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
 import jaligner.matrix.Matrix;
 import jaligner.util.SequenceParser;
@@ -70,6 +71,9 @@ public class FutureSequence implements Callable<List<Object>> {
                         StatusUpdate.processUnmapped();
                         output.add(watsonEntry);
                     }
+                } catch (NegativeArraySizeException e) {
+                    StatusUpdate.processUnmapped();
+                    //JAligner problem, ignore
                 } catch (Exception e) {
                     System.err.println(e);
                     Utils.error();
@@ -121,7 +125,7 @@ public class FutureSequence implements Callable<List<Object>> {
         int y = r.getBestFittingGenome();
         if (y != -1) {
             if (r.getRegion(y)[0] - r.getRead().length() < 0) {
-                r.setBegin(0);
+                r.setBegin(1);
             } else {
                 r.setBegin(r.getRegion(y)[0] - r.getRead().length());
             }
@@ -134,24 +138,24 @@ public class FutureSequence implements Callable<List<Object>> {
         return r;
     }
 
-    private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) throws SequenceParserException {
+    private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) {
 
         Alignment align;
         if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
             return null;
         } else {
-            if (r.getBegin() <= 0) {
+            int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
+            try {
+                Sequence g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd),"","",Sequence.NUCLEIC);
+                Sequence s = new Sequence(r.getRead(),"","",Sequence.NUCLEIC);
                 align = SmithWatermanGotoh.align(
-                        SequenceParser.parse(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()]),
-                        SequenceParser.parse(r.getRead()),
+                        g,
+                        s,
                         matrix, Globals.GOP, Globals.GEX);
-                r.setBegin(r.getBegin() + 1);
-            } else {
-                int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
-                align = SmithWatermanGotoh.align(
-                        SequenceParser.parse(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd)),
-                        SequenceParser.parse(r.getRead()),
-                        matrix, Globals.GOP, Globals.GEX);
+            } catch (Exception e) {
+                System.err.println(e);
+                Utils.error();
+                return null;
             }
         }
         StringBuilder sb = new StringBuilder();
