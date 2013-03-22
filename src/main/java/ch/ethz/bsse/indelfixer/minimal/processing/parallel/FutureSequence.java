@@ -28,8 +28,6 @@ import jaligner.Alignment;
 import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
 import jaligner.matrix.Matrix;
-import jaligner.util.SequenceParser;
-import jaligner.util.SequenceParserException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,7 +59,9 @@ public class FutureSequence implements Callable<List<Object>> {
                 Read watsonRead = map(createRead(watsonEntry, false));
                 Read watsonRevRead = map(createRead(watsonEntry, true));
                 try {
+                    StatusUpdate.processAlign1();
                     Read watson = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
+                    StatusUpdate.processAlign2();
                     if (watson != null) {
                         StatusUpdate.processReads();
                         if (watson.getAlignedRead().length() > Globals.MIN_LENGTH_ALIGNED) {
@@ -153,11 +153,12 @@ public class FutureSequence implements Callable<List<Object>> {
                         s,
                         matrix, Globals.GOP, Globals.GEX);
             } catch (Exception e) {
-                System.err.println(e);
-                Utils.error();
+//                System.err.println(e);
+//                Utils.error();
                 return null;
             }
         }
+        StatusUpdate.processAlign3();
         StringBuilder sb = new StringBuilder();
         r.setBegin(align.getStart1() + r.getBegin());
         char[] m = align.getMarkupLine();

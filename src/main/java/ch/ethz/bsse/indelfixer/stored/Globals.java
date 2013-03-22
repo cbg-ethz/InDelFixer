@@ -31,6 +31,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static boolean CONSENSUS;
     public static int READCOUNTER = 0;
     public static int STEPS;
     public static List<SequenceEntry> TRASH_READS = new CopyOnWriteArrayList<>();
@@ -59,6 +60,7 @@ public class Globals {
     public static int KMER_LENGTH = 1;
     public static final ForkJoinPool fjPool = new ForkJoinPool();
     public static int N = 0;
+    public static int maxN = 0;
     public static double PERCENTAGE_PROCESSING_READS = 0;
     public static double PERCENTAGE_EXTRACTING_READS = 0;
     public static double UNIDENTICAL = 0;

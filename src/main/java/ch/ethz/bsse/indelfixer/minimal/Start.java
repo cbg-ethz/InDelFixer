@@ -100,6 +100,10 @@ public class Start {
     private boolean version;
     @Option(name = "-rmDel")
     private boolean rmDel;
+    @Option(name = "-consensus")
+    private boolean consensus;
+    @Option(name = "-N")
+    private int N = 3;
 
     /**
      * Remove logging of jaligner.
@@ -156,6 +160,11 @@ public class Start {
                     genomes = parseGenome(this.genome);
                     for (int i = 0; i < this.refine; i++) {
                         StatusUpdate.readCount = 0;
+                        StatusUpdate.unmappedCount = 0;
+                        StatusUpdate.tooSmallCount = 0;
+                        StatusUpdate.alignCount1 = 0;
+                        StatusUpdate.alignCount2 = 0;
+                        StatusUpdate.alignCount3 = 0;
                         compute(genomes);
                     }
                 }
@@ -174,6 +183,9 @@ public class Start {
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
                 System.err.println("  -k INT\t\t: Kmer size (default 10)");
                 System.err.println("  -v INT\t\t: Kmer offset (default 2)");
+                System.err.println("  -l INT\t\t: Minimal read-length prior alignment (default 0)");
+                System.err.println("  -la INT\t\t: Minimal read-length after alignment (default 0)");
+                System.err.println("  -cut INT\t\t: Cut given number of bases (primer) from beginning of the read (default 0)");
                 System.err.println("  -refine INT\t\t: Computes a consensus sequence from alignment and re-aligns against that.");
                 System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
                 System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
@@ -276,8 +288,8 @@ public class Start {
             Globals.GOP = 10;
             Globals.GEX = 10;
         } else if (this.illumina) {
-            Globals.GOP = 46;
-            Globals.GEX = 10;
+            Globals.GOP = 30;
+            Globals.GEX = 3;
         } else if (this.roche) {
             Globals.GOP = 10;
             Globals.GEX = 1;
@@ -300,6 +312,8 @@ public class Start {
         Globals.FILTER = this.filter;
         Globals.REFINE = this.refine > 0;
         Globals.RM_DEL = this.rmDel;
+        Globals.maxN = this.N;
+        Globals.CONSENSUS = this.consensus;
     }
 
     /**

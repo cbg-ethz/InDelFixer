@@ -356,7 +356,7 @@ public class Read implements Serializable {
         cigarSB.append(count).append(prev);
         return cigarSB.toString();
     }
-    
+
     public char[] getCigarsPure() {
         return cigars.toCharArray();
     }
@@ -382,7 +382,11 @@ public class Read implements Serializable {
         } else {
             sb.append("READ_").append(Globals.READCOUNTER++);
         }
-        sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
+//        if (Globals.CONSENSUS) {
+//            sb.append("\t0\t").append("CONSENSUS");
+//        } else {
+            sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
+//        }
         sb.append("\t").append(this.getBegin());
         sb.append("\t").append("255");
         sb.append("\t").append(this.getCigars());

@@ -20,6 +20,7 @@ import static ch.ethz.bsse.indelfixer.minimal.processing.ProcessingFastaSingle.p
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
+import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,6 +70,8 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
                     SequenceEntry watsonQ = parseFastq(brWatson);
                     if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
                         list.add(watsonQ);
+                    } else {
+                        StatusUpdate.processLength();
                     }
                     if (i % 10000 == 0) {
                         this.processResults();
@@ -133,10 +136,20 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
             }
             if (started) {
                 qualitySum += p[i];
+            }
+        }
+        boolean foundEnd = false;
+        for (int i = quality.length - 1; i >= begin; i--) {
+            qualitySum -= p[i];
+            if (!foundEnd && p[i] >= Globals.THRESHOLD) {
+                end = i;
+                foundEnd = true;
+            }
+            if (foundEnd) {
                 if (c[i] == 'N') {
                     Ns++;
                 } else {
-                    if (Ns >= 3) {
+                    if (Ns >= Globals.maxN) {
                         break;
                     } else {
                         Ns = 0;
@@ -144,15 +157,8 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
                 }
             }
         }
-        if (Ns >= 3) {
+        if (Ns >= Globals.maxN) {
             return null;
-        }
-        for (int i = quality.length - 1; i >= 0; i--) {
-            qualitySum -= p[i];
-            if (p[i] >= Globals.THRESHOLD) {
-                end = i;
-                break;
-            }
         }
         if (begin == -1 || end == -1) {
             return null;

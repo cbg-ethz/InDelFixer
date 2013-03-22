@@ -20,6 +20,7 @@ import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.stored.SimpleRead;
+import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -58,6 +59,8 @@ public class ProcessingSFFSingle extends ProcessingGeneral {
                 synchronized (results) {
                     results.add(executor.submit(new FutureSequence(l)));
                 }
+            } else {
+                StatusUpdate.processLength();
             }
             if (i % 10000 == 0) {
                 this.processResults();

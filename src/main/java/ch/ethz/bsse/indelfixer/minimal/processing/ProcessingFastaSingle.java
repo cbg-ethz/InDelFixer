@@ -19,6 +19,7 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
+import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -62,6 +63,8 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
                     SequenceEntry watsonS = new SequenceEntry(parseFastaEntry(brWatson));
                     if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
                         list.add(watsonS);
+                    } else {
+                        StatusUpdate.processLength();
                     }
                     if (i % 10000 == 0) {
                         this.processResults();

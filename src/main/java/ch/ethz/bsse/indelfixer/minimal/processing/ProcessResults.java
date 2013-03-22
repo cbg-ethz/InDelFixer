@@ -57,7 +57,7 @@ public class ProcessResults implements Callable<Void> {
                         GridOutput result = (GridOutput) o2;
                         Read r = result.read;
                         samSB.append(r.toString());
-                        if (Globals.REFINE) {
+                        if (Globals.REFINE || Globals.CONSENSUS) {
                             int[] x = Utils.reverse(r.getAlignedRead());
                             int i = 0;
                             int y = 0;

@@ -18,9 +18,6 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
-import ch.ethz.bsse.indelfixer.stored.GridOutput;
-import ch.ethz.bsse.indelfixer.stored.Read;
-import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.stored.TripleDouble;
 import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.BufferedReader;
@@ -54,7 +51,7 @@ public class ProcessingGeneral {
     private boolean virgin = true;
     protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(Runtime.getRuntime().availableProcessors() - 1);
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-    protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
+    protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 5, TimeUnit.MINUTES, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
     protected final List<Future<List<Object>>> results = new LinkedList<>();
     protected List<TripleDouble> inDelSubsList = new LinkedList<>();
@@ -271,9 +268,13 @@ public class ProcessingGeneral {
         StringBuilder samSB = new StringBuilder();
         if (virgin) {
             samSB.append("@HD\tVN:1.0\tSO:unsorted\n");
-            for (Genome g : Globals.GENOMES) {
-                samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
-            }
+//            if (Globals.CONSENSUS) {
+//                samSB.append("@SQ\tSN:").append("CONSENSUS").append("\tLN:").append(Globals.GENOMES[0].getSequence().length()).append("\n");
+//            } else {
+                for (Genome g : Globals.GENOMES) {
+                    samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
+                }
+//            }
             samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.6\n");
             virgin = false;
         }
@@ -283,7 +284,7 @@ public class ProcessingGeneral {
     }
 
     protected void saveConsensus() {
-        if (Globals.REFINE) {
+        if (Globals.REFINE || Globals.CONSENSUS) {
             int[] cons = new int[alignment.length];
             for (int i = 0; i < cons.length; i++) {
                 cons[i] = -1;
