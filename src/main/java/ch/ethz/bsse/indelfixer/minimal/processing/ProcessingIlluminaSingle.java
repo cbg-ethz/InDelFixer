@@ -16,11 +16,11 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing;
 
-import static ch.ethz.bsse.indelfixer.minimal.processing.ProcessingFastaSingle.parseFastaEntry;
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
+import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -62,8 +63,8 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
             brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
         }
 
-        List<SequenceEntry> list = new LinkedList<>();
         for (int i = 0;;) {
+            List<SequenceEntry> list = new LinkedList<>();
             try {
                 for (int j = 0; j < Globals.STEPS; j++) {
                     i++;
@@ -91,10 +92,18 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
             }
         }
 
+//        this.processResults();
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            System.err.println(e);
+            Utils.error();
+            System.exit(0);
+        }
         this.processResults();
         this.printMatrix();
         this.saveConsensus();
-        executor.shutdown();
     }
 
     /**
@@ -138,9 +147,16 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
                 qualitySum += p[i];
             }
         }
+        if (begin == -1) {
+            return null;
+        }
         boolean foundEnd = false;
         for (int i = quality.length - 1; i >= begin; i--) {
-            qualitySum -= p[i];
+            try {
+                qualitySum -= p[i];
+            } catch (Exception e) {
+                System.err.println("");
+            }
             if (!foundEnd && p[i] >= Globals.THRESHOLD) {
                 end = i;
                 foundEnd = true;

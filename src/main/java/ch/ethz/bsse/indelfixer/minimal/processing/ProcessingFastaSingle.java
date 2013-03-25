@@ -148,6 +148,6 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
         if (untouched) {
             throw new IllegalAccessError("done");
         }
-        return sb.toString();
+        return sb.toString().replaceAll("-", "");
     }
 }

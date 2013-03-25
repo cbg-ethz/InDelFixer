@@ -16,6 +16,7 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing;
 
+import ch.ethz.bsse.indelfixer.minimal.Start;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.TripleDouble;
@@ -275,7 +276,7 @@ public class ProcessingGeneral {
                     samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
                 }
 //            }
-            samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:0.6\n");
+            samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:").append(Start.class.getPackage().getImplementationVersion()).append("\n");
             virgin = false;
         }
         Utils.appendFile(Globals.output + "reads.sam", samSB.toString());

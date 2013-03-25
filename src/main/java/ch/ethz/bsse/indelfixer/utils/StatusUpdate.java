@@ -50,7 +50,7 @@ public class StatusUpdate {
     }
 
     public synchronized static void processReads() {
-        ++readCount;
+        readCount++;
         if (!oldOut.equals(time())) {
             oldOut = time();
             System.out.print("\r                                                                                                                                                               ");
