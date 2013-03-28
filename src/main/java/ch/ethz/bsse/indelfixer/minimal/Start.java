@@ -201,9 +201,9 @@ public class Start {
                 System.err.println("");
                 System.err.println(" ------------------------");
                 System.err.println(" === EXAMPLES ===");
-                System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -454");
-                System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.ccs.fastq -g referenceGenomes.fasta -pacbio");
-                System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta -illumina");
+                System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.fastq -g referenceGenomes.fasta");
+                System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.ccs.fastq -g referenceGenomes.fasta");
+                System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta");
                 System.err.println(" ------------------------");
             }
         } catch (OutOfMemoryError e) {
