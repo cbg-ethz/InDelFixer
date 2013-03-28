@@ -19,19 +19,15 @@ The output is in SAM format.
 `java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta -pacbio`
  
 #### Illumina paired end:
-`java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta -illumina`
+`java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta`
 
 ### Affine GAP costs
 Gap costs for the used Smith-Waterman can be set with
 ```
 -gop 3 (gap open)
 -gex 1 (gap extend)
-
-or
--illumina (46 open / 10 extend)
--pacbio (10 open / 10 extend)
--roche (10 open/ 8 extend)
 ```
+Predefined: 30 open & 3 extend. Tested with with PacBio, Illumina and 454 data on HIV, HCV and HBV data.
 
 ### Iterative refinement
 The alignment can be improved by aligning against the consensus sequence. The parameter `-refine INT` takes a positive number as input and activates the iterative refinement.
