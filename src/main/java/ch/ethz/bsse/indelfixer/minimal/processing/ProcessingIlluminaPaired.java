@@ -159,6 +159,9 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
                 qualitySum += p[i];
             }
         }
+        if (begin == -1) {
+            return null;
+        }
         boolean foundEnd = false;
         for (int i = quality.length - 1; i >= begin; i--) {
             qualitySum -= p[i];
@@ -184,15 +187,15 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         if (begin == -1) {
             return null;
         }
-        if (begin < Globals.CUT) {
-            begin = Globals.CUT;
-        }
+//        if (begin < Globals.CUT) {
+//            begin = Globals.CUT;
+//        }
         qualitySum /= end - begin - 1;
         if (begin < 0 || end + 1 <= begin) {
             return null;
         }
         return new SequenceEntry(seq.substring(begin, end + 1),
                 header,
-                qualityString.substring(begin, end + 1));
+                qualityString.substring(begin, end + 1), begin, seq.length()-end);
     }
 }

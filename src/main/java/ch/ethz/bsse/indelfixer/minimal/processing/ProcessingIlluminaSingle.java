@@ -179,15 +179,15 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         if (begin == -1 || end == -1) {
             return null;
         }
-        if (begin < Globals.CUT) {
-            begin = Globals.CUT;
-        }
+//        if (begin < Globals.CUT) {
+//            begin = Globals.CUT;
+//        }
         if (begin > end) {
             return null;
         }
         qualitySum /= end - begin - 1;
         return new SequenceEntry(seq.substring(begin, end + 1),
                 header,
-                qualityString.substring(begin, end + 1));
+                qualityString.substring(begin, end + 1), begin, seq.length() - end);
     }
 }

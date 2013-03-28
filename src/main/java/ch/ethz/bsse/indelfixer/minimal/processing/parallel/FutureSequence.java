@@ -60,7 +60,8 @@ public class FutureSequence implements Callable<List<Object>> {
                 Read watsonRevRead = map(createRead(watsonEntry, true));
                 try {
                     StatusUpdate.processAlign1();
-                    Read watson = align(watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits() ? watsonRead : watsonRevRead, this.substitutionsForward);
+                    boolean forward = watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits();
+                    Read watson = align(forward ? watsonRead : watsonRevRead, this.substitutionsForward);
                     StatusUpdate.processAlign2();
                     if (watson != null) {
                         StatusUpdate.processReads();
