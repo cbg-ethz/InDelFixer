@@ -77,15 +77,15 @@ public class Start {
     @Option(name = "-ins")
     private double ins = 1;
     @Option(name = "-gop")
-    private float gop = 5;
+    private float gop = 30;
     @Option(name = "-gex")
-    private float gex = 2;
-    @Option(name = "-pacbio")
-    private boolean pacbio;
-    @Option(name = "-illumina")
-    private boolean illumina;
-    @Option(name = "-454")
-    private boolean roche;
+    private float gex = 3;
+//    @Option(name = "-pacbio")
+//    private boolean pacbio;
+//    @Option(name = "-illumina")
+//    private boolean illumina;
+//    @Option(name = "-454")
+//    private boolean roche;
     @Option(name = "-cut")
     private int cut;
     @Option(name = "-header")
@@ -284,19 +284,19 @@ public class Start {
      * Set global variables from command-line parameters
      */
     private void setGlobals() {
-        if (this.pacbio) {
-            Globals.GOP = 10;
-            Globals.GEX = 10;
-        } else if (this.illumina) {
-            Globals.GOP = 30;
-            Globals.GEX = 3;
-        } else if (this.roche) {
-            Globals.GOP = 10;
-            Globals.GEX = 1;
-        } else {
+//        if (this.pacbio) {
+//            Globals.GOP = 10;
+//            Globals.GEX = 10;
+//        } else if (this.illumina) {
+//            Globals.GOP = 30;
+//            Globals.GEX = 3;
+//        } else if (this.roche) {
+//            Globals.GOP = 10;
+//            Globals.GEX = 1;
+//        } else {
             Globals.GOP = this.gop;
             Globals.GEX = this.gex;
-        }
+//        }
         Globals.MIN_LENGTH_ALIGNED = minlengthAligned;
         Globals.MIN_LENGTH = minlength;
         Globals.ADJUST = this.adjust;
