@@ -16,6 +16,7 @@
  */
 package ch.ethz.bsse.indelfixer.minimal.processing.parallel;
 
+import ch.ethz.bsse.indelfixer.stored.GapCosts;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.GridOutput;
@@ -140,25 +141,37 @@ public class FutureSequence implements Callable<List<Object>> {
     }
 
     private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) {
-
-        Alignment align;
-        if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
-            return null;
-        } else {
-            int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
-            try {
-                Sequence g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd),"","",Sequence.NUCLEIC);
-                Sequence s = new Sequence(r.getRead(),"","",Sequence.NUCLEIC);
-                align = SmithWatermanGotoh.align(
-                        g,
-                        s,
-                        matrix, Globals.GOP, Globals.GEX);
-            } catch (Exception e) {
-//                System.err.println(e);
-//                Utils.error();
+        GapCosts[] gapCosts = new GapCosts[]{new GapCosts(5, 1), new GapCosts(5, 5), new GapCosts(10, 10), new GapCosts(10, 1), new GapCosts(20, 5), new GapCosts(30, 10), new GapCosts(30, 5), new GapCosts(30, 3)};
+        Alignment align = null;
+        float bestScore = Float.POSITIVE_INFINITY;
+        for (GapCosts gapCost : gapCosts) {
+            Alignment alignTmp;
+            if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
                 return null;
+            } else {
+                int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
+                try {
+                    Sequence g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC);
+                    Sequence s = new Sequence(r.getRead(), "", "", Sequence.NUCLEIC);
+                    alignTmp = SmithWatermanGotoh.align(
+                            g,
+                            s,
+                            matrix, gapCost.open, gapCost.extend);
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+            float score = alignTmp.calculateScore();
+            if (score < bestScore) {
+                bestScore = score;
+                align = alignTmp;
             }
         }
+        if (align == null) {
+            System.err.println("No alignment found");
+            return null;
+        }
+//        System.out.println("\n" + bestScore + "\n");
         StatusUpdate.processAlign3();
         StringBuilder sb = new StringBuilder();
         r.setBegin(align.getStart1() + r.getBegin());
@@ -244,7 +257,7 @@ public class FutureSequence implements Callable<List<Object>> {
 
                 }
                 if (cigar[j] != 0) {
-                    if (cigar[j] == 'M' || cigar[j] == 'X') {
+                    if (cigar[j] == 'M' || cigar[j] == 'X' || cigar[j] == 'I') {
                         sb.append(currentConsensus);
                         if (r.getQuality() != null) {
                             qualitySB.append(r.getQuality().charAt(qualityStart));
@@ -300,6 +313,9 @@ public class FutureSequence implements Callable<List<Object>> {
                     length++;
                     mismatches++;
                 }
+                if (h == 'I') {
+                    length++;
+                }
             }
         }
         if (mismatches > (matches * .5)) {
@@ -315,6 +331,7 @@ public class FutureSequence implements Callable<List<Object>> {
         r.setCigars(cigar);
         r.setAlignedRead(sb.toString());
         r.setEnd(r.getBegin() + sb.length());
+        r.setMapq((int) bestScore);
         return r;
     }
 

@@ -60,9 +60,15 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
             try {
                 for (int j = 0; j < Globals.STEPS; j++) {
                     i++;
-                    SequenceEntry watsonS = new SequenceEntry(parseFastaEntry(brWatson));
-                    if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
-                        list.add(watsonS);
+                    String parseFastaEntry = parseFastaEntry(brWatson);
+                    if (parseFastaEntry.length() > 2 * Globals.CUT) {
+                        parseFastaEntry = parseFastaEntry.substring(Globals.CUT, parseFastaEntry.length() - Globals.CUT);
+                        SequenceEntry watsonS = new SequenceEntry(parseFastaEntry);
+                        if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
+                            list.add(watsonS);
+                        } else {
+                            StatusUpdate.processLength();
+                        }
                     } else {
                         StatusUpdate.processLength();
                     }

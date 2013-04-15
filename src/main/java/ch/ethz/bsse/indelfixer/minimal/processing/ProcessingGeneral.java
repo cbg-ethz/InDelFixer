@@ -50,12 +50,17 @@ import java.util.logging.Logger;
 public class ProcessingGeneral {
 
     private boolean virgin = true;
-    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(Runtime.getRuntime().availableProcessors() - 1);
+    protected BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(getCPUs());
     protected RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-    protected ExecutorService executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1, Runtime.getRuntime().availableProcessors() - 1, 5, TimeUnit.MINUTES, blockingQueue, rejectedExecutionHandler);
+    protected ExecutorService executor = new ThreadPoolExecutor(getCPUs(), getCPUs(), 5, TimeUnit.MINUTES, blockingQueue, rejectedExecutionHandler);
     protected Map<Integer, Map<Integer, Integer>> substitutions = initSubs();
     protected final List<Future<List<Object>>> results = new LinkedList<>();
     protected List<TripleDouble> inDelSubsList = new LinkedList<>();
+
+    private static int getCPUs() {
+        int cpus = Runtime.getRuntime().availableProcessors();
+        return cpus > 1 ? cpus - 1 : 1;
+    }
 
     private Map<Integer, Map<Integer, Integer>> initSubs() {
         Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
@@ -272,9 +277,9 @@ public class ProcessingGeneral {
 //            if (Globals.CONSENSUS) {
 //                samSB.append("@SQ\tSN:").append("CONSENSUS").append("\tLN:").append(Globals.GENOMES[0].getSequence().length()).append("\n");
 //            } else {
-                for (Genome g : Globals.GENOMES) {
-                    samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
-                }
+            for (Genome g : Globals.GENOMES) {
+                samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
+            }
 //            }
             samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:").append(Start.class.getPackage().getImplementationVersion()).append("\n");
             virgin = false;

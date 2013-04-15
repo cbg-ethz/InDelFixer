@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+
 /**
  *
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -42,6 +43,7 @@ public class Read implements Serializable {
     private String header;
     private int bestGenomeIndex = -1;
     private String cigars;
+    private Object mapq;
 
     public Read(int begin, int end, String alignedRead) {
         super();
@@ -338,7 +340,7 @@ public class Read implements Serializable {
         char prev = 'x';
         int count = 0;
         for (char c : cigars.replaceAll("X", "M").toCharArray()) {
-            if (c != 0 && c != 'I') {
+            if (c != 0) {
                 if (prev == 'x') {
                     prev = c;
                     count++;
@@ -388,7 +390,7 @@ public class Read implements Serializable {
             sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
 //        }
         sb.append("\t").append(this.getBegin());
-        sb.append("\t").append("255");
+        sb.append("\t").append(this.mapq);
         sb.append("\t").append(this.getCigars());
         sb.append("\t").append("*");
         sb.append("\t").append("0");
@@ -405,8 +407,16 @@ public class Read implements Serializable {
         sb.append("\n");
         return sb.toString();
     }
-}
 
+    public Object getMapq() {
+        return mapq;
+    }
+
+    public void setMapq(Object mapq) {
+        this.mapq = mapq;
+    }
+    
+}
 class Hits {
 
     Map<Integer, Integer> hitMap = new HashMap<>();

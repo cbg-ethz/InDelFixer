@@ -5,12 +5,12 @@
 
     <groupId>ch.ethz.bsse</groupId>
     <artifactId>InDelFixer</artifactId>
-    <version>0.8.1</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
 
     <name>InDelFixer</name>
     <url>http://www.bsse.ethz.ch/cbg/people/toepfera</url>
-    
+
     <developers>
         <developer>
             <id>toepfera</id>
@@ -22,7 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -51,7 +51,7 @@
                         </manifest>
                         <manifestEntries>
                             <mode>development</mode>
-                            
+
                             <url>${project.url}</url>
                             <author>value</author>
                         </manifestEntries>
@@ -105,7 +105,7 @@
             <version>1.0</version>
         </dependency>
     </dependencies>
-  
+
     <pluginRepositories>
         <pluginRepository>
             <id>onejar-maven-plugin.googlecode.com</id>
@@ -115,7 +115,7 @@
     <repositories>
         <repository>
             <id>ibiblio</id>
-            <url>http://mirrors.ibiblio.org/maven2/</url>			
+            <url>http://mirrors.ibiblio.org/maven2/</url>
         </repository>
         <repository>
             <id>snapshots</id>
@@ -124,7 +124,7 @@
         <repository>
             <id>biojava-maven-repo</id>
             <name>BioJava repository</name>
-            <url>http://www.biojava.org/download/maven/</url>			
+            <url>http://www.biojava.org/download/maven/</url>
         </repository>
     </repositories>
 </project>

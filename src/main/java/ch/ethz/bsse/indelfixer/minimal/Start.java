@@ -104,6 +104,8 @@ public class Start {
     private boolean consensus;
     @Option(name = "-N")
     private int N = 3;
+    @Option(name = "-sensitive")
+    private boolean sensitive;
 
     /**
      * Remove logging of jaligner.
@@ -189,6 +191,7 @@ public class Start {
                 System.err.println("  -refine INT\t\t: Computes a consensus sequence from alignment and re-aligns against that.");
                 System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
                 System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
+                System.err.println("  -sensitive\t\t: More sensitive but slower alignment");
                 System.err.println("");
                 System.err.println(" === GAP costs ===");
                 System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman (default 30)");
@@ -294,8 +297,8 @@ public class Start {
 //            Globals.GOP = 10;
 //            Globals.GEX = 1;
 //        } else {
-            Globals.GOP = this.gop;
-            Globals.GEX = this.gex;
+        Globals.GOP = this.gop;
+        Globals.GEX = this.gex;
 //        }
         Globals.MIN_LENGTH_ALIGNED = minlengthAligned;
         Globals.MIN_LENGTH = minlength;
@@ -314,6 +317,7 @@ public class Start {
         Globals.RM_DEL = this.rmDel;
         Globals.maxN = this.N;
         Globals.CONSENSUS = this.consensus;
+        Globals.SENSITIVE = this.sensitive;
     }
 
     /**

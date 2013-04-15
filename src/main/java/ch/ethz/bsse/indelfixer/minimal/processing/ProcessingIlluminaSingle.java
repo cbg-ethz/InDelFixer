@@ -179,9 +179,12 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         if (begin == -1 || end == -1) {
             return null;
         }
-//        if (begin < Globals.CUT) {
-//            begin = Globals.CUT;
-//        }
+        if (begin < Globals.CUT) {
+            begin = Globals.CUT;
+        }
+        if (end >= quality.length - 1 - Globals.CUT) {
+            end = quality.length - 1 - Globals.CUT;
+        }
         if (begin > end) {
             return null;
         }
