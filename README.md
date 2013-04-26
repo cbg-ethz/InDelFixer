@@ -14,12 +14,25 @@ The output is in SAM format.
 ## RUN:
 #### 454/Roche:
 `java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta`
+
+But I encourage to convert the sff to fastq with `sff2fastq input.sff -o input.fastq`
+<b>sff2fastq</b> can be installed with:
+```
+git clone git://github.com/indraniel/sff2fastq.git;
+cd sff2fastq;
+make;
+```
  
 #### Fasta / PacBio ccs:
-`java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta -pacbio`
+`java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta`
+
+For PacBio input, please use `-noHashing` since the PacBio error rate is too high for a reliable kmer-matching.
  
 #### Illumina paired end:
 `java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta`
+
+### High quality alignment
+With parameter `-sensitive`, multiple affine gap costs are tested for each read and the best alignment is kept.
 
 ### Affine GAP costs
 Gap costs for the used Smith-Waterman can be set with
@@ -34,6 +47,9 @@ The alignment can be improved by aligning against the consensus sequence. The pa
 
 #### Remove conserved deletions:
 During the iterative alignment, conserved deletions can be removed with `-rmDel`.
+
+### Remove frame-shift causing deletions
+With parameter `-fix`, frame-shift causing deletions are replaced with the consensus sequence.
 
 ### Line breaks
 In the case that a single fastq entry is longer than four lines, which is caused by line breaks in the sequence and quality string, use `-flat`.
