@@ -15,8 +15,7 @@ The output is in SAM format.
 #### 454/Roche:
 `java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta`
 
-But I encourage to convert the sff to fastq and use that as input.
-Convert your SFF to fastq with `sff2fastq input.sff -o input.fastq`  
+But I encourage to convert the sff to fastq with `sff2fastq input.sff -o input.fastq`
 <b>sff2fastq</b> can be installed with:
 ```
 git clone git://github.com/indraniel/sff2fastq.git;
@@ -25,7 +24,9 @@ make;
 ```
  
 #### Fasta / PacBio ccs:
-`java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta -pacbio`
+`java -jar InDelFixer.jar -i libCase102.fasta -g referenceGenomes.fasta`
+
+For PacBio input, please use `-noHashing` since the PacBio error rate is too high for a reliable kmer-matching.
  
 #### Illumina paired end:
 `java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta`
