@@ -7,31 +7,54 @@
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or any later version.
  *
- * InDelFixer is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * InDelFixer is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
  * InDelFixer. If not, see <http://www.gnu.org/licenses/>.
  */
 package ch.ethz.bsse.indelfixer.utils;
 
+import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import java.io.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
  */
 public class Utils {
 
-    /**
-     *
-     * @param path
-     * @param sb
-     */
+    public static List<SequenceEntry> splitRead(SequenceEntry se) {
+        final int splitLength = 400;
+        List<SequenceEntry> list = new LinkedList<>();
+        int l = se.sequence.length();
+        if (l > splitLength) {
+            for (int i = 0; i < l; i += splitLength) {
+                int end;
+                if (i + splitLength > l) {
+                    end = l;
+                } else {
+                    end = i + splitLength;
+                }
+                if (se.quality != null) {
+                    SequenceEntry s = new SequenceEntry(se.sequence.substring(i, end), se.quality.substring(i, end));
+                    s.header = se.header;
+                    list.add(s);
+                } else {
+                    SequenceEntry s = new SequenceEntry(se.sequence.substring(i, end));
+                    s.header = se.header;
+                    list.add(s);
+                }
+            }
+        }
+        return list;
+    }
+
     public static void saveFile(String path, String sb) {
         try {
-            // Create file 
+            // Create file
             FileWriter fstream = new FileWriter(path);
             try (BufferedWriter out = new BufferedWriter(fstream)) {
                 out.write(sb);
@@ -41,10 +64,10 @@ public class Utils {
             System.err.println(path);
         }
     }
-    
+
     public static void appendFile(String path, String sb) {
         try {
-            // Create file 
+            // Create file
             FileWriter fstream = new FileWriter(path, true);
             try (BufferedWriter out = new BufferedWriter(fstream)) {
                 out.write(sb);
@@ -84,7 +107,7 @@ public class Utils {
         }
         return sb.reverse().toString();
     }
-    
+
     public static int[] reverse(String s) {
         int[] r = new int[s.length()];
         int i = 0;
@@ -133,7 +156,7 @@ public class Utils {
         }
         return false;
     }
-    
+
     /**
      *
      * @param path
@@ -146,7 +169,7 @@ public class Utils {
                 BufferedReader br = new BufferedReader(new InputStreamReader(in));
                 String strLine;
                 while ((strLine = br.readLine()) != null) {
-                    if (strLine.startsWith("@") ) {
+                    if (strLine.startsWith("@")) {
                         return true;
                     } else {
                         return false;
@@ -157,7 +180,7 @@ public class Utils {
         }
         return false;
     }
-    
+
     public static void error() {
         System.out.println("    .o oOOOOOOOo                                            OOOo");
         System.out.println("    Ob.OOOOOOOo  OOOo.      oOOo.                      .adOOOOOOO");

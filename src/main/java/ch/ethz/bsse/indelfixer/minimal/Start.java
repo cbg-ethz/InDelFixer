@@ -106,6 +106,12 @@ public class Start {
     private int N = 3;
     @Option(name = "-sensitive")
     private boolean sensitive;
+    @Option(name = "-maxDel")
+    private int maxDel = -1;
+    @Option(name = "-noHashing")
+    private boolean noHashing;
+    @Option(name = "-fix")
+    private boolean fix;
 
     /**
      * Remove logging of jaligner.
@@ -150,6 +156,11 @@ public class Start {
                 if (this.input == null && this.genome == null) {
                     throw new CmdLineException("");
                 }
+                if (this.fix) {
+                    if (this.refine == 0) {
+                        refine = 1;
+                    }
+                }
                 this.setGlobals();
                 Genome[] genomes = parseGenome(this.genome);
                 if (this.regions != null) {
@@ -157,6 +168,9 @@ public class Start {
                     genomes = parseGenome(this.cutGenomes(genomes));
                 }
                 compute(genomes);
+                if (this.fix) {
+                    Globals.ADJUST = true;
+                }
                 if (this.refine > 0) {
                     this.genome = this.output + "consensus.fasta";
                     genomes = parseGenome(this.genome);
@@ -192,6 +206,7 @@ public class Start {
                 System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
                 System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
                 System.err.println("  -sensitive\t\t: More sensitive but slower alignment");
+                System.err.println("  -fix\t\t: Fill frame-shift causing deletions with consensus sequence.");
                 System.err.println("");
                 System.err.println(" === GAP costs ===");
                 System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman (default 30)");
@@ -318,6 +333,8 @@ public class Start {
         Globals.maxN = this.N;
         Globals.CONSENSUS = this.consensus;
         Globals.SENSITIVE = this.sensitive;
+        Globals.MAX_CONSECUTIVE_DEL = this.maxDel;
+        Globals.NO_HASHING = this.noHashing;
     }
 
     /**

@@ -60,6 +60,7 @@ public class ProcessingGeneral {
     private static int getCPUs() {
         int cpus = Runtime.getRuntime().availableProcessors();
         return cpus > 1 ? cpus - 1 : 1;
+//        return 1;
     }
 
     private Map<Integer, Map<Integer, Integer>> initSubs() {
@@ -215,7 +216,7 @@ public class ProcessingGeneral {
         String s;
 //        if (value < 1e-20) {
 //            s = "0      ";
-//        } else 
+//        } else
         if (value == 1.0) {
             s = "1      ";
         } else {
@@ -274,13 +275,9 @@ public class ProcessingGeneral {
         StringBuilder samSB = new StringBuilder();
         if (virgin) {
             samSB.append("@HD\tVN:1.0\tSO:unsorted\n");
-//            if (Globals.CONSENSUS) {
-//                samSB.append("@SQ\tSN:").append("CONSENSUS").append("\tLN:").append(Globals.GENOMES[0].getSequence().length()).append("\n");
-//            } else {
             for (Genome g : Globals.GENOMES) {
                 samSB.append("@SQ\tSN:").append(g.getHeader()).append("\tLN:").append(g.getSequence().length()).append("\n");
             }
-//            }
             samSB.append("@PG\tID:InDelFixer\tPN:InDelFixer\tVN:").append(Start.class.getPackage().getImplementationVersion()).append("\n");
             virgin = false;
         }

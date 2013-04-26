@@ -64,8 +64,10 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
                     if (parseFastaEntry.length() > 2 * Globals.CUT) {
                         parseFastaEntry = parseFastaEntry.substring(Globals.CUT, parseFastaEntry.length() - Globals.CUT);
                         SequenceEntry watsonS = new SequenceEntry(parseFastaEntry);
+                        watsonS.header = "Read" + i + "X";
                         if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
                             list.add(watsonS);
+//                            list.addAll(Utils.splitRead(watsonS));
                         } else {
                             StatusUpdate.processLength();
                         }

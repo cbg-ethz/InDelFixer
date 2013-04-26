@@ -30,6 +30,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class Globals {
 
+    public static boolean NO_HASHING;
     public static boolean SENSITIVE;
     public static boolean CONSENSUS;
     public static int READCOUNTER = 0;
@@ -46,6 +47,7 @@ public class Globals {
     public static double MAX_SUB;
     public static boolean KEEP;
     public static List<Read> READS;
+    public static int MAX_CONSECUTIVE_DEL;
     public static int MIN_LENGTH_ALIGNED;
     public static int MIN_LENGTH;
     public static int GENOME_LENGTH;

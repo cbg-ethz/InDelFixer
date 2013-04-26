@@ -191,6 +191,6 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         qualitySum /= end - begin - 1;
         return new SequenceEntry(seq.substring(begin, end + 1),
                 header,
-                qualityString.substring(begin, end + 1), begin, seq.length() - end);
+                qualityString.substring(begin, end + 1));
     }
 }

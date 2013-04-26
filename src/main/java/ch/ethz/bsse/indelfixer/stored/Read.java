@@ -16,6 +16,7 @@
  */
 package ch.ethz.bsse.indelfixer.stored;
 
+import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
 
 /**
  *
@@ -90,8 +90,10 @@ public class Read implements Serializable {
         for (int x = 0; x < hits.length; x++) {
             Hits h = hits[x];
             int currentHits = 0;
+            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < Globals.GENOME_SEQUENCES[x].length(); i++) {
                 currentHits += getHit(i, x);
+                sb.append(getHit(i, x)).append(" ");
                 if (i >= (h.min + read.length())) {
                     if (currentHits > h.maximumHits) {
                         h.region[0] = i - read.length();
@@ -101,6 +103,7 @@ public class Read implements Serializable {
                     currentHits -= getHit(i - read.length(), x);
                 }
             }
+//            Utils.saveFile(Globals.output + this.header + ".hits", sb.toString());
             if (currentHits > h.maximumHits) {
                 h.region[0] = Globals.GENOME_SEQUENCES[x].length() - read.length();
                 h.region[1] = Globals.GENOME_SEQUENCES[x].length();
@@ -387,7 +390,7 @@ public class Read implements Serializable {
 //        if (Globals.CONSENSUS) {
 //            sb.append("\t0\t").append("CONSENSUS");
 //        } else {
-            sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
+        sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
 //        }
         sb.append("\t").append(this.getBegin());
         sb.append("\t").append(this.mapq);
@@ -415,8 +418,8 @@ public class Read implements Serializable {
     public void setMapq(Object mapq) {
         this.mapq = mapq;
     }
-    
 }
+
 class Hits {
 
     Map<Integer, Integer> hitMap = new HashMap<>();
