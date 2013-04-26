@@ -207,6 +207,7 @@ public class Start {
                 System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
                 System.err.println("  -sensitive\t\t: More sensitive but slower alignment");
                 System.err.println("  -fix\t\t: Fill frame-shift causing deletions with consensus sequence.");
+                System.err.println("  -noHashing\t\t: No fast kmer-mathcing to find approximate mapping region. Please use with PacBio data!");
                 System.err.println("");
                 System.err.println(" === GAP costs ===");
                 System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman (default 30)");
