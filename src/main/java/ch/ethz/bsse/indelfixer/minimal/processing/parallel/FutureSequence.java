@@ -151,7 +151,7 @@ public class FutureSequence implements Callable<List<Object>> {
         float bestScore = Float.NEGATIVE_INFINITY;
         int bestFittingGenome = r.getBestFittingGenome();
         int startGenome = bestFittingGenome;
-        int endGenome = bestFittingGenome;
+        int endGenome = bestFittingGenome + 1;
         if (Globals.NO_HASHING) {
             startGenome = 0;
             endGenome = Globals.GENOME_SEQUENCES.length;
