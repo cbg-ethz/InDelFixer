@@ -62,9 +62,9 @@ In addition, only a specific region can be extracted with `-r begin-end`, for ex
 ```
   -l      INT    : Minimal read-length prior alignment (default 0)
   -la     INT    : Minimal read-length after alignment (default 0)
-  -ins    DOUBLE : The maximum precentage of insertions allowed [range 0.0 - 1.0] (default 1.0)
-  -del    DOUBLE : The maximum precentage of deletions allowed [range 0.0 - 1.0] (default 1.0)
-  -sub    DOUBLE : The maximum precentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)
+  -ins    DOUBLE : The maximum percentage of insertions allowed [range 0.0 - 1.0] (default 1.0)
+  -del    DOUBLE : The maximum percentage of deletions allowed [range 0.0 - 1.0] (default 1.0)
+  -sub    DOUBLE : The maximum percentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)
   -maxDel INT    : The maximum number of consecutive deletions allowed (default no filtering)
 ```
 * * *
