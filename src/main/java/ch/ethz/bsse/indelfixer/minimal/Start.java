@@ -210,10 +210,10 @@ public class Start {
                 System.err.println(" === FILTER ===");
                 System.err.println("  -l INT\t\t: Minimal read-length prior alignment (default 0)");
                 System.err.println("  -la INT\t\t: Minimal read-length after alignment (default 0)");
-                System.err.println("  -ins INT\t\t: The maximum precentage of insertions [range 0.0 - 1.0]\n");
-                System.err.println("  -del INT\t\t: The maximum precentage of deletions [range 0.0 - 1.0]\n");
-                System.err.println("  -sub INT\t\t: The maximum precentage of insertions [range 0.0 - 1.0]\n");
-                System.err.println("  -maxDel INT\t\t: The maximum number of consecutive deletions allowed");
+                System.err.println("  -ins INT\t\t: The maximum precentage of insertions allowed [range 0.0 - 1.0] (default 1.0)\n");
+                System.err.println("  -del INT\t\t: The maximum precentage of deletions allowed [range 0.0 - 1.0] (default 1.0)\n");
+                System.err.println("  -sub INT\t\t: The maximum precentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)\n");
+                System.err.println("  -maxDel INT\t\t: The maximum number of consecutive deletions allowed (default no filtering)");
                 System.err.println("");
                 System.err.println(" === GAP costs ===");
                 System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman (default 30)");
