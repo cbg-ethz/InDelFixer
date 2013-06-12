@@ -210,9 +210,9 @@ public class Start {
                 System.err.println(" === FILTER ===");
                 System.err.println("  -l INT\t\t: Minimal read-length prior alignment (default 0)");
                 System.err.println("  -la INT\t\t: Minimal read-length after alignment (default 0)");
-                System.err.println("  -ins DOUBLE\t\t: The maximum precentage of insertions allowed [range 0.0 - 1.0] (default 1.0)");
-                System.err.println("  -del DOUBLE\t\t: The maximum precentage of deletions allowed [range 0.0 - 1.0] (default 1.0)");
-                System.err.println("  -sub DOUBLE\t\t: The maximum precentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)");
+                System.err.println("  -ins DOUBLE\t\t: The maximum percentage of insertions allowed [range 0.0 - 1.0] (default 1.0)");
+                System.err.println("  -del DOUBLE\t\t: The maximum percentage of deletions allowed [range 0.0 - 1.0] (default 1.0)");
+                System.err.println("  -sub DOUBLE\t\t: The maximum percentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)");
                 System.err.println("  -maxDel INT\t\t: The maximum number of consecutive deletions allowed (default no filtering)");
                 System.err.println("");
                 System.err.println(" === GAP costs ===");
