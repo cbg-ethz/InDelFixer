@@ -57,6 +57,16 @@ In the case that a single fastq entry is longer than four lines, which is caused
 ### Extract region:
 In addition, only a specific region can be extracted with `-r begin-end`, for example a certain gene:
   `java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944`
+  
+## FILTER 
+```
+  -l      INT    : Minimal read-length prior alignment (default 0)
+  -la     INT    : Minimal read-length after alignment (default 0)
+  -ins    DOUBLE : The maximum precentage of insertions allowed [range 0.0 - 1.0] (default 1.0)
+  -del    DOUBLE : The maximum precentage of deletions allowed [range 0.0 - 1.0] (default 1.0)
+  -sub    DOUBLE : The maximum precentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)
+  -maxDel INT    : The maximum number of consecutive deletions allowed (default no filtering)
+```
 * * *
 ### Help:
 Further help can be showed by running without additional parameters:
