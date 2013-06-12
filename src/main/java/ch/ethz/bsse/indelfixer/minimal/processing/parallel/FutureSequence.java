@@ -143,39 +143,48 @@ public class FutureSequence implements Callable<List<Object>> {
     private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) {
         GapCosts[] gapCosts = null;
         if (Globals.SENSITIVE) {
-            gapCosts = new GapCosts[]{new GapCosts(5, 1), new GapCosts(5, 5), new GapCosts(10, 10), new GapCosts(10, 1), new GapCosts(20, 5), new GapCosts(30, 10), new GapCosts(30, 5), new GapCosts(30, 3)};
+            gapCosts = new GapCosts[]{new GapCosts(5, 3), new GapCosts(10, 10), new GapCosts(10, 1), new GapCosts(20, 5), new GapCosts(30, 10), new GapCosts(30, 5), new GapCosts(30, 3), new GapCosts(6, 1)};
         } else {
             gapCosts = new GapCosts[]{new GapCosts(Globals.GOP, Globals.GEX)};
         }
         Alignment align = null;
         float bestScore = Float.NEGATIVE_INFINITY;
-        for (GapCosts gapCost : gapCosts) {
-            Alignment alignTmp;
-            if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
-                return null;
-            } else {
-                int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
-                try {
-                    Sequence g = null;
-                    if (Globals.NO_HASHING) {
-                        g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()], "", "", Sequence.NUCLEIC);
-                    } else {
-                        g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC);
-                    }
-//                    Sequence g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()], "", "", Sequence.NUCLEIC);
-                    Sequence s = new Sequence(r.getRead(), "", "", Sequence.NUCLEIC);
-                    alignTmp = SmithWatermanGotoh.align(
-                            g,
-                            s,
-                            matrix, gapCost.open, gapCost.extend);
-                } catch (Exception e) {
+        int bestFittingGenome = r.getBestFittingGenome();
+        int startGenome = bestFittingGenome;
+        int endGenome = bestFittingGenome;
+        if (Globals.NO_HASHING) {
+            startGenome = 0;
+            endGenome = Globals.GENOME_SEQUENCES.length;
+        }
+        for (int i = startGenome; i < endGenome; i++) {
+            for (GapCosts gapCost : gapCosts) {
+                Alignment alignTmp;
+                if (r.getBestFittingGenome() == -1 || r.getEnd() < 0) {
                     return null;
+                } else {
+                    int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[i].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
+                    try {
+                        Sequence g = null;
+                        if (Globals.NO_HASHING) {
+                            g = new Sequence(Globals.GENOME_SEQUENCES[i], "", "", Sequence.NUCLEIC);
+                        } else {
+                            g = new Sequence(Globals.GENOME_SEQUENCES[i].substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC);
+                        }
+//                    Sequence g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()], "", "", Sequence.NUCLEIC);
+                        Sequence s = new Sequence(r.getRead(), "", "", Sequence.NUCLEIC);
+                        alignTmp = SmithWatermanGotoh.align(
+                                g,
+                                s,
+                                matrix, gapCost.open, gapCost.extend);
+                    } catch (Exception e) {
+                        return null;
+                    }
                 }
-            }
-            float score = alignTmp.calculateScore();
-            if (score > bestScore) {
-                bestScore = score;
-                align = alignTmp;
+                float score = alignTmp.calculateScore();
+                if (score > bestScore) {
+                    bestScore = score;
+                    align = alignTmp;
+                }
             }
         }
         if (align == null) {
