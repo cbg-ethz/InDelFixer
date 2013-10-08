@@ -287,7 +287,7 @@ public class FutureSequence implements Callable<List<Object>> {
                 }
 
                 if (c[j] == 'N') {
-                    currentConsensus = g[j];
+                    currentConsensus = c[j]; // SAM format doesn't allow dashes in sequence
                     if (isGAP(g[j])) {
                         cigar[j] = 'I';
                     } else {

@@ -244,7 +244,8 @@ public class Start {
         if (this.output == null) {
             this.output = System.getProperty("user.dir") + File.separator;
         } else {
-            Globals.output = this.output;
+            Globals.output = this.output.endsWith(File.separator) ?
+                    this.output : this.output + File.separator; // Output path should be folder
         }
         if (!new File(this.output).exists()) {
             new File(this.output).mkdirs();
