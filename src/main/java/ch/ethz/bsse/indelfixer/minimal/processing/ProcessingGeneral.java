@@ -288,33 +288,65 @@ public class ProcessingGeneral {
 
     protected void saveConsensus() {
         if (Globals.REFINE || Globals.CONSENSUS) {
-            int[] cons = new int[alignment.length];
+            Map<String, String> wobbles = new HashMap<>();
+            wobbles.put("A", "A");
+            wobbles.put("C", "C");
+            wobbles.put("G", "G");
+            wobbles.put("T", "T");
+            wobbles.put("T", "T");
+            wobbles.put("GT", "K");
+            wobbles.put("AC", "M");
+            wobbles.put("AG", "R");
+            wobbles.put("CT", "Y");
+            wobbles.put("CG", "S");
+            wobbles.put("AT", "W");
+            wobbles.put("CGT", "B");
+            wobbles.put("ACG", "V");
+            wobbles.put("ACT", "H");
+            wobbles.put("AGT", "D");
+            wobbles.put("ACGT", "N");
+            String[] cons = new String[alignment.length];
             for (int i = 0; i < cons.length; i++) {
-                cons[i] = -1;
+                cons[i] = "";
             }
             for (int i = 0; i < alignment.length; i++) {
                 int index = -1;
-                int max = Integer.MIN_VALUE;
+                double sum = 0;
+                int max = -1;
+                System.out.print(i);
                 for (int v = 0; v < 5; v++) {
+                    sum += alignment[i][v];
+                    System.out.print("\t" + alignment[i][v]);
                     if (alignment[i][v] > max) {
-                        index = v;
                         max = alignment[i][v];
+                        index = v;
                     }
                 }
-                if (max > 0) {
-                    cons[i] = index;
+                if (index == 4) {
+                    cons[i] = "N";
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sum -= alignment[i][4];
+                    for (int v = 0; v < 4; v++) {
+                        if (alignment[i][v] / sum > Globals.PLURALITY) {
+                            sb.append(Utils.reverse(v));
+                        }
+                    }
+                    cons[i] = wobbles.get(sb.toString());
                 }
+                System.out.println("\t" + cons[i]);
+
             }
             int from = 0;
             int to = 0;
             for (int i = 0; i < cons.length; i++) {
-                if (cons[i] != -1) {
+                if (cons[i] != null && !cons[i].isEmpty()) {
                     from = i;
                     break;
                 }
             }
             for (int i = cons.length - 1; i >= 0; i--) {
-                if (cons[i] != -1) {
+                if (cons[i] != null && !cons[i].isEmpty()) {
                     to = i;
                     break;
                 }
@@ -322,28 +354,7 @@ public class ProcessingGeneral {
             StringBuilder sb = new StringBuilder();
             sb.append(">CONSENSUS\n");
             for (int i = from; i <= to; i++) {
-                switch (cons[i]) {
-                    case 0:
-                        sb.append("A");
-                        break;
-                    case 1:
-                        sb.append("C");
-                        break;
-                    case 2:
-                        sb.append("G");
-                        break;
-                    case 3:
-                        sb.append("T");
-                        break;
-                    case 4:
-                        if (!Globals.RM_DEL) {
-                            sb.append("-");
-                        }
-                        break;
-                    default:
-                        System.err.println("REFERENCE calling failed " + cons[i] + "\t" + i);
-                        break;
-                }
+                sb.append(cons[i]);
             }
             sb.append("\n");
             Utils.saveFile(Globals.output + "consensus.fasta", sb.toString());

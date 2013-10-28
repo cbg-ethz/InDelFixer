@@ -70,6 +70,7 @@ public class Globals {
     public static Matrix MATRIX = loadMatrix();
     public static int[] RS;
     public static String[] ADAPTER;
+    public static double PLURALITY;
 
     /**
      *

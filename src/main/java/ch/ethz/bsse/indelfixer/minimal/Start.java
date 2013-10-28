@@ -77,7 +77,7 @@ public class Start {
     @Option(name = "-ins")
     private double ins = 1;
     @Option(name = "-gop")
-    private float gop = 30;
+    private float gop = 10;
     @Option(name = "-gex")
     private float gex = 3;
 //    @Option(name = "-pacbio")
@@ -114,6 +114,8 @@ public class Start {
     private boolean fix;
     @Option(name = "-adapter")
     private String adapter;
+    @Option(name = "-plurality")
+    private double plurality = 0.05;
 
     /**
      * Remove logging of jaligner.
@@ -350,6 +352,7 @@ public class Start {
         Globals.SENSITIVE = this.sensitive;
         Globals.MAX_CONSECUTIVE_DEL = this.maxDel;
         Globals.NO_HASHING = this.noHashing;
+        Globals.PLURALITY = this.plurality;
     }
 
     /**

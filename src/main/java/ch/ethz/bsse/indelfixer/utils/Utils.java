@@ -181,6 +181,22 @@ public class Utils {
         return false;
     }
 
+    public static String reverse(int i) {
+        switch (i) {
+            case 0:
+                return "A";
+            case 1:
+                return "C";
+            case 2:
+                return "G";
+            case 3:
+                return "T";
+            case 4:
+                return "-";
+        }
+        throw new IllegalAccessError();
+    }
+
     public static void error() {
         System.out.println("    .o oOOOOOOOo                                            OOOo");
         System.out.println("    Ob.OOOOOOOo  OOOo.      oOOo.                      .adOOOOOOO");
