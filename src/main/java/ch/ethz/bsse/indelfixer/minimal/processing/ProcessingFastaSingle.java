@@ -149,6 +149,18 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
                         }
                     }
                 } else {
+                    if (sb.length() == 0 && Globals.ADAPTER != null) {
+                        int minMatch = Integer.MAX_VALUE;
+                        int length = 0;
+                        for (String a : Globals.ADAPTER) {
+                            int ham = calcHamming(strLine.substring(0, a.length()), a);
+                            if (ham < minMatch) {
+                                minMatch = ham;
+                                length = a.length();
+                            }
+                        }
+                        strLine = strLine.substring(length);
+                    }
                     sb.append(strLine);
                 }
             }
@@ -157,5 +169,17 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
             throw new IllegalAccessError("done");
         }
         return sb.toString().replaceAll("-", "");
+    }
+
+    private static int calcHamming(String ptrue, String ptest) {
+        int error = 0;
+        char[] p1 = ptrue.toCharArray();
+        char[] p2 = ptest.toCharArray();
+        for (int i = 0; i < ptest.length(); i++) {
+            if (p1[i] != p2[i]) {
+                error++;
+            }
+        }
+        return error;
     }
 }

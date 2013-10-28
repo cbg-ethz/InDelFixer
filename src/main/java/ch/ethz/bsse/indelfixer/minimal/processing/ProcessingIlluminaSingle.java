@@ -179,12 +179,28 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         if (begin == -1 || end == -1) {
             return null;
         }
-        if (begin < Globals.CUT) {
-            begin = Globals.CUT;
+
+        if (Globals.ADAPTER != null) {
+            int minMatch = Integer.MAX_VALUE;
+            int length = 0;
+            for (String a : Globals.ADAPTER) {
+                int ham = calcHamming(seq.substring(0,a.length()),a);
+                if (ham < minMatch) {
+                    minMatch = ham;
+                    length = a.length();
+                }
+            }
+            if (begin < length) {
+                begin = length;
+            }
         }
-        if (end >= quality.length - 1 - Globals.CUT) {
-            end = quality.length - 1 - Globals.CUT;
-        }
+
+//        if (begin < Globals.CUT) {
+//            begin = Globals.CUT;
+//        }
+//        if (end >= quality.length - 1 - Globals.CUT) {
+//            end = quality.length - 1 - Globals.CUT;
+//        }
         if (begin > end) {
             return null;
         }
@@ -192,5 +208,17 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         return new SequenceEntry(seq.substring(begin, end + 1),
                 header,
                 qualityString.substring(begin, end + 1));
+    }
+
+    private int calcHamming(String ptrue, String ptest) {
+        int error = 0;
+        char[] p1 = ptrue.toCharArray();
+        char[] p2 = ptest.toCharArray();
+        for (int i = 0; i < ptest.length(); i++) {
+            if (p1[i] != p2[i]) {
+                error++;
+            }
+        }
+        return error;
     }
 }

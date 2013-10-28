@@ -69,6 +69,7 @@ public class Globals {
     public static String output = System.getProperty("user.dir") + File.separator;
     public static Matrix MATRIX = loadMatrix();
     public static int[] RS;
+    public static String[] ADAPTER;
 
     /**
      *

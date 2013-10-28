@@ -112,6 +112,8 @@ public class Start {
     private boolean noHashing;
     @Option(name = "-fix")
     private boolean fix;
+    @Option(name = "-adapter")
+    private String adapter;
 
     /**
      * Remove logging of jaligner.
@@ -162,6 +164,11 @@ public class Start {
                     }
                 }
                 this.setGlobals();
+                
+                if (this.adapter != null) {
+                    Globals.ADAPTER = FastaParser.parseFarFile(this.adapter);
+                }
+                
                 Genome[] genomes = parseGenome(this.genome);
                 if (this.regions != null) {
                     Globals.RS = this.splitRegion();

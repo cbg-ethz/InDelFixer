@@ -415,8 +415,8 @@ public class Read implements Serializable {
         return mapq;
     }
 
-    public void setMapq(Object mapq) {
-        this.mapq = mapq;
+    public void setMapq(int mapq) {
+        this.mapq = mapq > 255 ? 255 : mapq;
     }
 }
 
