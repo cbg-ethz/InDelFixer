@@ -87,9 +87,9 @@ public class FutureSequence implements Callable<List<Object>> {
     }
 
     private void initSubs() {
-        for (int v = 0; v < 6; v++) {
+        for (int v = 0; v <= 6; v++) {
             substitutionsForward.put(v, new HashMap<Integer, Integer>());
-            for (int b = 0; b < 6; b++) {
+            for (int b = 0; b <= 6; b++) {
                 substitutionsForward.get(v).put(b, 0);
             }
         }
@@ -284,6 +284,14 @@ public class FutureSequence implements Callable<List<Object>> {
                         cigar[j] = 'X';
                         currentConsensus = c[j];
                     }
+                } else if (m[j] == ':') {
+                    if (isGAP(c[j])) {
+                        cigar[j] = 'D';
+                        currentConsensus = '-';
+                    } else {
+                        cigar[j] = 'X';
+                        currentConsensus = c[j];
+                    }
                 }
 
                 if (c[j] == 'N') {
@@ -293,7 +301,6 @@ public class FutureSequence implements Callable<List<Object>> {
                     } else {
                         cigar[j] = 'M';
                     }
-
                 }
                 if (cigar[j] != 0) {
                     if (cigar[j] == 'M' || cigar[j] == 'X' || cigar[j] == 'I') {
