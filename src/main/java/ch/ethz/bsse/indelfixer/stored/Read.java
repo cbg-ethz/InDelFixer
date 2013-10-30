@@ -413,6 +413,10 @@ public class Read implements Serializable {
             } else {
                 flag |= 0x80;
             }
+        } else {
+            if (this.reverse) {
+                flag |= 0x10;
+            }
         }
         sb.append("\t").append(flag);
         sb.append("\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
