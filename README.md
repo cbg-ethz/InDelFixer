@@ -104,8 +104,8 @@ Install [Maven 3](http://maven.apache.org/)
     http://www.bsse.ethz.ch/cbg/people/armintoepfer
     
 ## Contributions
- [Armin Töpfer](www.bsse.ethz.ch/cbg/people/armintoepfer)  
- [David Seifert](www.bsse.ethz.ch/cbg/people/dseifert)  
+ [Armin Töpfer](http://www.bsse.ethz.ch/cbg/people/armintoepfer)  
+ [David Seifert](http://www.bsse.ethz.ch/cbg/people/dseifert)  
  [Alexander Artyomenko](http://alan.cs.gsu.edu/NGS/?q=content/alexander-artyomenko)
 
 ## LICENSE:
