@@ -28,4 +28,9 @@ public class GapCosts {
         this.open = open;
         this.extend = extend;
     }
+
+    @Override
+    public String toString() {
+        return "X?:i:"+(int) open + "\tY?:i:" + (int) extend;
+    }
 }

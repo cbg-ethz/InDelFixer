@@ -156,6 +156,7 @@ public class FutureSequence implements Callable<List<Object>> {
             startGenome = 0;
             endGenome = Globals.GENOME_SEQUENCES.length;
         }
+        GapCosts gapCosts_current = null;
         for (int i = startGenome; i < endGenome; i++) {
             for (GapCosts gapCost : gapCosts) {
                 Alignment alignTmp;
@@ -184,6 +185,7 @@ public class FutureSequence implements Callable<List<Object>> {
                 if (score > bestScore) {
                     bestScore = score;
                     align = alignTmp;
+                    gapCosts_current = gapCost;
                 }
             }
         }
@@ -313,10 +315,6 @@ public class FutureSequence implements Callable<List<Object>> {
                         qualityStart++;
                     }
                     sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
-//                    if (cigar[j] == 'M' || cigar[j] == 'I') {
-//                        sb.append(currentConsensus);
-//                    }
-//                    sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
                 }
             } catch (Exception e) {
                 System.err.println("FUTURE: " + e);
@@ -325,26 +323,6 @@ public class FutureSequence implements Callable<List<Object>> {
         if (((del / L) > Globals.MAX_DEL) || ((ins / L) > Globals.MAX_INS) || ((subs / L) > Globals.MAX_SUB)) {
             return null;
         }
-
-//        StringBuilder cigarSB = new StringBuilder();
-//        char prev = 'x';
-//        for (char h : cigar) {
-//            if (h != 0) {
-//                if (prev == 'x') {
-//                    prev = h;
-//                } else {
-//                    if (h == prev) {
-//                    } else {
-//                        if (prev == 'I' && h == 'D') {
-//                            return null;
-//                        } else if (prev == 'D' && h == 'I') {
-//                            return null;
-//                        }
-//                        prev = h;
-//                    }
-//                }
-//            }
-//        }
 
         int length = 0;
         int matches = 0;
@@ -378,7 +356,6 @@ public class FutureSequence implements Callable<List<Object>> {
             return null;
         }
         if (mismatches > (matches * .5)) {
-//            System.err.println("M:" + matches + "\tX:" + mismatches);
             return null;
         }
 
@@ -391,6 +368,7 @@ public class FutureSequence implements Callable<List<Object>> {
         r.setAlignedRead(sb.toString());
         r.setEnd(r.getBegin() + sb.length());
         r.setMapq((int) bestScore);
+        r.setGapCosts(gapCosts_current.toString());
         return r;
     }
 

@@ -128,6 +128,11 @@ public class Utils {
                 case '-':
                     r[i++] = 4;
                     break;
+                case 'N':
+                    r[i++] = 5;
+                    break;
+                default:
+                    break;
             }
         }
         return r;

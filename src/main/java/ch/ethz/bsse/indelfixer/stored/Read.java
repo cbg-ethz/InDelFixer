@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 
+
 /**
  *
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -45,6 +46,7 @@ public class Read implements Serializable {
     private int bestGenomeIndex = -1;
     private String cigars;
     private Object mapq;
+    private String gapCosts;
 
     public Read(int begin, int end, String alignedRead) {
         super();
@@ -411,6 +413,7 @@ public class Read implements Serializable {
         }
         sb.append("\t").append("AS:i:").append(this.mapq);
         sb.append("\t").append("NM:i:").append(StringUtils.countMatches(cigars, "X"));
+        sb.append("\t").append(this.gapCosts);
         sb.append("\n");
         return sb.toString();
     }
@@ -420,10 +423,17 @@ public class Read implements Serializable {
     }
 
     public void setMapq(int mapq) {
-        this.mapq = mapq > 255 ? 255 : mapq;
+        this.mapq = mapq;// > 255 ? 255 : mapq;
+    }
+
+    public String getGapCosts() {
+        return gapCosts;
+    }
+
+    public void setGapCosts(String gapCosts) {
+        this.gapCosts = gapCosts;
     }
 }
-
 class Hits {
 
     Map<Integer, Integer> hitMap = new HashMap<>();
