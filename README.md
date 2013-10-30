@@ -1,15 +1,23 @@
 # InDelFixer
-An insertion and deletion fixing aligner for 454, Illumina and PacBio.
+A sensitive aligner for 454, Illumina and PacBio data, employing a full Smith-Waterman alignment against a reference.  
+Insertion and deletions can be fixed.
 This java command line application aligns Next-Generation Sequencing (NGS) and third-generation reads
 to a set of reference sequences, by a fast k-mer matching and removes indels, causing
 frame shifts. In addition, only a specific region can be considered. 
 
 The output is in SAM format.
-- - -
+
+## Features
+ - Fully multithreaded
+ - Performes a full Smith-Waterman alignment
+ - Multiple sets of affine gap costs can be used to find optimal alignment for each read
+ - Paired-end reads are properly paired with SAM Flags
+ - Accepts multiple reference genomes with wobbles
+ - [soon] Create a refined consensus with wobbles to increase alignment quality
 
 #### PREREQUISITES TO RUN:
  - JDK 7 (http://jdk7.java.net/)
- - Get latest version: https://sourceforge.net/projects/indelfixer
+ - Get latest version: https://github.com/armintoepfer/InDelFixer/releases
 
 ## RUN:
 #### 454/Roche:
@@ -40,7 +48,7 @@ Gap costs for the used Smith-Waterman can be set with
 -gop 3 (gap open)
 -gex 1 (gap extend)
 ```
-Predefined: 30 open & 3 extend. Tested with with PacBio, Illumina and 454 data on HIV, HCV and HBV data.
+Predefined: 10 open & 3 extend. Tested with with PacBio, Illumina and 454 data on HIV, HCV and HBV data.
 
 ### Iterative refinement
 The alignment can be improved by aligning against the consensus sequence. The parameter `-refine INT` takes a positive number as input and activates the iterative refinement.
