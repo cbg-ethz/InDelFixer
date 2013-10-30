@@ -198,6 +198,8 @@ public class Utils {
                 return "T";
             case 4:
                 return "-";
+            case 5:
+                return "N";
         }
         throw new IllegalAccessError();
     }

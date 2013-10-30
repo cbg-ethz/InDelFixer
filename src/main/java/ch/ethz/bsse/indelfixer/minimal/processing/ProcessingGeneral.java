@@ -270,7 +270,7 @@ public class ProcessingGeneral {
         }
 //        System.out.println("");
         if (alignment == null) {
-            alignment = new int[Globals.GENOME_LENGTH][5];
+            alignment = new int[Globals.GENOME_LENGTH][6];
         }
         StringBuilder samSB = new StringBuilder();
         if (virgin) {
@@ -288,6 +288,9 @@ public class ProcessingGeneral {
 
     protected void saveConsensus() {
         if (Globals.REFINE || Globals.CONSENSUS) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(">CONSENSUS\n");
+
             Map<String, String> wobbles = new HashMap<>();
             wobbles.put("A", "A");
             wobbles.put("C", "C");
@@ -305,57 +308,39 @@ public class ProcessingGeneral {
             wobbles.put("ACT", "H");
             wobbles.put("AGT", "D");
             wobbles.put("ACGT", "N");
-            String[] cons = new String[alignment.length];
-            for (int i = 0; i < cons.length; i++) {
-                cons[i] = "";
-            }
-            for (int i = 0; i < alignment.length; i++) {
-                int index = -1;
-                double sum = 0;
+            wobbles.put("-", "N");
+            wobbles.put("", "N");
+
+            for (int L = alignment.length, j = 0; j < L; j++) {
                 int max = -1;
-                System.out.print(i);
-                for (int v = 0; v < 5; v++) {
-                    sum += alignment[i][v];
-                    System.out.print("\t" + alignment[i][v]);
-                    if (alignment[i][v] > max) {
-                        max = alignment[i][v];
+                double sum = 0;
+                int index = -1;
+                for (int v = 0; v < 6; v++) {
+                    sum += alignment[j][v];
+                    if (alignment[j][v] > max) {
+                        max = alignment[j][v];
                         index = v;
                     }
                 }
-                if (index == 4) {
-                    cons[i] = "N";
-                } else {
-                    StringBuilder sb = new StringBuilder();
-                    sum -= alignment[i][4];
-                    for (int v = 0; v < 4; v++) {
-                        if (alignment[i][v] / sum > Globals.PLURALITY) {
-                            sb.append(Utils.reverse(v));
-                        }
-                    }
-                    cons[i] = wobbles.get(sb.toString());
-                }
-                System.out.println("\t" + cons[i]);
 
-            }
-            int from = 0;
-            int to = 0;
-            for (int i = 0; i < cons.length; i++) {
-                if (cons[i] != null && !cons[i].isEmpty()) {
-                    from = i;
-                    break;
+                if (max >= Globals.MIN_CONS_COV) {
+                    if (index == 4) {
+                        sb.append("N");
+                    } else {
+                        sum -= alignment[j][4];
+                        StringBuilder w_sb = new StringBuilder();
+                        for (int v = 0; v < 4; v++) {
+                            if (alignment[j][v] / sum > Globals.PLURALITY) {
+                                w_sb.append(Utils.reverse(v));
+                            }
+                        }
+                        sb.append(wobbles.get(w_sb.toString()));
+                    }
+                } else {
+                    sb.append(Globals.GENOMES[0].getSequence().charAt(j));
                 }
             }
-            for (int i = cons.length - 1; i >= 0; i--) {
-                if (cons[i] != null && !cons[i].isEmpty()) {
-                    to = i;
-                    break;
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append(">CONSENSUS\n");
-            for (int i = from; i <= to; i++) {
-                sb.append(cons[i]);
-            }
+
             sb.append("\n");
             Utils.saveFile(Globals.output + "consensus.fasta", sb.toString());
         }

@@ -80,6 +80,7 @@ public class ProcessResults implements Callable<Void> {
                                         } catch (ArrayIndexOutOfBoundsException e) {
                                             System.err.println(r.getCigarsPure().length);
                                             System.err.println(y);
+                                            System.err.println("w00t");
                                             System.exit(9);
                                         }
                                         break;
@@ -87,6 +88,7 @@ public class ProcessResults implements Callable<Void> {
                                         pg.alignment[r.getBegin() - 1 + i++][4]++;
                                         break;
                                     case 'I':
+                                        y++;
                                         break;
                                     default:
                                         System.err.println("why");

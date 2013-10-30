@@ -116,6 +116,8 @@ public class Start {
     private String adapter;
     @Option(name = "-plurality")
     private double plurality = 0.05;
+    @Option(name = "-mcc")
+    private int mcc = 1;
 
     /**
      * Remove logging of jaligner.
@@ -208,11 +210,12 @@ public class Start {
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
                 System.err.println("  -k INT\t\t: Kmer size (default 10)");
                 System.err.println("  -v INT\t\t: Kmer offset (default 2)");
-                System.err.println("  -cut INT\t\t: Cut given number of bases (primer) from beginning of the read (default 0)");
+                System.err.println("  -cut INT\t\t: Cut given number of bases (primer) from beginning of the read (default 0).");
                 System.err.println("  -refine INT\t\t: Computes a consensus sequence from alignment and re-aligns against that.");
                 System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
-                System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement");
-                System.err.println("  -sensitive\t\t: More sensitive but slower alignment");
+                System.err.println("  -mcc INT\t\t: Minimal coverage to replace a reference base in the consensus (default 1).");
+                System.err.println("  -rmDel\t\t: Removes conserved gaps from consensus sequence during refinement.");
+                System.err.println("  -sensitive\t\t: More sensitive but slower alignment.");
                 System.err.println("  -fix\t\t\t: Fill frame-shift causing deletions with consensus sequence.");
                 System.err.println("  -noHashing\t\t: No fast kmer-matching to find approximate mapping region. Please use with PacBio data!");
                 System.err.println("");
@@ -353,6 +356,7 @@ public class Start {
         Globals.MAX_CONSECUTIVE_DEL = this.maxDel;
         Globals.NO_HASHING = this.noHashing;
         Globals.PLURALITY = this.plurality;
+        Globals.MIN_CONS_COV = this.mcc;
     }
 
     /**
