@@ -108,6 +108,9 @@ public class FutureSequence implements Callable<List<Object>> {
         if (entry.quality != null) {
             r.setQuality(entry.quality);
         }
+        if (entry.pairedNumber != -1) {
+            r.setPairedNumber(entry.pairedNumber);
+        }
         return r;
     }
 
@@ -366,7 +369,7 @@ public class FutureSequence implements Callable<List<Object>> {
         r.setQuality(qualitySB.toString());
         r.setCigars(cigar);
         r.setAlignedRead(sb.toString());
-        r.setEnd(r.getBegin() + sb.length());
+        r.setEnd(r.getBegin() + length);
         r.setMapq((int) bestScore);
         r.setGapCosts(gapCosts_current.toString());
         return r;

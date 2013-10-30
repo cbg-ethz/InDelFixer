@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 
-
 /**
  *
  * @author Armin Töpfer (armin.toepfer [at] gmail.com)
@@ -47,6 +46,7 @@ public class Read implements Serializable {
     private String cigars;
     private Object mapq;
     private String gapCosts;
+    private int pairedNumber;
 
     public Read(int begin, int end, String alignedRead) {
         super();
@@ -381,27 +381,62 @@ public class Read implements Serializable {
         this.number = number;
     }
 
-    @Override
-    public String toString() {
+    public String toString(Read paired) {
         StringBuilder sb = new StringBuilder();
-        sb.append("R");
+//        sb.append("R");
         if (this.getHeader() != null) {
-            sb.append(this.getHeader().split(" ")[0]);
+            sb.append(this.getHeader().split(" ")[0].substring(1));
         } else {
             sb.append("READ_").append(Globals.READCOUNTER++);
         }
 //        if (Globals.CONSENSUS) {
 //            sb.append("\t0\t").append("CONSENSUS");
 //        } else {
-        sb.append("\t").append(reverse?0x10:0x0);
+        int flag = 0x0;
+        if (paired != null) {
+            flag |= 0x1;
+            flag |= 0x2;
+            if (this.reverse) {
+                flag |= 0x10;
+            }
+            if (paired.reverse) {
+                flag |= 0x20;
+            }
+            if (this.begin == paired.begin) {
+                if (!this.reverse) {
+                    flag |= 0x40;
+                } else {
+                    flag |= 0x80;
+                }
+            } else if (this.begin < paired.begin) {
+                flag |= 0x40;
+            } else {
+                flag |= 0x80;
+            }
+        }
+        sb.append("\t").append(flag);
         sb.append("\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
 //        }
         sb.append("\t").append(this.getBegin());
         sb.append("\t").append(60);
         sb.append("\t").append(this.getCigars());
-        sb.append("\t").append("*");
-        sb.append("\t").append("0");
-        sb.append("\t").append("0");
+        if (paired == null) {
+            sb.append("\t").append("*");
+            sb.append("\t").append("0");
+            sb.append("\t").append("0");
+        } else {
+            sb.append("\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader().equals(Globals.GENOMES[paired.getBestFittingGenome()].getHeader()) ? "=" : "*");
+            sb.append("\t").append(paired.begin);
+            sb.append("\t");
+            if (this.reverse) {
+                sb.append("-");
+            }
+            if (paired.begin < this.begin) {
+                sb.append((this.end - paired.begin));
+            } else {
+                sb.append((paired.end - this.begin));
+            }
+        }
         sb.append("\t").append(this.getAlignedRead());
         sb.append("\t");
         if (this.getQuality() != null && !this.getQuality().isEmpty()) {
@@ -433,7 +468,16 @@ public class Read implements Serializable {
     public void setGapCosts(String gapCosts) {
         this.gapCosts = gapCosts;
     }
+
+    public int getPairedNumber() {
+        return pairedNumber;
+    }
+
+    public void setPairedNumber(int pairedNumber) {
+        this.pairedNumber = pairedNumber;
+    }
 }
+
 class Hits {
 
     Map<Integer, Integer> hitMap = new HashMap<>();

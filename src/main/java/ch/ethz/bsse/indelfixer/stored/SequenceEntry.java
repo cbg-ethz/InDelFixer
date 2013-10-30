@@ -15,6 +15,7 @@ public class SequenceEntry {
     public String quality;
     public int startOffset;
     public int endOffset;
+    public int pairedNumber = -1;
 
     public SequenceEntry(String sequence, String header, String quality, int startOffset, int endOffset) {
         this.sequence = sequence;

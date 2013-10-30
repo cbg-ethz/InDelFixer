@@ -21,8 +21,10 @@ import ch.ethz.bsse.indelfixer.stored.GridOutput;
 import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
 import ch.ethz.bsse.indelfixer.utils.Utils;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -33,6 +35,7 @@ public class ProcessResults implements Callable<Void> {
 
     private ProcessingGeneral pg;
     private List<Future<List<Object>>> newList;
+    private Map<Integer, Read> undone = new HashMap<>();
 
     public ProcessResults(ProcessingGeneral pg, List<Future<List<Object>>> newList) {
         this.pg = pg;
@@ -56,7 +59,13 @@ public class ProcessResults implements Callable<Void> {
                     } else if (o2 instanceof GridOutput) {
                         GridOutput result = (GridOutput) o2;
                         Read r = result.read;
-                        samSB.append(r.toString());
+                        if (undone.containsKey(r.getPairedNumber())) {
+                            samSB.append(r.toString(undone.get(r.getPairedNumber())));
+                            samSB.append(undone.get(r.getPairedNumber()).toString(r));
+                            undone.remove(r.getPairedNumber());
+                        } else {
+                            undone.put(r.getPairedNumber(), r);
+                        }
                         if (Globals.REFINE || Globals.CONSENSUS) {
                             int[] x = Utils.reverse(r.getAlignedRead());
                             int i = 0;
@@ -89,6 +98,9 @@ public class ProcessResults implements Callable<Void> {
                     }
                 }
             }
+        }
+        for (Read r : undone.values()) {
+            samSB.append(r.toString(null));
         }
         Utils.appendFile(Globals.output + "reads.sam", samSB.toString());
 

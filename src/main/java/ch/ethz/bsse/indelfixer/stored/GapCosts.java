@@ -31,6 +31,6 @@ public class GapCosts {
 
     @Override
     public String toString() {
-        return "X?:i:"+(int) open + "\tY?:i:" + (int) extend;
+        return "XO:i:"+(int) open + "\tXE:i:" + (int) extend;
     }
 }

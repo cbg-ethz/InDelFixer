@@ -76,12 +76,14 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
                     i++;
                     SequenceEntry watsonQ = parseFastq(brWatson);
                     if (watsonQ != null && watsonQ.sequence.length() >= Globals.MIN_LENGTH) {
+                        watsonQ.pairedNumber = i;
                         list.add(watsonQ);
                     } else {
                         StatusUpdate.processLength();
                     }
                     SequenceEntry crickQ = parseFastq(brCrick);
                     if (crickQ != null && crickQ.sequence.length() >= Globals.MIN_LENGTH) {
+                        crickQ.pairedNumber = i;
                         list.add(crickQ);
                     } else {
                         StatusUpdate.processLength();
@@ -196,6 +198,6 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         }
         return new SequenceEntry(seq.substring(begin, end + 1),
                 header,
-                qualityString.substring(begin, end + 1), begin, seq.length()-end);
+                qualityString.substring(begin, end + 1), begin, seq.length() - end);
     }
 }
