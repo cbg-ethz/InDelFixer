@@ -75,9 +75,9 @@ In addition, only a specific region can be extracted with `-r begin-end`, for ex
   -sub    DOUBLE : The maximum percentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)
   -maxDel INT    : The maximum number of consecutive deletions allowed (default no filtering)
 ```
-* * *
-### Help:
-Further help can be showed by running without additional parameters:
+
+# Help:
+Further help can be shown by running without additional parameters:
     `java -jar InDelFixer.jar`
 
 ### BAM output:
@@ -95,7 +95,7 @@ Install Maven 3 (http://maven.apache.org/)
     mvn -DartifactId=samtools -DgroupId=net.sf -Dversion=1.9.6 -Dpackaging=jar -Dfile=src/main/resources/jars/sam-1.96.jar -DgeneratePom=false install:install-file
     mvn clean package
     java -jar target/InDelFixer.jar
-* * *
+
 # CONTACT:
     Armin Töpfer
     armin.toepfer (at) gmail.com
