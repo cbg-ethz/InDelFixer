@@ -59,12 +59,16 @@ public class ProcessResults implements Callable<Void> {
                     } else if (o2 instanceof GridOutput) {
                         GridOutput result = (GridOutput) o2;
                         Read r = result.read;
-                        if (undone.containsKey(r.getPairedNumber())) {
-                            samSB.append(r.toString(undone.get(r.getPairedNumber())));
-                            samSB.append(undone.get(r.getPairedNumber()).toString(r));
-                            undone.remove(r.getPairedNumber());
+                        if (r.getPairedNumber() != -1) {
+                            if (undone.containsKey(r.getPairedNumber())) {
+                                samSB.append(r.toString(undone.get(r.getPairedNumber())));
+                                samSB.append(undone.get(r.getPairedNumber()).toString(r));
+                                undone.remove(r.getPairedNumber());
+                            } else {
+                                undone.put(r.getPairedNumber(), r);
+                            }
                         } else {
-                            undone.put(r.getPairedNumber(), r);
+                            samSB.append(r.toString(null));
                         }
                         if (Globals.REFINE || Globals.CONSENSUS) {
                             int[] x = Utils.reverse(r.getAlignedRead());
