@@ -92,6 +92,7 @@ In order to convert the `reads.sam` into the BAM format, please install samtools
 Install Maven 3 (http://maven.apache.org/)
 
     cd InDelFixer
+    mvn -DartifactId=samtools -DgroupId=net.sf -Dversion=1.9.6 -Dpackaging=jar -Dfile=src/main/resources/jars/sam-1.96.jar -DgeneratePom=false install:install-file
     mvn clean package
     java -jar InDelFixer/target/InDelFixer.jar
 * * *
