@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -390,10 +391,11 @@ public class Read implements Serializable {
 //        if (Globals.CONSENSUS) {
 //            sb.append("\t0\t").append("CONSENSUS");
 //        } else {
-        sb.append("\t0\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
+        sb.append("\t").append(reverse?0x10:0x0);
+        sb.append("\t").append(Globals.GENOMES[this.getBestFittingGenome()].getHeader());
 //        }
         sb.append("\t").append(this.getBegin());
-        sb.append("\t").append(this.mapq);
+        sb.append("\t").append(60);
         sb.append("\t").append(this.getCigars());
         sb.append("\t").append("*");
         sb.append("\t").append("0");
@@ -407,6 +409,8 @@ public class Read implements Serializable {
         } else {
             sb.append("*");
         }
+        sb.append("\t").append("AS:i:").append(this.mapq);
+        sb.append("\t").append("NM:i:").append(StringUtils.countMatches(cigars, "X"));
         sb.append("\n");
         return sb.toString();
     }

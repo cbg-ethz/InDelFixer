@@ -5,7 +5,7 @@
 
     <groupId>ch.ethz.bsse</groupId>
     <artifactId>InDelFixer</artifactId>
-    <version>0.9.9</version>
+    <version>0.9.9.1</version>
     <packaging>jar</packaging>
 
     <name>InDelFixer</name>
@@ -103,6 +103,11 @@
             <groupId>net.sourceforge</groupId>
             <artifactId>jaligner</artifactId>
             <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.7-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
