@@ -5,6 +5,8 @@ This java command line application aligns Next-Generation Sequencing (NGS) and t
 to a set of reference sequences, by a prior fast k-mer matching and removes indels, causing
 frame shifts. In addition, only a specific region can be considered. 
 
+An iterative refinement of the alignment can be performed, by alignment against the consensus sequence with wobbles.
+
 The output is in SAM format.
 
 ## Features
@@ -66,7 +68,7 @@ In the case that a single fastq entry is longer than four lines, which is caused
 In addition, only a specific region can be extracted with `-r begin-end`, for example a certain gene:
   `java -jar InDelFixer.jar -i libCase102.sff -g referenceGenomes.fasta -r 342-944`
   
-## FILTER 
+### FILTER 
 ```
   -l      INT    : Minimal read-length prior alignment (default 0)
   -la     INT    : Minimal read-length after alignment (default 0)
@@ -76,7 +78,7 @@ In addition, only a specific region can be extracted with `-r begin-end`, for ex
   -maxDel INT    : The maximum number of consecutive deletions allowed (default no filtering)
 ```
 
-# Help:
+## Help:
 Further help can be shown by running without additional parameters:
     `java -jar InDelFixer.jar`
 
@@ -89,17 +91,22 @@ In order to convert the `reads.sam` into the BAM format, please install samtools
     rm out.bam;
 
 ### COMPILE (only for dev):
-Install Maven 3 (http://maven.apache.org/)
+Install [Maven 3](http://maven.apache.org/)
 
     cd InDelFixer
     mvn -DartifactId=samtools -DgroupId=net.sf -Dversion=1.9.6 -Dpackaging=jar -Dfile=src/main/resources/jars/sam-1.96.jar -DgeneratePom=false install:install-file
     mvn clean package
     java -jar target/InDelFixer.jar
 
-# CONTACT:
+## CONTACT:
     Armin Töpfer
     armin.toepfer (at) gmail.com
     http://www.bsse.ethz.ch/cbg/people/armintoepfer
+    
+## Contributions
+ [Armin Töpfer](www.bsse.ethz.ch/cbg/people/armintoepfer)  
+ [David Seifert](www.bsse.ethz.ch/cbg/people/dseifert)  
+ [Alexander Artyomenko](http://alan.cs.gsu.edu/NGS/?q=content/alexander-artyomenko)
 
-# LICENSE:
+## LICENSE:
  GNU GPLv3 http://www.gnu.org/licenses/gpl-3.0
