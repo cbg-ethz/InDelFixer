@@ -13,7 +13,7 @@ The output is in SAM format.
  - Multiple sets of affine gap costs can be used to find optimal alignment for each read
  - Paired-end reads are properly paired with SAM Flags
  - Accepts multiple reference genomes with wobbles
- - [soon] Create a refined consensus with wobbles to increase alignment quality
+ - Iterative alignment against a consensus with wobbles to increase alignment quality
 
 #### PREREQUISITES TO RUN:
  - JDK 7 (http://jdk7.java.net/)
