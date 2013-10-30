@@ -94,12 +94,12 @@ Install Maven 3 (http://maven.apache.org/)
     cd InDelFixer
     mvn -DartifactId=samtools -DgroupId=net.sf -Dversion=1.9.6 -Dpackaging=jar -Dfile=src/main/resources/jars/sam-1.96.jar -DgeneratePom=false install:install-file
     mvn clean package
-    java -jar InDelFixer/target/InDelFixer.jar
+    java -jar target/InDelFixer.jar
 * * *
 # CONTACT:
     Armin Töpfer
     armin.toepfer (at) gmail.com
-    http://www.bsse.ethz.ch/cbg/people/toepfera
+    http://www.bsse.ethz.ch/cbg/people/armintoepfer
 
 # LICENSE:
  GNU GPLv3 http://www.gnu.org/licenses/gpl-3.0
