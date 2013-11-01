@@ -210,7 +210,7 @@ public class Start {
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
                 System.err.println("  -k INT\t\t: Kmer size (default 10)");
                 System.err.println("  -v INT\t\t: Kmer offset (default 2)");
-                System.err.println("  -cut INT\t\t: Cut given number of bases (primer) from beginning of the read (default 0).");
+                System.err.println("  -cut INT\t\t: Cut given number of bases (primer)at 5' and 3' (default 0).");
                 System.err.println("  -refine INT\t\t: Computes a consensus sequence from alignment and re-aligns against that.");
                 System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
                 System.err.println("  -mcc INT\t\t: Minimal coverage to replace a reference base in the consensus (default 1).");

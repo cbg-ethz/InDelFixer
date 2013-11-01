@@ -53,8 +53,8 @@ public class StatusUpdate {
         readCount++;
         if (!oldOut.equals(time())) {
             oldOut = time();
-            System.out.print("\r                                                                                                                                                               ");
-            System.out.print("\r" + time() + " Mapped: " + readCount + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount + "\t\tPre align: " + alignCount1 + "\t\tIn align: " + alignCount3 + "\t\tPost align: " + alignCount2);
+            System.out.print("\r                                                                                                                      ");
+            System.out.print("\r" + time() + " Mapped: " + readCount + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount);
         }
     }
 
@@ -62,8 +62,8 @@ public class StatusUpdate {
         ++unmappedCount;
         if (!oldOut.equals(time())) {
             oldOut = time();
-            System.out.print("\r                                                                                                                                                               ");
-            System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount + "\t\tPre align: " + alignCount1 + "\t\tIn align: " + alignCount3 + "\t\tPost align: " + alignCount2);
+            System.out.print("\r                                                                                                                     ");
+            System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount);
         }
     }
 
@@ -71,35 +71,8 @@ public class StatusUpdate {
         ++tooSmallCount;
         if (!oldOut.equals(time())) {
             oldOut = time();
-            System.out.print("\r                                                                                                                                                               ");
-            System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount + "\t\tPre align: " + alignCount1 + "\t\tIn align: " + alignCount3 + "\t\tPost align: " + alignCount2);
-        }
-    }
-
-    public synchronized static void processAlign1() {
-        ++alignCount1;
-        if (!oldOut.equals(time())) {
-            oldOut = time();
-            System.out.print("\r                                                                                                                                                               ");
-        }
-        System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount + "\t\tPre align: " + alignCount1 + "\t\tIn align: " + alignCount3 + "\t\tPost align: " + alignCount2);
-    }
-
-    public synchronized static void processAlign2() {
-        ++alignCount2;
-        if (!oldOut.equals(time())) {
-            oldOut = time();
-            System.out.print("\r                                                                                                                                                               ");
-            System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount + "\t\tPre align: " + alignCount1 + "\t\tIn align: " + alignCount3 + "\t\tPost align: " + ++alignCount2);
-        }
-    }
-
-    public synchronized static void processAlign3() {
-        ++alignCount3;
-        if (!oldOut.equals(time())) {
-            oldOut = time();
-            System.out.print("\r                                                                                                                                                               ");
-            System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount + "\t\tPre align: " + alignCount1 + "\t\tIn align: " + alignCount3 + "\t\tPost align: " + alignCount2);
+            System.out.print("\r                                                                                                                     ");
+            System.out.print("\r" + time() + " Mapped: " + (readCount) + "\t\tUnmapped: " + unmappedCount + "\t\tToo small: " + tooSmallCount);
         }
     }
 
