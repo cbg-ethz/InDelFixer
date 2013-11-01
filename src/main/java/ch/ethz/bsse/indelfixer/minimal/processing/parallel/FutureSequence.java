@@ -365,7 +365,7 @@ public class FutureSequence implements Callable<List<Object>> {
         r.setCigars(cigar);
         r.setAlignedRead(sb.toString());
         r.setEnd(r.getBegin() + length);
-        r.setMapq((int) bestScore);
+        r.setAlignmentScore((int) bestScore);
         r.setGapCosts(gapCosts_current.toString());
         return r;
     }

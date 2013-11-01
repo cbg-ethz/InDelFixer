@@ -44,7 +44,7 @@ public class Read implements Serializable {
     private String header;
     private int bestGenomeIndex = -1;
     private String cigars;
-    private Object mapq;
+    private Object alignmentScore;
     private String gapCosts;
     private int pairedNumber;
 
@@ -450,19 +450,19 @@ public class Read implements Serializable {
         } else {
             sb.append("*");
         }
-        sb.append("\t").append("AS:i:").append(this.mapq);
+        sb.append("\t").append("AS:i:").append(this.alignmentScore);
         sb.append("\t").append("NM:i:").append(StringUtils.countMatches(cigars, "X"));
         sb.append("\t").append(this.gapCosts);
         sb.append("\n");
         return sb.toString();
     }
 
-    public Object getMapq() {
-        return mapq;
+    public Object getAlignmentScore() {
+        return alignmentScore;
     }
 
-    public void setMapq(int mapq) {
-        this.mapq = mapq;// > 255 ? 255 : mapq;
+    public void setAlignmentScore(int as) {
+        this.alignmentScore = as;// > 255 ? 255 : mapq;
     }
 
     public String getGapCosts() {

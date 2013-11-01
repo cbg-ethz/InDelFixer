@@ -104,6 +104,7 @@ public class ProcessingIlluminaSingle extends ProcessingGeneral {
         this.processResults();
         this.printMatrix();
         this.saveConsensus();
+        this.resultsExecutor.shutdown();
     }
 
     /**

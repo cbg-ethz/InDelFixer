@@ -19,14 +19,18 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
+import ch.ethz.bsse.indelfixer.utils.FastaParser;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -54,19 +58,22 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
      */
     private void start() throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
         BufferedReader brWatson = new BufferedReader(new FileReader(new File(this.inputWatson)));
-
+        String bufferedHeader = brWatson.readLine().substring(1);
         for (int i = 0;;) {
             List<SequenceEntry> list = new LinkedList<>();
             try {
                 for (int j = 0; j < Globals.STEPS; j++) {
                     i++;
-                    String parseFastaEntry = parseFastaEntry(brWatson);
+                    SequenceEntry seqEntry = parseFastaEntry(brWatson);
+                    String tmp = seqEntry.header;
+                    seqEntry.header = bufferedHeader;
+                    bufferedHeader = tmp;
+                    String parseFastaEntry = seqEntry.sequence;
                     if (parseFastaEntry.length() > 2 * Globals.CUT) {
                         parseFastaEntry = parseFastaEntry.substring(Globals.CUT, parseFastaEntry.length() - Globals.CUT);
-                        SequenceEntry watsonS = new SequenceEntry(parseFastaEntry);
-                        watsonS.header = "Read" + i + "X";
-                        if (watsonS.sequence.length() >= Globals.MIN_LENGTH) {
-                            list.add(watsonS);
+                        seqEntry.sequence = parseFastaEntry;
+                        if (seqEntry.sequence.length() >= Globals.MIN_LENGTH) {
+                            list.add(seqEntry);
 //                            list.addAll(Utils.splitRead(watsonS));
                         } else {
                             StatusUpdate.processLength();
@@ -96,6 +103,7 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
         this.saveConsensus();
         executor.shutdown();
         this.processResults();
+        this.resultsExecutor.shutdown();
     }
 
     /**
@@ -105,10 +113,11 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
      * @return Single sequence
      * @throws IllegalAccessError Thrown if BufferedReader has reached EOF.
      */
-    public static String parseFastaEntry(BufferedReader br) throws IOException, IllegalAccessError {
+    public static SequenceEntry parseFastaEntry(BufferedReader br) throws IOException, IllegalAccessError {
         boolean untouched = true;
         boolean cut = false;
         boolean first = true;
+        SequenceEntry res = null;
 
         StringBuilder sb = new StringBuilder();
         String strLine;
@@ -116,7 +125,9 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
             untouched = false;
             if (strLine.startsWith(">")) {
                 if (sb.length() > 0) {
-                    return sb.toString();
+                    res = new SequenceEntry(sb.toString());
+                    res.header = strLine.substring(1);
+                    return res;
                 }
             } else {
                 if (first) {
@@ -168,7 +179,8 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
         if (untouched) {
             throw new IllegalAccessError("done");
         }
-        return sb.toString().replaceAll("-", "");
+        res = new SequenceEntry(sb.toString().replaceAll("-", ""));
+        return res;
     }
 
     private static int calcHamming(String ptrue, String ptest) {
