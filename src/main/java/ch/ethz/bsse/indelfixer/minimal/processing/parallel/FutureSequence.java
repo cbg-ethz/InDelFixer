@@ -383,7 +383,7 @@ public class FutureSequence implements Callable<List<Object>> {
         r.setCigars(cigar);
         r.setAlignedRead(sb.toString());
         r.setEnd(r.getBegin() + sb.length());
-        r.setMapq((int) bestScore);
+        r.setMapq(bestScore < 255 ? (int) bestScore : 255);
         return r;
     }
 

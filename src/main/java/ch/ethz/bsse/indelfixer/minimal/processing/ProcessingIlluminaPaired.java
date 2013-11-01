@@ -116,6 +116,7 @@ public class ProcessingIlluminaPaired extends ProcessingGeneral {
         this.processResults();
         this.saveConsensus();
         this.printMatrix();
+        this.resultsExecutor.shutdown();
     }
 
     /**

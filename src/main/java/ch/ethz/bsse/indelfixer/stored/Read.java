@@ -381,7 +381,7 @@ public class Read implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("R");
+        //sb.append("R");
         if (this.getHeader() != null) {
             sb.append(this.getHeader().split(" ")[0]);
         } else {

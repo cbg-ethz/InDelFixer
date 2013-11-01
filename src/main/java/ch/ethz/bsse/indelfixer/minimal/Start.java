@@ -132,7 +132,6 @@ public class Start {
      */
     public static void main(String[] args) throws IOException {
         new Start().doMain(args);
-        System.exit(0);
     }
 
     /**
