@@ -281,7 +281,7 @@ public class ProcessingGeneral {
                 }
 
                 if (max >= Globals.MIN_CONS_COV) {
-                    if (index == 4 && max / sum > Globals.PLURALITY_N) {
+                    if (alignment[j][4] / sum > Globals.PLURALITY_N) {
                         sb.append("N");
                     } else {
                         sum -= alignment[j][4];

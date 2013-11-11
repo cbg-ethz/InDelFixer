@@ -117,7 +117,7 @@ public class Start {
     @Option(name = "-plurality")
     private double plurality = 0.05;
     @Option(name = "-pluralityN")
-    private double pluralityN = 0.05;
+    private double pluralityN = 0.5;
     @Option(name = "-mcc")
     private int mcc = 1;
 
