@@ -56,9 +56,8 @@ public class ProcessResults implements Callable<Void> {
                     if (o2 instanceof SequenceEntry) {
                         SequenceEntry result = (SequenceEntry) o2;
                         trash.add(result);
-                    } else if (o2 instanceof GridOutput) {
-                        GridOutput result = (GridOutput) o2;
-                        Read r = result.read;
+                    } else if (o2 instanceof Read) {
+                        Read r = (Read) o2;
                         if (r.getPairedNumber() != -1) {
                             if (undone.containsKey(r.getPairedNumber())) {
                                 samSB.append(r.toString(undone.get(r.getPairedNumber())));
@@ -100,7 +99,6 @@ public class ProcessResults implements Callable<Void> {
                                 }
                             }
                         }
-                        this.updateMatrix(result);
                     }
                 }
             }
@@ -119,13 +117,5 @@ public class ProcessResults implements Callable<Void> {
         }
         Utils.appendFile(Globals.output + "trash.fastq", sb.toString());
         return null;
-    }
-
-    protected void updateMatrix(GridOutput result) {
-        for (int v = 0; v < 6; v++) {
-            for (int b = 0; b < 6; b++) {
-                pg.substitutions.get(v).put(b, pg.substitutions.get(v).get(b) + result.substitutionMap.get(v).get(b));
-            }
-        }
     }
 }

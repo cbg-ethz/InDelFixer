@@ -80,12 +80,12 @@ public class Start {
     private float gop = 10;
     @Option(name = "-gex")
     private float gex = 3;
-//    @Option(name = "-pacbio")
-//    private boolean pacbio;
-//    @Option(name = "-illumina")
-//    private boolean illumina;
-//    @Option(name = "-454")
-//    private boolean roche;
+    @Option(name = "-pacbio")
+    private boolean pacbio;
+    @Option(name = "-illumina")
+    private boolean illumina;
+    @Option(name = "-454")
+    private boolean roche;
     @Option(name = "-cut")
     private int cut;
     @Option(name = "-header")
@@ -116,6 +116,8 @@ public class Start {
     private String adapter;
     @Option(name = "-plurality")
     private double plurality = 0.05;
+    @Option(name = "-pluralityN")
+    private double pluralityN = 0.05;
     @Option(name = "-mcc")
     private int mcc = 1;
 
@@ -167,11 +169,11 @@ public class Start {
                     }
                 }
                 this.setGlobals();
-                
+
                 if (this.adapter != null) {
                     Globals.ADAPTER = FastaParser.parseFarFile(this.adapter);
                 }
-                
+
                 Genome[] genomes = parseGenome(this.genome);
                 if (this.regions != null) {
                     Globals.RS = this.splitRegion();
@@ -192,6 +194,7 @@ public class Start {
                         StatusUpdate.alignCount2 = 0;
                         StatusUpdate.alignCount3 = 0;
                         compute(genomes);
+                        System.out.println("");
                     }
                 }
             } catch (CmdLineException e) {
@@ -229,11 +232,11 @@ public class Start {
                 System.err.println(" === GAP costs ===");
                 System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman (default 30)");
                 System.err.println("  -gex\t\t\t: Gap extension costs for Smith-Waterman (default 3)");
-//                System.err.println("");
-//                System.err.println(" === GAP costs predefined ===");
-//                System.err.println("  -454\t\t\t: 10 open / 1 extend");
-//                System.err.println("  -illumina\t\t: 30 open / 3 extend");
-//                System.err.println("  -pacbio\t\t: 10 open / 10 extend");
+                System.err.println("");
+                System.err.println(" === GAP costs predefined ===");
+                System.err.println("  -454\t\t\t: 10 open / 1 extend");
+                System.err.println("  -illumina\t\t: 30 open / 3 extend");
+                System.err.println("  -pacbio\t\t: 5 open / 3 extend");
                 System.err.println("");
                 System.err.println(" ------------------------");
                 System.err.println(" === EXAMPLES ===");
@@ -255,8 +258,8 @@ public class Start {
         if (this.output == null) {
             this.output = System.getProperty("user.dir") + File.separator;
         } else {
-            Globals.output = this.output.endsWith(File.separator) ?
-                    this.output : this.output + File.separator; // Output path should be folder
+            Globals.output = this.output.endsWith(File.separator)
+                    ? this.output : this.output + File.separator; // Output path should be folder
         }
         if (!new File(this.output).exists()) {
             new File(this.output).mkdirs();
@@ -321,19 +324,19 @@ public class Start {
      * Set global variables from command-line parameters
      */
     private void setGlobals() {
-//        if (this.pacbio) {
-//            Globals.GOP = 10;
-//            Globals.GEX = 10;
-//        } else if (this.illumina) {
-//            Globals.GOP = 30;
-//            Globals.GEX = 3;
-//        } else if (this.roche) {
-//            Globals.GOP = 10;
-//            Globals.GEX = 1;
-//        } else {
-        Globals.GOP = this.gop;
-        Globals.GEX = this.gex;
-//        }
+        if (this.pacbio) {
+            Globals.GOP = 10;
+            Globals.GEX = 3;
+        } else if (this.illumina) {
+            Globals.GOP = 30;
+            Globals.GEX = 3;
+        } else if (this.roche) {
+            Globals.GOP = 10;
+            Globals.GEX = 1;
+        } else {
+            Globals.GOP = this.gop;
+            Globals.GEX = this.gex;
+        }
         Globals.MIN_LENGTH_ALIGNED = minlengthAligned;
         Globals.MIN_LENGTH = minlength;
         Globals.ADJUST = this.adjust;
@@ -355,6 +358,7 @@ public class Start {
         Globals.MAX_CONSECUTIVE_DEL = this.maxDel;
         Globals.NO_HASHING = this.noHashing;
         Globals.PLURALITY = this.plurality;
+        Globals.PLURALITY_N = this.pluralityN;
         Globals.MIN_CONS_COV = this.mcc;
     }
 

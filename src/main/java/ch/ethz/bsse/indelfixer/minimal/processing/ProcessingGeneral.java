@@ -145,49 +145,6 @@ public class ProcessingGeneral {
         return new TripleDouble(sub, del, ins);
     }
 
-    /**
-     *
-     */
-    protected void printMatrix() {
-        if (substitutions.get(0).get(0) + substitutions.get(1).get(1) + substitutions.get(2).get(2) + substitutions.get(3).get(3) + substitutions.get(4).get(4) > 0) {
-            System.out.print("\n\nSubstitution matrix:\nr/g");
-            for (int v = 0; v < 6; v++) {
-                System.out.print("\t" + convert(v));
-            }
-            System.out.println("");
-            double sub = 0;
-            double ins = 0;
-            double del = 0;
-            double sum = 0;
-            for (int v = 0; v < 6; v++) {
-                for (int b = 0; b < 6; b++) {
-                    sum += substitutions.get(v).get(b);
-                }
-            }
-            for (int v = 0; v < 6; v++) {
-                System.out.print(convert(v));
-                for (int b = 0; b < 6; b++) {
-                    double tmp = substitutions.get(v).get(b) / sum;
-                    System.out.print("\t" + shorten(tmp));
-                    if (v == 4 && b != 4) {
-                        del += tmp;
-                    } else if (v != 4 && b == 4) {
-                        ins += tmp;
-                    } else if (v != b) {
-                        sub += tmp;
-                    }
-                }
-                System.out.println("");
-            }
-
-            System.out.println("SUBSTITUTIONS: " + shorten(sub));
-            System.out.println("DELETIONS:     " + shorten(del));
-            System.out.println("INSERTIONS:    " + shorten(ins));
-        } else {
-            System.out.println("");
-        }
-    }
-
     private String convert(int c) {
         switch (c) {
             case 0:
@@ -324,7 +281,7 @@ public class ProcessingGeneral {
                 }
 
                 if (max >= Globals.MIN_CONS_COV) {
-                    if (index == 4) {
+                    if (index == 4 && max / sum > Globals.PLURALITY_N) {
                         sb.append("N");
                     } else {
                         sum -= alignment[j][4];

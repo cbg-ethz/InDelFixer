@@ -19,7 +19,6 @@ package ch.ethz.bsse.indelfixer.minimal.processing.parallel;
 import ch.ethz.bsse.indelfixer.stored.GapCosts;
 import ch.ethz.bsse.indelfixer.stored.Genome;
 import ch.ethz.bsse.indelfixer.stored.Globals;
-import ch.ethz.bsse.indelfixer.stored.GridOutput;
 import ch.ethz.bsse.indelfixer.stored.Kmer;
 import ch.ethz.bsse.indelfixer.stored.Read;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
@@ -29,10 +28,8 @@ import jaligner.Alignment;
 import jaligner.Sequence;
 import jaligner.SmithWatermanGotoh;
 import jaligner.matrix.Matrix;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -43,13 +40,11 @@ public class FutureSequence implements Callable<List<Object>> {
     private List<SequenceEntry> watsonEntries;
     private Genome[] genome;
     private Matrix matrix;
-    private Map<Integer, Map<Integer, Integer>> substitutionsForward = new HashMap<>();
 
     public FutureSequence(List<SequenceEntry> watson) {
         this.watsonEntries = watson;
         this.genome = Globals.GENOMES;
         this.matrix = Globals.MATRIX;
-        this.initSubs();
     }
 
     @Override
@@ -61,11 +56,11 @@ public class FutureSequence implements Callable<List<Object>> {
                 Read watsonRevRead = map(createRead(watsonEntry, true));
                 try {
                     boolean forward = watsonRead.getMaximumHits() > watsonRevRead.getMaximumHits();
-                    Read watson = align(forward ? watsonRead : watsonRevRead, this.substitutionsForward);
+                    Read watson = align(forward ? watsonRead : watsonRevRead);
                     if (watson != null) {
                         StatusUpdate.processReads();
                         if (watson.getAlignedRead().length() > Globals.MIN_LENGTH_ALIGNED) {
-                            output.add(new GridOutput(watson, substitutionsForward));
+                            output.add(watson);
                         }
                     } else {
                         StatusUpdate.processUnmapped();
@@ -82,15 +77,6 @@ public class FutureSequence implements Callable<List<Object>> {
             }
         }
         return output;
-    }
-
-    private void initSubs() {
-        for (int v = 0; v <= 6; v++) {
-            substitutionsForward.put(v, new HashMap<Integer, Integer>());
-            for (int b = 0; b <= 6; b++) {
-                substitutionsForward.get(v).put(b, 0);
-            }
-        }
     }
 
     private Read createRead(SequenceEntry entry, boolean reverse) {
@@ -139,7 +125,7 @@ public class FutureSequence implements Callable<List<Object>> {
         return r;
     }
 
-    private Read align(Read r, Map<Integer, Map<Integer, Integer>> sub) {
+    private Read align(Read r) {
         GapCosts[] gapCosts = null;
         if (Globals.SENSITIVE) {
             gapCosts = new GapCosts[]{new GapCosts(5, 3), new GapCosts(10, 10), new GapCosts(10, 1), new GapCosts(20, 5), new GapCosts(30, 10), new GapCosts(30, 5), new GapCosts(30, 3), new GapCosts(6, 1)};
@@ -312,7 +298,6 @@ public class FutureSequence implements Callable<List<Object>> {
                     if (cigar[j] == 'X' || cigar[j] == 'M' || cigar[j] == 'I') {
                         qualityStart++;
                     }
-                    sub.get(convert(currentConsensus)).put(convert(g[j]), sub.get(convert(currentConsensus)).get(convert(g[j])) + 1);
                 }
             } catch (Exception e) {
                 System.err.println("FUTURE: " + e);

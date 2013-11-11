@@ -71,6 +71,7 @@ public class Globals {
     public static int[] RS;
     public static String[] ADAPTER;
     public static double PLURALITY;
+    public static double PLURALITY_N;
     public static int MIN_CONS_COV = 0;
 
     /**

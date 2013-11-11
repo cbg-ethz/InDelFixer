@@ -16,7 +16,6 @@
  */
 package ch.ethz.bsse.indelfixer.stored;
 
-import ch.ethz.bsse.indelfixer.utils.Utils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;

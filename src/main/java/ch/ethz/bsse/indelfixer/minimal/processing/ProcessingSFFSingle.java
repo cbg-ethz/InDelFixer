@@ -68,7 +68,6 @@ public class ProcessingSFFSingle extends ProcessingGeneral {
         }
 
         this.processResults();
-        this.printMatrix();
         this.saveConsensus();
         executor.shutdown();
         this.resultsExecutor.shutdown();

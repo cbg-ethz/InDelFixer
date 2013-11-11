@@ -19,7 +19,6 @@ package ch.ethz.bsse.indelfixer.minimal.processing;
 import ch.ethz.bsse.indelfixer.minimal.processing.parallel.FutureSequence;
 import ch.ethz.bsse.indelfixer.stored.Globals;
 import ch.ethz.bsse.indelfixer.stored.SequenceEntry;
-import ch.ethz.bsse.indelfixer.utils.FastaParser;
 import ch.ethz.bsse.indelfixer.utils.StatusUpdate;
 
 import java.io.BufferedReader;
@@ -27,10 +26,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -99,7 +96,6 @@ public class ProcessingFastaSingle extends ProcessingGeneral {
             }
         }
         this.processResults();
-        this.printMatrix();
         this.saveConsensus();
         executor.shutdown();
         this.processResults();
