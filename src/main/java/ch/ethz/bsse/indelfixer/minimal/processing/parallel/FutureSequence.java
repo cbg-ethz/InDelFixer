@@ -37,9 +37,9 @@ import java.util.concurrent.Callable;
  */
 public class FutureSequence implements Callable<List<Object>> {
 
-    private List<SequenceEntry> watsonEntries;
-    private Genome[] genome;
-    private Matrix matrix;
+    private final List<SequenceEntry> watsonEntries;
+    private final Genome[] genome;
+    private final Matrix matrix;
 
     public FutureSequence(List<SequenceEntry> watson) {
         this.watsonEntries = watson;
@@ -126,6 +126,29 @@ public class FutureSequence implements Callable<List<Object>> {
     }
 
     private Read align(Read r) {
+        ReadAlignment ra = singleAlign(r, Globals.NO_HASHING);
+        if (ra == null) {
+            return null;
+        }
+        if (Globals.NO_HASHING) {
+            int sub = 0;
+            for (char m : ra.align.getMarkupLine()) {
+                if (m == '.') {
+                    sub++;
+                }
+            }
+            if (sub / (double) ra.align.getMarkupLine().length > Globals.REALIGN) {
+                ra = singleAlign(r, false);
+                if (ra == null) {
+                    return null;
+                }
+                return postprocess(ra, false);
+            }
+        }
+        return postprocess(ra, Globals.NO_HASHING);
+    }
+
+    private ReadAlignment singleAlign(Read r, boolean no_hashing) {
         GapCosts[] gapCosts = null;
         if (Globals.SENSITIVE) {
             gapCosts = new GapCosts[]{new GapCosts(5, 3), new GapCosts(10, 10), new GapCosts(10, 1), new GapCosts(20, 5), new GapCosts(30, 10), new GapCosts(30, 5), new GapCosts(30, 3), new GapCosts(6, 1)};
@@ -137,7 +160,7 @@ public class FutureSequence implements Callable<List<Object>> {
         int bestFittingGenome = r.getBestFittingGenome();
         int startGenome = bestFittingGenome;
         int endGenome = bestFittingGenome + 1;
-        if (Globals.NO_HASHING) {
+        if (no_hashing) {
             startGenome = 0;
             endGenome = Globals.GENOME_SEQUENCES.length;
         }
@@ -151,17 +174,17 @@ public class FutureSequence implements Callable<List<Object>> {
                     int readEnd = r.getEnd() >= Globals.GENOME_SEQUENCES[i].length() ? Globals.GENOME_SEQUENCES[r.getBestFittingGenome()].length() : r.getEnd();
                     try {
                         Sequence g = null;
-                        if (Globals.NO_HASHING) {
+                        if (no_hashing) {
                             g = new Sequence(Globals.GENOME_SEQUENCES[i], "", "", Sequence.NUCLEIC);
                         } else {
                             g = new Sequence(Globals.GENOME_SEQUENCES[i].substring(r.getBegin() - 1, readEnd), "", "", Sequence.NUCLEIC);
                         }
 //                    Sequence g = new Sequence(Globals.GENOME_SEQUENCES[r.getBestFittingGenome()], "", "", Sequence.NUCLEIC);
                         Sequence s = new Sequence(r.getRead(), "", "", Sequence.NUCLEIC);
-                        alignTmp = SmithWatermanGotoh.align(
+                        alignTmp = alignSingle(
                                 g,
                                 s,
-                                matrix, gapCost.open, gapCost.extend);
+                                gapCost);
                     } catch (Exception e) {
                         return null;
                     }
@@ -178,10 +201,61 @@ public class FutureSequence implements Callable<List<Object>> {
             System.err.println("No alignment found");
             return null;
         }
+        return new ReadAlignment(align, r, bestScore, gapCosts_current);
+    }
 
-//        System.out.println("\n" + bestScore + "\n");
+    private boolean isGAP(char c) {
+        return c == '-' || c == 'N';
+    }
+
+    private int convert(char c) {
+        switch (c) {
+            case 'A':
+                return 0;
+            case 'C':
+                return 1;
+            case 'G':
+                return 2;
+            case 'T':
+                return 3;
+            case '-':
+                return 4;
+            case 'N':
+                return 5;
+            default:
+                return 6;
+        }
+    }
+
+    private int countNeigbouringGaps(int j, double L, char[] c) {
+        int gaps = 1;
+        for (int x = j + 1; x < L; x++) {
+            if (isGAP(c[x])) {
+                gaps++;
+            } else {
+                break;
+            }
+        }
+        if (j > 0) {
+            for (int x = j - 1; x >= 0; x--) {
+                if (isGAP(c[x])) {
+                    gaps++;
+                } else {
+                    break;
+                }
+            }
+        }
+        return gaps;
+    }
+
+    private Read postprocess(ReadAlignment ra, boolean no_hashing) {
+        Alignment align = ra.align;
+        Read r = ra.r;
+        float bestScore = ra.bestScore;
+        GapCosts gapCosts_current = ra.gapCosts_current;
+
         StringBuilder sb = new StringBuilder();
-        if (Globals.NO_HASHING) {
+        if (no_hashing) {
             r.setBegin(align.getStart1() + 1);
         } else {
             r.setBegin(align.getStart1() + r.getBegin());
@@ -303,6 +377,7 @@ public class FutureSequence implements Callable<List<Object>> {
                 System.err.println("FUTURE: " + e);
             }
         }
+
         if (((del / L) > Globals.MAX_DEL) || ((ins / L) > Globals.MAX_INS) || ((subs / L) > Globals.MAX_SUB)) {
             return null;
         }
@@ -338,12 +413,18 @@ public class FutureSequence implements Callable<List<Object>> {
         if (Globals.MAX_CONSECUTIVE_DEL != -1 && consecutiveDelMax > Globals.MAX_CONSECUTIVE_DEL) {
             return null;
         }
-        if (mismatches > (matches * .5)) {
-            return null;
-        }
 
         if (sb.toString().length() != length) {
             System.out.println("kick out");
+            return null;
+        }
+        double sum = 0;
+        int pos = 0;
+        for (char x : qualitySB.toString().toCharArray()) {
+            pos++;
+            sum += x - 33;
+        }
+        if (sum / pos < Globals.Q) {
             return null;
         }
         r.setQuality(qualitySB.toString());
@@ -355,47 +436,28 @@ public class FutureSequence implements Callable<List<Object>> {
         return r;
     }
 
-    private boolean isGAP(char c) {
-        return c == '-' || c == 'N';
+    private Alignment alignSingle(Sequence g, Sequence s, GapCosts gapCost) {
+        Alignment alignTmp;
+        alignTmp = SmithWatermanGotoh.align(
+                g,
+                s,
+                matrix, gapCost.open, gapCost.extend);
+        return alignTmp;
+    }
+}
+
+class ReadAlignment {
+
+    Alignment align;
+    Read r;
+    float bestScore;
+    GapCosts gapCosts_current;
+
+    public ReadAlignment(Alignment align, Read r, float bestScore, GapCosts gapCosts_current) {
+        this.align = align;
+        this.r = r;
+        this.bestScore = bestScore;
+        this.gapCosts_current = gapCosts_current;
     }
 
-    private int convert(char c) {
-        switch (c) {
-            case 'A':
-                return 0;
-            case 'C':
-                return 1;
-            case 'G':
-                return 2;
-            case 'T':
-                return 3;
-            case '-':
-                return 4;
-            case 'N':
-                return 5;
-            default:
-                return 6;
-        }
-    }
-
-    private int countNeigbouringGaps(int j, double L, char[] c) {
-        int gaps = 1;
-        for (int x = j + 1; x < L; x++) {
-            if (isGAP(c[x])) {
-                gaps++;
-            } else {
-                break;
-            }
-        }
-        if (j > 0) {
-            for (int x = j - 1; x >= 0; x--) {
-                if (isGAP(c[x])) {
-                    gaps++;
-                } else {
-                    break;
-                }
-            }
-        }
-        return gaps;
-    }
 }

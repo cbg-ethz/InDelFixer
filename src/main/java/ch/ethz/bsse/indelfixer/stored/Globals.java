@@ -73,6 +73,8 @@ public class Globals {
     public static double PLURALITY;
     public static double PLURALITY_N;
     public static int MIN_CONS_COV = 0;
+    public static double Q;
+    public static double REALIGN;
 
     /**
      *

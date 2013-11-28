@@ -70,8 +70,10 @@ public class Start {
     private int minlength = 0;
     @Option(name = "-la")
     private int minlengthAligned = 0;
+    @Option(name = "-realign")
+    private double realign = .1;
     @Option(name = "-sub")
-    private double sub = 1;
+    private double sub = .5;
     @Option(name = "-del")
     private double del = 1;
     @Option(name = "-ins")
@@ -120,7 +122,8 @@ public class Start {
     private double pluralityN = 0.5;
     @Option(name = "-mcc")
     private int mcc = 1;
-
+    @Option(name = "-q")
+    private int q = 20;
     /**
      * Remove logging of jaligner.
      */
@@ -205,13 +208,13 @@ public class Start {
                 System.err.println("USAGE: java -jar InDelFixer.jar options...\n");
                 System.err.println(" ------------------------");
                 System.err.println(" === GENERAL options ===");
-                System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory)");
-                System.err.println("  -i PATH\t\t: Path to the NGS input file (FASTA, FASTQ or SFF format) [REQUIRED]");
-                System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [ONLY REQUIRED if first file is also fastq]");
-                System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED]");
-                System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944)");
-                System.err.println("  -k INT\t\t: Kmer size (default 10)");
-                System.err.println("  -v INT\t\t: Kmer offset (default 2)");
+                System.err.println("  -o PATH\t\t: Path to the output directory (default: current directory).");
+                System.err.println("  -i PATH\t\t: Path to the NGS input file (FASTA, FASTQ or SFF format) [REQUIRED].");
+                System.err.println("  -ir PATH\t\t: Path to the second paired end file (FASTQ) [ONLY REQUIRED if first file is also fastq].");
+                System.err.println("  -g PATH\t\t: Path to the reference genomes file (FASTA format) [REQUIRED].");
+                System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944).");
+                System.err.println("  -k INT\t\t: Kmer size (default 10).");
+                System.err.println("  -v INT\t\t: Kmer offset (default 2).");
                 System.err.println("  -cut INT\t\t: Cut given number of bases (primer)at 5' and 3' (default 0).");
                 System.err.println("  -refine INT\t\t: Computes a consensus sequence from alignment and re-aligns against that.");
                 System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
@@ -220,18 +223,21 @@ public class Start {
                 System.err.println("  -sensitive\t\t: More sensitive but slower alignment.");
                 System.err.println("  -fix\t\t\t: Fill frame-shift causing deletions with consensus sequence.");
                 System.err.println("  -noHashing\t\t: No fast kmer-matching to find approximate mapping region. Please use with PacBio data!");
+                System.err.println("  -realign DOUBLE\t\t: Read are aligned to the whole reference sequence,");
+                System.err.println("\t\t\t  if the relative mismatch rate is above the given threshold (default 0.1).");
                 System.err.println("");
                 System.err.println(" === FILTER ===");
-                System.err.println("  -l INT\t\t: Minimal read-length prior alignment (default 0)");
-                System.err.println("  -la INT\t\t: Minimal read-length after alignment (default 0)");
-                System.err.println("  -ins DOUBLE\t\t: The maximum percentage of insertions allowed [range 0.0 - 1.0] (default 1.0)");
-                System.err.println("  -del DOUBLE\t\t: The maximum percentage of deletions allowed [range 0.0 - 1.0] (default 1.0)");
-                System.err.println("  -sub DOUBLE\t\t: The maximum percentage of substitutions allowed [range 0.0 - 1.0] (default 1.0)");
-                System.err.println("  -maxDel INT\t\t: The maximum number of consecutive deletions allowed (default no filtering)");
+                System.err.println("  -l INT\t\t: Minimal read-length prior alignment (default 0).");
+                System.err.println("  -la INT\t\t: Minimal read-length after alignment (default 0).");
+                System.err.println("  -ins DOUBLE\t\t: The maximum percentage of insertions allowed [range 0.0 - 1.0] (default 1.0).");
+                System.err.println("  -del DOUBLE\t\t: The maximum percentage of deletions allowed [range 0.0 - 1.0] (default 1.0).");
+                System.err.println("  -sub DOUBLE\t\t: The maximum percentage of substitutions allowed [range 0.0 - 1.0] (default 0.5).");
+                System.err.println("  -maxDel INT\t\t: The maximum number of consecutive deletions allowed (default no filtering).");
+                System.err.println("  -q INT\t\t: Minimal average Phred score of the aligned read (default 20).");
                 System.err.println("");
                 System.err.println(" === GAP costs ===");
-                System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman (default 30)");
-                System.err.println("  -gex\t\t\t: Gap extension costs for Smith-Waterman (default 3)");
+                System.err.println("  -gop\t\t\t: Gap opening costs for Smith-Waterman (default 30).");
+                System.err.println("  -gex\t\t\t: Gap extension costs for Smith-Waterman (default 3).");
                 System.err.println("");
                 System.err.println(" === GAP costs predefined ===");
                 System.err.println("  -454\t\t\t: 10 open / 1 extend");
@@ -240,9 +246,9 @@ public class Start {
                 System.err.println("");
                 System.err.println(" ------------------------");
                 System.err.println(" === EXAMPLES ===");
-                System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.fastq -g referenceGenomes.fasta");
-                System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.ccs.fastq -g referenceGenomes.fasta");
-                System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta");
+                System.err.println("  454/Roche\t\t: java -jar InDelFixer.jar -i libCase102.fastq -g referenceGenomes.fasta -454");
+                System.err.println("  PacBio\t\t: java -jar InDelFixer.jar -i libCase102.ccs.fastq -g referenceGenomes.fasta -noHashing -pacbio");
+                System.err.println("  Illumina\t\t: java -jar InDelFixer.jar -i libCase102_R1.fastq -ir libCase102_R2.fastq -g referenceGenomes.fasta -illumina");
                 System.err.println(" ------------------------");
             }
         } catch (OutOfMemoryError e) {
@@ -360,6 +366,8 @@ public class Start {
         Globals.PLURALITY = this.plurality;
         Globals.PLURALITY_N = this.pluralityN;
         Globals.MIN_CONS_COV = this.mcc;
+        Globals.Q = this.q;
+        Globals.REALIGN = this.realign;
     }
 
     /**
