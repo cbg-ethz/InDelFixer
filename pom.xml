@@ -39,6 +39,10 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
+<!--                    <includes>
+                        <include>**/*</include>
+                        
+                    </includes>-->
                     <!--                    <excludes>
                         <exclude>**/haplotypes/*</exclude>
                     </excludes>-->
@@ -81,7 +85,7 @@
             </plugin>
         </plugins>
     </build>
-
+    
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -98,11 +102,6 @@
             <groupId>args4j</groupId>
             <artifactId>args4j</artifactId>
             <version>2.0.16</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge</groupId>
-            <artifactId>jaligner</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

@@ -215,7 +215,7 @@ public class Start {
                 System.err.println("  -r interval\t\t: Region on the reference genome (i.e. 342-944).");
                 System.err.println("  -k INT\t\t: Kmer size (default 10).");
                 System.err.println("  -v INT\t\t: Kmer offset (default 2).");
-                System.err.println("  -cut INT\t\t: Cut given number of bases (primer)at 5' and 3' (default 0).");
+                System.err.println("  -cut INT\t\t: Cut given number of bases (primer) at 5' and 3' (default 0).");
                 System.err.println("  -refine INT\t\t: Computes a consensus sequence from alignment and re-aligns against that.");
                 System.err.println("\t\t\t  Refinement is repeated as many times as specified.");
                 System.err.println("  -mcc INT\t\t: Minimal coverage to replace a reference base in the consensus (default 1).");
@@ -223,7 +223,7 @@ public class Start {
                 System.err.println("  -sensitive\t\t: More sensitive but slower alignment.");
                 System.err.println("  -fix\t\t\t: Fill frame-shift causing deletions with consensus sequence.");
                 System.err.println("  -noHashing\t\t: No fast kmer-matching to find approximate mapping region. Please use with PacBio data!");
-                System.err.println("  -realign DOUBLE\t\t: Read are aligned to the whole reference sequence,");
+                System.err.println("  -realign DOUBLE\t: Reads are aligned to the whole reference sequence,");
                 System.err.println("\t\t\t  if the relative mismatch rate is above the given threshold (default 0.1).");
                 System.err.println("");
                 System.err.println(" === FILTER ===");
