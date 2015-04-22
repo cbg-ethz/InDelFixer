@@ -1,4 +1,7 @@
 # InDelFixer
+***
+<p align="center">Dr. Armin Töpfer, <a href="http://www.armintoepfer.com">armintoepfer.com</a></p>
+***
 A sensitive aligner for 454, Illumina and PacBio data, employing a full Smith-Waterman alignment against a reference.  
 
 This java command line application aligns Next-Generation Sequencing (NGS) and third-generation reads
@@ -101,10 +104,10 @@ Install [Maven 3](http://maven.apache.org/)
 ## CONTACT:
     Armin Töpfer
     armin.toepfer (at) gmail.com
-    http://www.bsse.ethz.ch/cbg/people/armintoepfer
+    http://www.armintoepfer.com
     
 ## Contributions
- [Armin Töpfer](http://www.bsse.ethz.ch/cbg/people/armintoepfer)  
+ [Armin Töpfer](http://www.armintoepfer.com)  
  [David Seifert](http://www.bsse.ethz.ch/cbg/people/dseifert)  
  [Alexander Artyomenko](http://alan.cs.gsu.edu/NGS/?q=content/alexander-artyomenko)
 
